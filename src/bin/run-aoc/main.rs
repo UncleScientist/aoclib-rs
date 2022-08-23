@@ -14,19 +14,14 @@ fn main() {
 pub fn run_solution<T: Runner>(solution: &mut T) {
     println!("---- {} ----", solution.name());
 
-    let v1 = solution.part1();
-    let mut p1 = v1.iter();
-    let first = p1.next().unwrap();
-    println!("Part 1: {first}");
-    while let Some(line) = p1.next() {
-        println!("       {line}");
-    }
+    print_solution(1, &solution.part1());
+    print_solution(2, &solution.part2());
+}
 
-    let v2 = solution.part2();
-    let mut p2 = v2.iter();
-    let first = p2.next().unwrap();
-    println!("Part 2: {first}");
-    while let Some(line) = p2.next() {
-        println!("       {line}");
+fn print_solution(which: usize, output: &[String]) {
+    let mut i = output.iter();
+    println!("Part {which}: {}", i.next().unwrap());
+    while let Some(line) = i.next() {
+        println!("        {line}");
     }
 }
