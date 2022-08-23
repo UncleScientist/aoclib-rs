@@ -3,6 +3,9 @@ use std::fs::read_to_string;
 use std::path::Path;
 use std::str::FromStr;
 
+mod point;
+pub use point::*;
+
 pub fn read_to_chars<T: AsRef<Path>>(pathname: T) -> Vec<char> {
     let data = read_to_string(pathname).expect("unable to open file");
     data.chars().collect()
@@ -33,5 +36,6 @@ pub fn read_lines<T: AsRef<Path>>(pathname: T) -> Vec<String> {
         .expect("unable to open file")
         .split('\n')
         .map(|s| s.to_string())
+        .filter(|s| !s.is_empty())
         .collect()
 }

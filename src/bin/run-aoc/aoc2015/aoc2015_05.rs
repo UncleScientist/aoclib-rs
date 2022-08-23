@@ -13,6 +13,7 @@ impl Aoc2015_05 {
         }
     }
 
+    #[cfg(test)]
     pub fn new_from_string(s: String) -> Self {
         Self { data: vec![s] }
     }
