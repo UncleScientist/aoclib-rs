@@ -27,3 +27,11 @@ where
 
     result
 }
+
+pub fn read_lines<T: AsRef<Path>>(pathname: T) -> Vec<String> {
+    read_to_string(pathname)
+        .expect("unable to open file")
+        .split('\n')
+        .map(|s| s.to_string())
+        .collect()
+}
