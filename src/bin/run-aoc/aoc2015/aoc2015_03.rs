@@ -14,7 +14,11 @@ impl Runner for Aoc2015_03 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        vec!["unsolved".to_string()]
+        vec![
+            "unsolved".to_string(),
+            "multi".to_string(),
+            "line".to_string(),
+        ]
     }
     fn part2(&mut self) -> Vec<String> {
         vec!["unsolved".to_string()]
