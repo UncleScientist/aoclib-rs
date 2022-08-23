@@ -31,7 +31,7 @@ impl Aoc2015_02 {
         let mut prez = Vec::new();
         for d in &mut data {
             d.sort();
-            prez.push(Present::new(&d));
+            prez.push(Present::new(d));
         }
 
         Self { prez }

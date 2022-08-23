@@ -22,7 +22,7 @@ pub fn run_solution<T: Runner>(solution: &mut T) {
 fn print_solution(which: usize, output: &[String]) {
     let mut i = output.iter();
     println!("Part {which}: {}", i.next().unwrap());
-    while let Some(line) = i.next() {
+    for line in i {
         println!("        {line}");
     }
 }
