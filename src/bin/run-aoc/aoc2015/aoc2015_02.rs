@@ -39,8 +39,8 @@ impl Aoc2015_02 {
 }
 
 impl Runner for Aoc2015_02 {
-    fn name(&self) -> String {
-        "2015 Day 2".to_string()
+    fn name(&self) -> (usize, usize) {
+        (2015, 2)
     }
 
     fn part1(&mut self) -> Vec<String> {

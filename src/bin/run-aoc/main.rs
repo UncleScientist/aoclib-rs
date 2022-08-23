@@ -4,7 +4,7 @@ use aoc2015::*;
 pub trait Runner {
     fn part1(&mut self) -> Vec<String>;
     fn part2(&mut self) -> Vec<String>;
-    fn name(&self) -> String;
+    fn name(&self) -> (usize, usize);
 }
 
 fn main() {
@@ -12,7 +12,8 @@ fn main() {
 }
 
 pub fn run_solution<T: Runner>(solution: &mut T) {
-    println!("---- {} ----", solution.name());
+    let name = solution.name();
+    println!("---- {}, Day {} ----", name.0, name.1);
 
     print_solution(1, &solution.part1());
     print_solution(2, &solution.part2());
