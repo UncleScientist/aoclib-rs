@@ -1,5 +1,5 @@
 use crate::Runner;
-use aoclib_rs::numbers;
+use aoclib::numbers;
 
 pub struct Present([u32; 3]);
 

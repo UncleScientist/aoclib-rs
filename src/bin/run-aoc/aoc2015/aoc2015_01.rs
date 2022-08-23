@@ -1,4 +1,4 @@
-use aoclib_rs::read_to_chars;
+use aoclib::read_to_chars;
 
 pub struct Aoc2015_01 {
     data: Vec<char>,

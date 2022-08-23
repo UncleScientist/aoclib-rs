@@ -1,4 +1,4 @@
-use aoclib_rs::read_to_chars;
+use aoclib::read_to_chars;
 use std::collections::HashSet;
 
 use crate::Runner;
