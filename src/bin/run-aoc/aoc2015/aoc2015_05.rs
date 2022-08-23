@@ -48,8 +48,8 @@ impl Runner for Aoc2015_05 {
                 continue;
             }
 
-            for bad in vec!["ab", "cd", "pq", "xy"] {
-                if d.find(bad).is_some() {
+            for bad in ["ab", "cd", "pq", "xy"] {
+                if d.contains(bad) {
                     continue 'outer;
                 }
             }
