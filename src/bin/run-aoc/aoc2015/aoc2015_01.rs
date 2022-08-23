@@ -13,8 +13,8 @@ impl Aoc2015_01 {
 }
 
 impl crate::Runner for Aoc2015_01 {
-    fn name(&self) -> String {
-        "2015 Day 1".to_string()
+    fn name(&self) -> (usize, usize) {
+        (2015, 1)
     }
 
     fn part1(&mut self) -> Vec<String> {
