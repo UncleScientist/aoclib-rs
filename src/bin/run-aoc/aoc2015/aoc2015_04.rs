@@ -1,22 +1,39 @@
 use crate::Runner;
 
+#[derive(PartialEq)]
+enum Part {
+    CheckPart1,
+    CheckPart2,
+}
+
 pub struct Aoc2015_04 {
     lowest: usize,
 }
 
 impl Aoc2015_04 {
     pub fn new() -> Self {
-        Self { lowest: 1 }
+        Self { lowest: 0 }
     }
 
-    fn find_prefix(&mut self, prefix: &str) -> Vec<String> {
+    fn find_prefix(&mut self, check: Part) -> Vec<String> {
         loop {
-            let digest = md5::compute(format!("{PREFIX}{}", self.lowest));
-            let string_digest = format!("{digest:x}");
-            if string_digest.starts_with(prefix) {
-                return vec![format!("{}", self.lowest)];
-            }
             self.lowest += 1;
+            let digest = md5::compute(format!("{PREFIX}{}", self.lowest));
+
+            // 00_00_0abc...
+            if digest[0] != 0 || digest[1] != 0 {
+                continue;
+            }
+
+            if check == Part::CheckPart1 && (digest[2] & 0xf0) != 0 {
+                continue;
+            }
+
+            if check == Part::CheckPart2 && digest[2] != 0 {
+                continue;
+            }
+
+            return vec![format!("{}", self.lowest)];
         }
     }
 }
@@ -29,10 +46,10 @@ impl Runner for Aoc2015_04 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        self.find_prefix("00000")
+        self.find_prefix(Part::CheckPart1)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        self.find_prefix("000000")
+        self.find_prefix(Part::CheckPart2)
     }
 }
