@@ -3,6 +3,11 @@ use std::time::{Duration, Instant};
 mod aoc2015;
 use aoc2015::*;
 
+pub enum Selector {
+    All,
+    One(usize),
+}
+
 pub trait Runner {
     fn part1(&mut self) -> Vec<String>;
     fn part2(&mut self) -> Vec<String>;
@@ -10,10 +15,16 @@ pub trait Runner {
 }
 
 fn main() {
-    run_2015();
+    let args = std::env::args().collect::<Vec<String>>();
+    if !args.is_empty() {
+        let day = args[1].parse::<usize>().unwrap();
+        run_2015(Selector::One(day));
+    } else {
+        run_2015(Selector::All);
+    }
 }
 
-pub fn run_solution<T: Runner>(solution: &mut T) {
+pub fn run_solution<T: Runner + ?Sized>(solution: &mut T) {
     let name = solution.name();
     println!("---- {}, Day {} ----", name.0, name.1);
 
