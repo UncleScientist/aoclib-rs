@@ -16,7 +16,7 @@ pub trait Runner {
 
 fn main() {
     let args = std::env::args().collect::<Vec<String>>();
-    if !args.is_empty() {
+    if args.len() > 1 {
         let day = args[1].parse::<usize>().unwrap();
         run_2015(Selector::One(day));
     } else {
