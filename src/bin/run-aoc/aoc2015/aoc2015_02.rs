@@ -44,19 +44,15 @@ impl Runner for Aoc2015_02 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        vec![format!(
-            "{}",
+        crate::output(
             self.prez
                 .iter()
                 .map(|p| p.surface_area() + p.slack())
-                .sum::<u32>()
-        )]
+                .sum::<u32>(),
+        )
     }
 
     fn part2(&mut self) -> Vec<String> {
-        vec![format!(
-            "{}",
-            self.prez.iter().map(|p| p.ribbon()).sum::<u32>()
-        )]
+        crate::output(self.prez.iter().map(|p| p.ribbon()).sum::<u32>())
     }
 }

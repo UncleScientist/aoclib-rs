@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::time::{Duration, Instant};
 
 mod aoc2015;
@@ -13,6 +14,10 @@ pub trait Runner {
     fn part1(&mut self) -> Vec<String>;
     fn part2(&mut self) -> Vec<String>;
     fn name(&self) -> (usize, usize);
+}
+
+pub fn output<T: Display>(output: T) -> Vec<String> {
+    vec![format!("{}", output)]
 }
 
 fn main() {

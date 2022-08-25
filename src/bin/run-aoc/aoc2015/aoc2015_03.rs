@@ -35,7 +35,7 @@ impl Runner for Aoc2015_03 {
             }
         }
         grid.insert((x, y));
-        vec![format!("{}", grid.len())]
+        crate::output(grid.len())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -55,6 +55,6 @@ impl Runner for Aoc2015_03 {
             which = 1 - which;
         }
         grid.insert((x[which], y[which]));
-        vec![format!("{}", grid.len())]
+        crate::output(grid.len())
     }
 }
