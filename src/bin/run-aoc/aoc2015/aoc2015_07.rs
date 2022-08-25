@@ -45,6 +45,7 @@ enum Command {
 pub struct Aoc2015_07 {
     commands: HashMap<String, Command>,
     wire: RefCell<HashMap<String, u16>>,
+    part_1_answer: u16,
 }
 
 impl Aoc2015_07 {
@@ -52,6 +53,16 @@ impl Aoc2015_07 {
         Self {
             commands: Aoc2015_07::load(&read_lines("input/2015-07.txt")),
             wire: RefCell::new(HashMap::new()),
+            part_1_answer: 0,
+        }
+    }
+
+    #[cfg(test)]
+    fn new_for_test(commands: HashMap<String, Command>) -> Self {
+        Self {
+            commands,
+            wire: RefCell::new(HashMap::new()),
+            part_1_answer: 0,
         }
     }
 
@@ -135,6 +146,11 @@ impl Aoc2015_07 {
 
         value
     }
+
+    fn set_b(&self, val: u16) {
+        self.wire.borrow_mut().clear();
+        self.wire.borrow_mut().insert("b".to_string().into(), val);
+    }
 }
 
 impl Runner for Aoc2015_07 {
@@ -143,11 +159,13 @@ impl Runner for Aoc2015_07 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        vec![format!("{}", self.get_value(&"a".to_string().into()))]
+        self.part_1_answer = self.get_value(&"a".to_string().into());
+        vec![format!("{}", self.part_1_answer)]
     }
 
     fn part2(&mut self) -> Vec<String> {
-        vec!["unsolved".to_string()]
+        self.set_b(self.part_1_answer);
+        vec![format!("{}", self.get_value(&"a".to_string().into()))]
     }
 }
 
@@ -227,10 +245,7 @@ mod tests {
     #[test]
     fn can_run_number() {
         let commands = Aoc2015_07::load(&vec!["123 -> x".to_string()]);
-        let aoc = Aoc2015_07 {
-            commands,
-            wire: RefCell::new(HashMap::new()),
-        };
+        let aoc = Aoc2015_07::new_for_test(commands);
         assert_eq!(aoc.get_value(&"x".to_string().into()), 123);
     }
 
@@ -241,20 +256,14 @@ mod tests {
             "13 -> y".to_string(),
             "x AND y -> z".to_string(),
         ]);
-        let aoc = Aoc2015_07 {
-            commands,
-            wire: RefCell::new(HashMap::new()),
-        };
+        let aoc = Aoc2015_07::new_for_test(commands);
         assert_eq!(aoc.get_value(&"z".to_string().into()), 12);
     }
 
     #[test]
     fn can_and_a_number() {
         let commands = Aoc2015_07::load(&vec!["12 -> y".to_string(), "13 AND y -> z".to_string()]);
-        let aoc = Aoc2015_07 {
-            commands,
-            wire: RefCell::new(HashMap::new()),
-        };
+        let aoc = Aoc2015_07::new_for_test(commands);
         assert_eq!(aoc.get_value(&"z".to_string().into()), 12);
     }
 
@@ -265,10 +274,7 @@ mod tests {
             "13 -> y".to_string(),
             "x OR y -> z".to_string(),
         ]);
-        let aoc = Aoc2015_07 {
-            commands,
-            wire: RefCell::new(HashMap::new()),
-        };
+        let aoc = Aoc2015_07::new_for_test(commands);
         assert_eq!(aoc.get_value(&"z".to_string().into()), 13);
     }
 
@@ -276,10 +282,7 @@ mod tests {
     fn can_run_lshift() {
         let commands =
             Aoc2015_07::load(&vec!["12 -> x".to_string(), "x LSHIFT 1 -> z".to_string()]);
-        let aoc = Aoc2015_07 {
-            commands,
-            wire: RefCell::new(HashMap::new()),
-        };
+        let aoc = Aoc2015_07::new_for_test(commands);
         assert_eq!(aoc.get_value(&"z".to_string().into()), 24);
     }
 
@@ -287,20 +290,14 @@ mod tests {
     fn can_run_rshift() {
         let commands =
             Aoc2015_07::load(&vec!["12 -> x".to_string(), "x RSHIFT 1 -> z".to_string()]);
-        let aoc = Aoc2015_07 {
-            commands,
-            wire: RefCell::new(HashMap::new()),
-        };
+        let aoc = Aoc2015_07::new_for_test(commands);
         assert_eq!(aoc.get_value(&"z".to_string().into()), 6);
     }
 
     #[test]
     fn can_run_not() {
         let commands = Aoc2015_07::load(&vec!["12 -> x".to_string(), "NOT x -> z".to_string()]);
-        let aoc = Aoc2015_07 {
-            commands,
-            wire: RefCell::new(HashMap::new()),
-        };
+        let aoc = Aoc2015_07::new_for_test(commands);
         assert_eq!(
             aoc.get_value(&"z".to_string().into()),
             0b1111_1111_1111_0011
@@ -310,10 +307,7 @@ mod tests {
     #[test]
     fn can_run_assignment() {
         let commands = Aoc2015_07::load(&vec!["12 -> x".to_string(), "x -> z".to_string()]);
-        let aoc = Aoc2015_07 {
-            commands,
-            wire: RefCell::new(HashMap::new()),
-        };
+        let aoc = Aoc2015_07::new_for_test(commands);
         assert_eq!(aoc.get_value(&"z".to_string().into()), 12);
     }
 }
