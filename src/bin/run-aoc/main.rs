@@ -6,6 +6,7 @@ use aoc2015::*;
 pub enum Selector {
     All,
     One(usize),
+    Last,
 }
 
 pub trait Runner {
@@ -17,10 +18,13 @@ pub trait Runner {
 fn main() {
     let args = std::env::args().collect::<Vec<String>>();
     if args.len() > 1 {
-        let day = args[1].parse::<usize>().unwrap();
-        run_2015(Selector::One(day));
+        if let Ok(day) = args[1].parse::<usize>() {
+            run_2015(Selector::One(day));
+        } else {
+            run_2015(Selector::All);
+        }
     } else {
-        run_2015(Selector::All);
+        run_2015(Selector::Last);
     }
 }
 
