@@ -57,7 +57,7 @@ impl Runner for Aoc2015_08 {
             total += t;
             escaped += e;
         }
-        vec![format!("{}", total - escaped)]
+        crate::output(total - escaped)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -68,7 +68,7 @@ impl Runner for Aoc2015_08 {
             total += t;
             encoded += e;
         }
-        vec![format!("{}", encoded - total)]
+        crate::output(encoded - total)
     }
 }
 

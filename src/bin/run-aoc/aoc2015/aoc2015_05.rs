@@ -57,7 +57,7 @@ impl Runner for Aoc2015_05 {
             nice += 1;
         }
 
-        vec![format!("{nice}")]
+        crate::output(nice)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -92,7 +92,7 @@ impl Runner for Aoc2015_05 {
             }
         }
 
-        vec![format!("{nice}")]
+        crate::output(nice)
     }
 }
 

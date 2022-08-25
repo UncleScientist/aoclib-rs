@@ -33,7 +33,7 @@ impl Aoc2015_04 {
                 continue;
             }
 
-            return vec![format!("{}", self.lowest)];
+            return crate::output(self.lowest);
         }
     }
 }

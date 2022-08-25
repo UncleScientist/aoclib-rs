@@ -18,8 +18,7 @@ impl crate::Runner for Aoc2015_01 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        vec![format!(
-            "{}",
+        crate::output(
             self.data
                 .iter()
                 .map(|x| match x {
@@ -27,8 +26,8 @@ impl crate::Runner for Aoc2015_01 {
                     ')' => -1,
                     _ => panic!("invalid char in input"),
                 })
-                .sum::<i32>()
-        )]
+                .sum::<i32>(),
+        )
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -41,7 +40,7 @@ impl crate::Runner for Aoc2015_01 {
             };
             cur_floor += step;
             if cur_floor < 0 {
-                return vec![format!("{}", pos + 1)];
+                return crate::output(pos + 1);
             }
         }
 

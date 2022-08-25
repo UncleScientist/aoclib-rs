@@ -160,12 +160,12 @@ impl Runner for Aoc2015_07 {
 
     fn part1(&mut self) -> Vec<String> {
         self.part_1_answer = self.get_value(&"a".to_string().into());
-        vec![format!("{}", self.part_1_answer)]
+        crate::output(self.part_1_answer)
     }
 
     fn part2(&mut self) -> Vec<String> {
         self.set_b(self.part_1_answer);
-        vec![format!("{}", self.get_value(&"a".to_string().into()))]
+        crate::output(self.get_value(&"a".to_string().into()))
     }
 }
 
