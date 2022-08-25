@@ -30,6 +30,11 @@ pub fn run_2015(which: Selector) {
     ];
 
     match which {
+        Selector::Last => {
+            let last = days.len() - 1;
+            let d = &mut days[last];
+            crate::run_solution(*d);
+        }
         Selector::All => {
             for d in days {
                 crate::run_solution(d);
