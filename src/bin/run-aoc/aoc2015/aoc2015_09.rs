@@ -1,4 +1,4 @@
-use aoclib::{read_lines, PermutationIterator};
+use aoclib::{read_lines, Permutations};
 use std::collections::{HashMap, HashSet};
 
 use crate::Runner;
@@ -40,6 +40,13 @@ impl Runner for Aoc2015_09 {
     }
 
     fn part1(&mut self) -> Vec<String> {
+        let city_list = self
+            .cities
+            .iter()
+            .map(|x| x.to_string())
+            .collect::<Vec<String>>();
+
+        /*
         let iter = PermutationIterator::new(
             &self
                 .cities
@@ -48,11 +55,13 @@ impl Runner for Aoc2015_09 {
                 .collect::<Vec<String>>(),
         );
 
-        let mut shortest = u64::MAX;
         for p in iter {
-            // permutations.list.iter() {
+            */
+
+        let mut shortest = u64::MAX;
+        for city in city_list.permutations() {
             let mut total = 0;
-            for pair in p.windows(2) {
+            for pair in city.windows(2) {
                 total += self.dist.get(&(pair[0].clone(), pair[1].clone())).unwrap();
             }
 

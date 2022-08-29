@@ -1,3 +1,13 @@
+pub trait Permutations<T> {
+    fn permutations(&self) -> PermutationIterator<T>;
+}
+
+impl<T: Clone> Permutations<T> for Vec<T> {
+    fn permutations(&self) -> PermutationIterator<T> {
+        PermutationIterator::new(&self)
+    }
+}
+
 pub struct PermutationIterator<T> {
     i: usize,
     c: Vec<usize>,
