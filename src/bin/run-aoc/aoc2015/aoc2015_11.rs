@@ -1,10 +1,14 @@
 use crate::Runner;
 
-pub struct Aoc2015_11;
+pub struct Aoc2015_11 {
+    part_1: String,
+}
 
 impl Aoc2015_11 {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            part_1: String::from(""),
+        }
     }
 }
 
@@ -19,11 +23,17 @@ impl Runner for Aoc2015_11 {
             passwd = incr(&passwd);
         }
 
+        self.part_1 = String::from(&passwd);
+
         crate::output(passwd)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        vec!["unsolved".to_string()]
+        let mut passwd = incr(&self.part_1);
+        while !valid(&passwd) {
+            passwd = incr(&passwd);
+        }
+        crate::output(passwd)
     }
 }
 
