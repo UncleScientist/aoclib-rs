@@ -6,6 +6,7 @@ use crate::Runner;
 pub struct Aoc2015_09 {
     dist: HashMap<(String, String), u64>,
     cities: HashSet<String>,
+    longest: u64,
 }
 
 impl Aoc2015_09 {
@@ -25,7 +26,11 @@ impl Aoc2015_09 {
             cities.insert(to.to_string());
         }
 
-        Self { dist, cities }
+        Self {
+            dist,
+            cities,
+            longest: 0,
+        }
     }
 }
 
@@ -74,12 +79,13 @@ impl Runner for Aoc2015_09 {
             }
 
             shortest = shortest.min(total);
+            self.longest = self.longest.max(total);
         }
 
         crate::output(format!("{shortest}"))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        vec!["unsolved".to_string()]
+        crate::output(self.longest)
     }
 }
