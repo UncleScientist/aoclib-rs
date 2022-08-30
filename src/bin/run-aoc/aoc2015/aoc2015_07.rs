@@ -109,32 +109,22 @@ impl Aoc2015_07 {
             Command::Num(num) => *num,
             Command::Var(name) => self.get_value(&name.into()),
             Command::And(left, right) => {
-                let left = left.clone();
-                let right = right.clone();
-
-                let left = self.get_value(&left);
-                let right = self.get_value(&right);
+                let left = self.get_value(left);
+                let right = self.get_value(right);
                 left & right
             }
             Command::Or(left, right) => {
-                let left = left.clone();
-                let right = right.clone();
-
-                let left = self.get_value(&left);
-                let right = self.get_value(&right);
+                let left = self.get_value(left);
+                let right = self.get_value(right);
                 left | right
             }
             Command::Lshift(left, amt) => {
-                let left = left.clone();
-                let amt = *amt;
                 let left = self.get_value(&left.into());
-                left << amt
+                left << *amt
             }
             Command::Rshift(right, amt) => {
-                let right = right.clone();
-                let amt = *amt;
                 let right = self.get_value(&right.into());
-                right >> amt
+                right >> *amt
             }
             Command::Not(name) => {
                 let value = self.get_value(&name.into());
@@ -149,7 +139,7 @@ impl Aoc2015_07 {
 
     fn set_b(&self, val: u16) {
         self.wire.borrow_mut().clear();
-        self.wire.borrow_mut().insert("b".to_string().into(), val);
+        self.wire.borrow_mut().insert("b".to_string(), val);
     }
 }
 
@@ -179,13 +169,13 @@ mod tests {
 
     #[test]
     fn can_parse_number() {
-        let commands = Aoc2015_07::load(&vec!["123 -> x".to_string()]);
+        let commands = Aoc2015_07::load(&["123 -> x".to_string()]);
         assert_eq!(commands.get(&"x".to_string()).unwrap(), &Command::Num(123));
     }
 
     #[test]
     fn can_parse_and() {
-        let commands = Aoc2015_07::load(&vec!["x AND y -> z".to_string()]);
+        let commands = Aoc2015_07::load(&["x AND y -> z".to_string()]);
         assert_eq!(
             commands.get(&"z".to_string()).unwrap(),
             &Command::And("x".to_string().into(), "y".to_string().into())
@@ -194,7 +184,7 @@ mod tests {
 
     #[test]
     fn can_parse_numeric_and() {
-        let commands = Aoc2015_07::load(&vec!["12 AND y -> z".to_string()]);
+        let commands = Aoc2015_07::load(&["12 AND y -> z".to_string()]);
         assert_eq!(
             commands.get(&"z".to_string()).unwrap(),
             &Command::And("12".to_string().into(), "y".to_string().into())
@@ -203,43 +193,43 @@ mod tests {
 
     #[test]
     fn can_parse_lshift() {
-        let commands = Aoc2015_07::load(&vec!["p LSHIFT 2 -> q".to_string()]);
+        let commands = Aoc2015_07::load(&["p LSHIFT 2 -> q".to_string()]);
         assert_eq!(
             commands.get(&"q".to_string()).unwrap(),
-            &Command::Lshift("p".to_string().into(), 2),
+            &Command::Lshift("p".to_string(), 2),
         );
     }
 
     #[test]
     fn can_parse_rshift() {
-        let commands = Aoc2015_07::load(&vec!["p RSHIFT 2 -> q".to_string()]);
+        let commands = Aoc2015_07::load(&["p RSHIFT 2 -> q".to_string()]);
         assert_eq!(
             commands.get(&"q".to_string()).unwrap(),
-            &Command::Rshift("p".to_string().into(), 2),
+            &Command::Rshift("p".to_string(), 2),
         );
     }
 
     #[test]
     fn can_parse_not() {
-        let commands = Aoc2015_07::load(&vec!["NOT e -> f".to_string()]);
+        let commands = Aoc2015_07::load(&["NOT e -> f".to_string()]);
         assert_eq!(
             commands.get(&"f".to_string()).unwrap(),
-            &Command::Not("e".to_string().into()),
+            &Command::Not("e".to_string()),
         );
     }
 
     #[test]
     fn can_parse_assignment() {
-        let commands = Aoc2015_07::load(&vec!["e -> f".to_string()]);
+        let commands = Aoc2015_07::load(&["e -> f".to_string()]);
         assert_eq!(
             commands.get(&"f".to_string()).unwrap(),
-            &Command::Var("e".to_string().into()),
+            &Command::Var("e".to_string()),
         );
     }
 
     #[test]
     fn can_parse_or() {
-        let commands = Aoc2015_07::load(&vec!["x OR y -> z".to_string()]);
+        let commands = Aoc2015_07::load(&["x OR y -> z".to_string()]);
         assert_eq!(
             commands.get(&"z".to_string()).unwrap(),
             &Command::Or("x".to_string().into(), "y".to_string().into())
@@ -248,14 +238,14 @@ mod tests {
 
     #[test]
     fn can_run_number() {
-        let commands = Aoc2015_07::load(&vec!["123 -> x".to_string()]);
+        let commands = Aoc2015_07::load(&["123 -> x".to_string()]);
         let aoc = Aoc2015_07::new_for_test(commands);
         assert_eq!(aoc.get_value(&"x".to_string().into()), 123);
     }
 
     #[test]
     fn can_run_and() {
-        let commands = Aoc2015_07::load(&vec![
+        let commands = Aoc2015_07::load(&[
             "12 -> x".to_string(),
             "13 -> y".to_string(),
             "x AND y -> z".to_string(),
@@ -266,14 +256,14 @@ mod tests {
 
     #[test]
     fn can_and_a_number() {
-        let commands = Aoc2015_07::load(&vec!["12 -> y".to_string(), "13 AND y -> z".to_string()]);
+        let commands = Aoc2015_07::load(&["12 -> y".to_string(), "13 AND y -> z".to_string()]);
         let aoc = Aoc2015_07::new_for_test(commands);
         assert_eq!(aoc.get_value(&"z".to_string().into()), 12);
     }
 
     #[test]
     fn can_run_or() {
-        let commands = Aoc2015_07::load(&vec![
+        let commands = Aoc2015_07::load(&[
             "12 -> x".to_string(),
             "13 -> y".to_string(),
             "x OR y -> z".to_string(),
@@ -284,23 +274,21 @@ mod tests {
 
     #[test]
     fn can_run_lshift() {
-        let commands =
-            Aoc2015_07::load(&vec!["12 -> x".to_string(), "x LSHIFT 1 -> z".to_string()]);
+        let commands = Aoc2015_07::load(&["12 -> x".to_string(), "x LSHIFT 1 -> z".to_string()]);
         let aoc = Aoc2015_07::new_for_test(commands);
         assert_eq!(aoc.get_value(&"z".to_string().into()), 24);
     }
 
     #[test]
     fn can_run_rshift() {
-        let commands =
-            Aoc2015_07::load(&vec!["12 -> x".to_string(), "x RSHIFT 1 -> z".to_string()]);
+        let commands = Aoc2015_07::load(&["12 -> x".to_string(), "x RSHIFT 1 -> z".to_string()]);
         let aoc = Aoc2015_07::new_for_test(commands);
         assert_eq!(aoc.get_value(&"z".to_string().into()), 6);
     }
 
     #[test]
     fn can_run_not() {
-        let commands = Aoc2015_07::load(&vec!["12 -> x".to_string(), "NOT x -> z".to_string()]);
+        let commands = Aoc2015_07::load(&["12 -> x".to_string(), "NOT x -> z".to_string()]);
         let aoc = Aoc2015_07::new_for_test(commands);
         assert_eq!(
             aoc.get_value(&"z".to_string().into()),
@@ -310,7 +298,7 @@ mod tests {
 
     #[test]
     fn can_run_assignment() {
-        let commands = Aoc2015_07::load(&vec!["12 -> x".to_string(), "x -> z".to_string()]);
+        let commands = Aoc2015_07::load(&["12 -> x".to_string(), "x -> z".to_string()]);
         let aoc = Aoc2015_07::new_for_test(commands);
         assert_eq!(aoc.get_value(&"z".to_string().into()), 12);
     }
