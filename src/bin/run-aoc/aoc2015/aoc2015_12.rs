@@ -25,11 +25,11 @@ impl Runner for Aoc2015_12 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(sum_json(&self.value.as_ref().unwrap()))
+        crate::output(sum_json(self.value.as_ref().unwrap()))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(sum_redless(&self.value.as_ref().unwrap()).unwrap())
+        crate::output(sum_redless(self.value.as_ref().unwrap()).unwrap())
     }
 }
 
@@ -37,8 +37,8 @@ fn sum_json(v: &Value) -> i64 {
     match v {
         Value::Null | Value::Bool(_) | Value::String(_) => 0,
         Value::Number(n) => n.as_i64().unwrap(),
-        Value::Array(a) => a.iter().map(|entry| sum_json(entry)).sum(),
-        Value::Object(o) => o.values().map(|entry| sum_json(entry)).sum(),
+        Value::Array(a) => a.iter().map(sum_json).sum(),
+        Value::Object(o) => o.values().map(sum_json).sum(),
     }
 }
 
@@ -55,10 +55,8 @@ fn sum_redless(v: &Value) -> Option<i64> {
         Value::Number(n) => Some(n.as_i64().unwrap()),
         Value::Array(a) => Some(a.iter().map(|entry| sum_redless(entry).unwrap_or(0)).sum()),
         Value::Object(o) => {
-            let (somes, nones): (Vec<_>, Vec<_>) = o
-                .values()
-                .map(|entry| sum_redless(entry))
-                .partition(Option::is_some);
+            let (somes, nones): (Vec<_>, Vec<_>) =
+                o.values().map(sum_redless).partition(Option::is_some);
 
             if nones.is_empty() {
                 Some(somes.iter().map(|entry| entry.unwrap()).sum())

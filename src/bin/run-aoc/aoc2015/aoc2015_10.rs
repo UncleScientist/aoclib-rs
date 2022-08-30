@@ -36,7 +36,7 @@ impl Runner for Aoc2015_10 {
     }
 }
 
-fn one_round(input: &String) -> String {
+fn one_round(input: &str) -> String {
     let mut result = String::from("");
     let mut iter = input.chars().peekable();
 

@@ -4,7 +4,7 @@ pub trait Permutations<T> {
 
 impl<T: Clone> Permutations<T> for Vec<T> {
     fn permutations(&self) -> PermutationIterator<T> {
-        PermutationIterator::new(&self)
+        PermutationIterator::new(self)
     }
 }
 
