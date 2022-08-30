@@ -41,6 +41,8 @@ impl Aoc2015_04 {
 const PREFIX: &str = "ckczppom";
 
 impl Runner for Aoc2015_04 {
+    fn parse(&mut self) {}
+
     fn name(&self) -> (usize, usize) {
         (2015, 4)
     }

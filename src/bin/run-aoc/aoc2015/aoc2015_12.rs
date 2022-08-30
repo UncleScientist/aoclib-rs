@@ -3,29 +3,33 @@ use aoclib::read_lines;
 use serde_json::Value;
 
 pub struct Aoc2015_12 {
-    value: Value,
+    value: Option<Value>,
 }
 
 impl Aoc2015_12 {
     pub fn new() -> Self {
-        Self {
-            value: serde_json::from_str(&read_lines("input/2015-12.txt")[0])
-                .expect("corrupted input file"),
-        }
+        Self { value: None }
     }
 }
 
 impl Runner for Aoc2015_12 {
+    fn parse(&mut self) {
+        self.value = Some(
+            serde_json::from_str(&read_lines("input/2015-12.txt")[0])
+                .expect("corrupted input file"),
+        );
+    }
+
     fn name(&self) -> (usize, usize) {
         (2015, 12)
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(sum_json(&self.value))
+        crate::output(sum_json(&self.value.as_ref().unwrap()))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(sum_redless(&self.value).unwrap())
+        crate::output(sum_redless(&self.value.as_ref().unwrap()).unwrap())
     }
 }
 

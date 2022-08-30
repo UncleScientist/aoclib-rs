@@ -51,7 +51,7 @@ pub struct Aoc2015_07 {
 impl Aoc2015_07 {
     pub fn new() -> Self {
         Self {
-            commands: Aoc2015_07::load(&read_lines("input/2015-07.txt")),
+            commands: HashMap::new(),
             wire: RefCell::new(HashMap::new()),
             part_1_answer: 0,
         }
@@ -154,6 +154,10 @@ impl Aoc2015_07 {
 }
 
 impl Runner for Aoc2015_07 {
+    fn parse(&mut self) {
+        self.commands = Self::load(&read_lines("input/2015-07.txt"));
+    }
+
     fn name(&self) -> (usize, usize) {
         (2015, 7)
     }

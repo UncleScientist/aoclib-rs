@@ -11,30 +11,30 @@ pub struct Aoc2015_09 {
 
 impl Aoc2015_09 {
     pub fn new() -> Self {
-        let mut dist = HashMap::new();
-        let mut cities = HashSet::new();
-
-        for l in read_lines("input/2015-09.txt") {
-            let line = l.split(' ').collect::<Vec<&str>>();
-            let from = line[0];
-            let to = line[2];
-            let distance = line[4].parse::<u64>().unwrap();
-
-            dist.insert((from.to_string(), to.to_string()), distance);
-            dist.insert((to.to_string(), from.to_string()), distance);
-            cities.insert(from.to_string());
-            cities.insert(to.to_string());
-        }
-
         Self {
-            dist,
-            cities,
+            dist: HashMap::new(),
+            cities: HashSet::new(),
             longest: 0,
         }
     }
 }
 
 impl Runner for Aoc2015_09 {
+    fn parse(&mut self) {
+        for l in read_lines("input/2015-09.txt") {
+            let line = l.split(' ').collect::<Vec<&str>>();
+            let from = line[0];
+            let to = line[2];
+            let distance = line[4].parse::<u64>().unwrap();
+
+            self.dist
+                .insert((from.to_string(), to.to_string()), distance);
+            self.dist
+                .insert((to.to_string(), from.to_string()), distance);
+            self.cities.insert(from.to_string());
+            self.cities.insert(to.to_string());
+        }
+    }
     fn name(&self) -> (usize, usize) {
         (2015, 9)
     }
