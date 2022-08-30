@@ -13,6 +13,8 @@ impl Aoc2015_11 {
 }
 
 impl Runner for Aoc2015_11 {
+    fn parse(&mut self) {}
+
     fn name(&self) -> (usize, usize) {
         (2015, 11)
     }

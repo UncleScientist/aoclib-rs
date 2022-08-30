@@ -9,13 +9,14 @@ pub struct Aoc2015_03 {
 
 impl Aoc2015_03 {
     pub fn new() -> Self {
-        Self {
-            data: read_to_chars("input/2015-03.txt"),
-        }
+        Self { data: Vec::new() }
     }
 }
 
 impl Runner for Aoc2015_03 {
+    fn parse(&mut self) {
+        self.data = read_to_chars("input/2015-03.txt");
+    }
     fn name(&self) -> (usize, usize) {
         (2015, 3)
     }

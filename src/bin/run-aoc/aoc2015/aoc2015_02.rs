@@ -27,18 +27,19 @@ pub struct Aoc2015_02 {
 
 impl Aoc2015_02 {
     pub fn new() -> Self {
-        let mut data = numbers("input/2015-02.txt", 'x');
-        let mut prez = Vec::new();
-        for d in &mut data {
-            d.sort();
-            prez.push(Present::new(d));
-        }
-
-        Self { prez }
+        Self { prez: Vec::new() }
     }
 }
 
 impl Runner for Aoc2015_02 {
+    fn parse(&mut self) {
+        let mut data = numbers("input/2015-02.txt", 'x');
+        for d in &mut data {
+            d.sort();
+            self.prez.push(Present::new(d));
+        }
+    }
+
     fn name(&self) -> (usize, usize) {
         (2015, 2)
     }

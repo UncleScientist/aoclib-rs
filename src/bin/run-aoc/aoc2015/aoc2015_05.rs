@@ -8,9 +8,7 @@ pub struct Aoc2015_05 {
 
 impl Aoc2015_05 {
     pub fn new() -> Self {
-        Self {
-            data: read_lines("input/2015-05.txt"),
-        }
+        Self { data: Vec::new() }
     }
 
     #[cfg(test)]
@@ -20,6 +18,10 @@ impl Aoc2015_05 {
 }
 
 impl Runner for Aoc2015_05 {
+    fn parse(&mut self) {
+        self.data = read_lines("input/2015-05.txt");
+    }
+
     fn name(&self) -> (usize, usize) {
         (2015, 5)
     }

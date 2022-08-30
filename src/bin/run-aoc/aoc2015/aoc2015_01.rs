@@ -6,13 +6,15 @@ pub struct Aoc2015_01 {
 
 impl Aoc2015_01 {
     pub fn new() -> Self {
-        Self {
-            data: read_to_chars("input/2015-01.txt"),
-        }
+        Self { data: Vec::new() }
     }
 }
 
 impl crate::Runner for Aoc2015_01 {
+    fn parse(&mut self) {
+        self.data = read_to_chars("input/2015-01.txt");
+    }
+
     fn name(&self) -> (usize, usize) {
         (2015, 1)
     }

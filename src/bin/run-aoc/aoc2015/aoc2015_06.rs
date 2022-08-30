@@ -15,33 +15,35 @@ pub struct Aoc2015_06 {
 
 impl Aoc2015_06 {
     pub fn new() -> Self {
-        let mut commands = Vec::new();
+        Self {
+            commands: Vec::new(),
+        }
+    }
+}
+
+impl Runner for Aoc2015_06 {
+    fn parse(&mut self) {
         for line in read_lines("input/2015-06.txt") {
             let s = line.split(' ').collect::<Vec<&str>>();
             match s[1] {
                 "off" => {
                     let start = Point::parse(s[2]);
                     let end = Point::parse(s[4]);
-                    commands.push(Command::Off(start, end));
+                    self.commands.push(Command::Off(start, end));
                 }
                 "on" => {
                     let start = Point::parse(s[2]);
                     let end = Point::parse(s[4]);
-                    commands.push(Command::On(start, end));
+                    self.commands.push(Command::On(start, end));
                 }
                 _ => {
                     let start = Point::parse(s[1]);
                     let end = Point::parse(s[3]);
-                    commands.push(Command::Toggle(start, end));
+                    self.commands.push(Command::Toggle(start, end));
                 }
             }
         }
-
-        Self { commands }
     }
-}
-
-impl Runner for Aoc2015_06 {
     fn name(&self) -> (usize, usize) {
         (2015, 6)
     }
