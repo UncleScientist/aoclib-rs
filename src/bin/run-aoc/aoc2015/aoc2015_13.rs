@@ -41,6 +41,17 @@ impl Runner for Aoc2015_13 {
     }
 
     fn part1(&mut self) -> Vec<String> {
+        crate::output(self.find_happiest())
+    }
+
+    fn part2(&mut self) -> Vec<String> {
+        self.people.insert("You".to_string());
+        crate::output(self.find_happiest())
+    }
+}
+
+impl Aoc2015_13 {
+    fn find_happiest(&self) -> i64 {
         let mut all = self
             .people
             .iter()
@@ -54,15 +65,9 @@ impl Runner for Aoc2015_13 {
             entry.push(last_person.clone());
             max_happiness = self.happiness(entry).max(max_happiness);
         }
-        crate::output(max_happiness)
+        max_happiness
     }
 
-    fn part2(&mut self) -> Vec<String> {
-        vec!["unsolved".to_string()]
-    }
-}
-
-impl Aoc2015_13 {
     fn happiness(&self, v: Vec<String>) -> i64 {
         let mut result = 0;
         let wrap = v.len() - 1;
@@ -71,21 +76,21 @@ impl Aoc2015_13 {
         let last = (v[0].clone(), v[wrap].clone());
 
         // first
-        result += self.data.get(&first).unwrap() + self.data.get(&last).unwrap();
+        result += self.data.get(&first).unwrap_or(&0) + self.data.get(&last).unwrap_or(&0);
 
         // middle
         for entry in 1..wrap {
             let one = (v[entry].clone(), v[entry - 1].clone());
             let two = (v[entry].clone(), v[entry + 1].clone());
 
-            result += self.data.get(&one).unwrap() + self.data.get(&two).unwrap();
+            result += self.data.get(&one).unwrap_or(&0) + self.data.get(&two).unwrap_or(&0);
         }
 
         let first = (v[wrap].clone(), v[wrap - 1].clone());
         let last = (v[wrap].clone(), v[0].clone());
 
         // last
-        result += self.data.get(&first).unwrap() + self.data.get(&last).unwrap();
+        result += self.data.get(&first).unwrap_or(&0) + self.data.get(&last).unwrap_or(&0);
 
         result
     }
