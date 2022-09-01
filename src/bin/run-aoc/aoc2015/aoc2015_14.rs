@@ -55,7 +55,22 @@ impl Runner for Aoc2015_14 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut far: Vec<u32> = vec![0; self.deer.len()];
+
+        for sec in 1..=2503 {
+            let mut furthest = 0;
+            let mut max_dist = 0;
+            for (idx, d) in self.deer.iter().enumerate() {
+                let dist = d.distance(sec);
+                if dist > max_dist {
+                    max_dist = dist;
+                    furthest = idx;
+                }
+            }
+            far[furthest] += 1;
+        }
+
+        crate::output(far.iter().max().unwrap())
     }
 }
 
