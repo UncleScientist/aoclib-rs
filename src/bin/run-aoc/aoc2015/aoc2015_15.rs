@@ -5,11 +5,17 @@ use crate::Runner;
 // Butterscotch: capacity -1, durability 0,  flavor 5,  texture 0, calories 6
 // Sugar:        capacity 0,  durability 0,  flavor -2, texture 2, calories 1
 
-pub struct Aoc2015_15;
+pub struct Aoc2015_15 {
+    part_1: i32,
+    part_2: i32,
+}
 
 impl Aoc2015_15 {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            part_1: 0,
+            part_2: 0,
+        }
     }
 }
 
@@ -18,11 +24,7 @@ impl Runner for Aoc2015_15 {
         (2015, 15)
     }
 
-    fn parse(&mut self) {}
-
-    fn part1(&mut self) -> Vec<String> {
-        let mut best = 0;
-
+    fn parse(&mut self) {
         for frosting in 0..100 {
             for candy in 0..(100 - frosting) {
                 for butterscotch in 0..(100 - frosting - candy) {
@@ -37,15 +39,23 @@ impl Runner for Aoc2015_15 {
                     let flavor = (5 * butterscotch - candy - 2 * sugar).max(0);
                     let texture = (2 * sugar).max(0);
 
-                    best = best.max(capacity * durability * flavor * texture);
+                    let score = capacity * durability * flavor * texture;
+                    self.part_1 = self.part_1.max(score);
+
+                    let calories = 5 * frosting + 8 * candy + 6 * butterscotch + sugar;
+                    if calories == 500 {
+                        self.part_2 = self.part_2.max(score);
+                    }
                 }
             }
         }
+    }
 
-        crate::output(best)
+    fn part1(&mut self) -> Vec<String> {
+        crate::output(self.part_1)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(self.part_2)
     }
 }
