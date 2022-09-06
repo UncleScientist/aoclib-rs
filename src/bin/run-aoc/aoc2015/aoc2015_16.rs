@@ -2,24 +2,40 @@ use std::collections::HashMap;
 
 use crate::Runner;
 
+enum Compare {
+    LessThan(i32),
+    EqualTo(i32),
+    GreaterThan(i32),
+}
+
+impl Compare {
+    fn as_i32(&self) -> i32 {
+        match self {
+            Compare::LessThan(n) => *n,
+            Compare::GreaterThan(n) => *n,
+            Compare::EqualTo(n) => *n,
+        }
+    }
+}
+
 pub struct Aoc2015_16 {
-    mapping: HashMap<String, i32>,
+    mapping: HashMap<String, Compare>,
     sue: Vec<HashMap<String, i32>>,
 }
 
 impl Aoc2015_16 {
     pub fn new() -> Self {
         let mapping = HashMap::from([
-            ("children".to_string(), 3),
-            ("cats".to_string(), 7),
-            ("samoyeds".to_string(), 2),
-            ("pomeranians".to_string(), 3),
-            ("akitas".to_string(), 0),
-            ("vizslas".to_string(), 0),
-            ("goldfish".to_string(), 5),
-            ("trees".to_string(), 3),
-            ("cars".to_string(), 2),
-            ("perfumes".to_string(), 1),
+            ("children".to_string(), Compare::EqualTo(3)),
+            ("cats".to_string(), Compare::GreaterThan(7)),
+            ("samoyeds".to_string(), Compare::EqualTo(2)),
+            ("pomeranians".to_string(), Compare::LessThan(3)),
+            ("akitas".to_string(), Compare::EqualTo(0)),
+            ("vizslas".to_string(), Compare::EqualTo(0)),
+            ("goldfish".to_string(), Compare::LessThan(5)),
+            ("trees".to_string(), Compare::GreaterThan(3)),
+            ("cars".to_string(), Compare::EqualTo(2)),
+            ("perfumes".to_string(), Compare::EqualTo(1)),
         ]);
         Self {
             mapping,
@@ -54,7 +70,7 @@ impl Runner for Aoc2015_16 {
         'outer: for (which, sue) in self.sue.iter().enumerate() {
             for (key, val) in &self.mapping {
                 if let Some(n) = sue.get(key) {
-                    if *val != *n {
+                    if val.as_i32() != *n {
                         continue 'outer;
                     }
                 }
@@ -67,6 +83,33 @@ impl Runner for Aoc2015_16 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut found = 0;
+        'outer: for (which, sue) in self.sue.iter().enumerate() {
+            for (key, val) in &self.mapping {
+                if let Some(n) = sue.get(key) {
+                    match val {
+                        Compare::GreaterThan(val) => {
+                            if val >= n {
+                                continue 'outer;
+                            }
+                        }
+                        Compare::LessThan(val) => {
+                            if val <= n {
+                                continue 'outer;
+                            }
+                        }
+                        Compare::EqualTo(val) => {
+                            if val != n {
+                                continue 'outer;
+                            }
+                        }
+                    }
+                }
+            }
+
+            found = which + 1;
+            break;
+        }
+        crate::output(found)
     }
 }
