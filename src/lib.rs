@@ -9,6 +9,9 @@ pub use point::*;
 mod permute;
 pub use permute::*;
 
+mod combo;
+pub use combo::*;
+
 pub fn read_to_chars<T: AsRef<Path>>(pathname: T) -> Vec<char> {
     let data = read_to_string(pathname).expect("unable to open file");
     data.chars().collect()
