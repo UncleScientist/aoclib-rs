@@ -57,6 +57,13 @@ impl Aoc2015_18 {
         count
     }
 
+    fn corners(&mut self) {
+        self.grid.insert((0, 0));
+        self.grid.insert((0, self.cols - 1));
+        self.grid.insert((self.rows - 1, 0));
+        self.grid.insert((self.rows - 1, self.cols - 1));
+    }
+
     fn step(&mut self) {
         let mut next_state = HashSet::new();
 
@@ -115,18 +122,13 @@ impl Runner for Aoc2015_18 {
 
     fn part2(&mut self) -> Vec<String> {
         self.grid = self.initial_grid.clone();
-        self.grid.insert((0, 0));
-        self.grid.insert((0, self.cols - 1));
-        self.grid.insert((self.rows - 1, 0));
-        self.grid.insert((self.rows - 1, self.cols - 1));
 
         for _ in 0..100 {
+            self.corners();
             self.step();
-            self.grid.insert((0, 0));
-            self.grid.insert((0, self.cols - 1));
-            self.grid.insert((self.rows - 1, 0));
-            self.grid.insert((self.rows - 1, self.cols - 1));
         }
+
+        self.corners();
         crate::output(self.grid.len())
     }
 }
