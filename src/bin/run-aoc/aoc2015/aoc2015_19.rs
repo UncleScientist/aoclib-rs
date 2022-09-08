@@ -44,6 +44,25 @@ impl Runner for Aoc2015_19 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut molecule = self.molecule.clone();
+        let mut count = 0;
+
+        loop {
+            let mut done = true;
+            for (key, val) in &self.combos {
+                if let Some(pos) = molecule.find(key) {
+                    let (left, right) = molecule.split_at(pos);
+                    let right = right.to_string().split_off(key.len());
+                    molecule = format!("{left}{val}{right}");
+                    done = false;
+                    count += 1;
+                }
+            }
+            if done {
+                break;
+            }
+        }
+
+        crate::output(count)
     }
 }
