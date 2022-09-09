@@ -2,13 +2,11 @@ use crate::Runner;
 
 const TARGET: u64 = 34_000_000;
 
-pub struct Aoc2015_20 {
-    houses: Vec<u64>,
-}
+pub struct Aoc2015_20;
 
 impl Aoc2015_20 {
     pub fn new() -> Self {
-        Self { houses: Vec::new() }
+        Self {}
     }
 }
 
@@ -17,22 +15,22 @@ impl Runner for Aoc2015_20 {
         (2015, 20)
     }
 
-    fn parse(&mut self) {
+    fn parse(&mut self) {}
+
+    fn part1(&mut self) -> Vec<String> {
         let mut limit = 1_000_000;
-        self.houses.resize(limit, 0);
+        let mut houses = vec![0u64; limit];
+
         for elf in 1..limit {
             for visited in (elf..limit).step_by(elf) {
-                self.houses[visited] += elf as u64 * 10;
-                if self.houses[visited] >= TARGET && visited < limit {
+                houses[visited] += elf as u64 * 10;
+                if houses[visited] >= TARGET && visited < limit {
                     limit = visited;
                     break;
                 }
             }
         }
-    }
-
-    fn part1(&mut self) -> Vec<String> {
-        for (idx, house) in self.houses.iter().enumerate() {
+        for (idx, house) in houses.iter().enumerate() {
             if *house >= TARGET {
                 return crate::output(idx);
             }
@@ -41,6 +39,24 @@ impl Runner for Aoc2015_20 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut limit = 1_000_000;
+        let mut houses = vec![0u64; limit];
+
+        for elf in 1..limit {
+            let fifty = limit.min(elf * 50);
+            for visited in (elf..fifty).step_by(elf) {
+                houses[visited] += elf as u64 * 11;
+                if houses[visited] >= TARGET && visited < limit {
+                    limit = visited;
+                    break;
+                }
+            }
+        }
+        for (idx, house) in houses.iter().enumerate() {
+            if *house >= TARGET {
+                return crate::output(idx);
+            }
+        }
+        crate::output("can't find a good home")
     }
 }
