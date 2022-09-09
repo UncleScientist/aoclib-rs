@@ -20,6 +20,7 @@ impl Aoc2015_21 {
             Item::new("Greataxe", 74, 8, 0),
         ];
         let armor = vec![
+            Item::new("Nothing", 0, 0, 0),
             Item::new("Leather", 13, 0, 1),
             Item::new("Chainmail", 31, 0, 2),
             Item::new("Splitmail", 53, 0, 3),
@@ -92,7 +93,25 @@ impl Runner for Aoc2015_21 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut max_cost = 0;
+
+        for w in &self.weapons {
+            for a in &self.armor {
+                for r in &self.rings {
+                    let player = Person::new(
+                        100,
+                        w.damage + r[0].damage + r[1].damage,
+                        a.armor + r[0].armor + r[1].armor,
+                    );
+                    let boss = Person::new(self.boss_hp, self.boss_damage, self.boss_armor);
+                    if !player.would_win_against(&boss) {
+                        max_cost = max_cost.max(w.cost + a.cost + r[0].cost + r[1].cost);
+                    }
+                }
+            }
+        }
+
+        crate::output(max_cost)
     }
 }
 
