@@ -11,6 +11,7 @@ struct GameState {
     armor: i32,
     spent: i32,
     turn: i32,
+    difficulty: i32,
     effects: Vec<Spell>,
     gamelog: String,
 }
@@ -25,12 +26,14 @@ impl GameState {
             armor: 0,
             spent: 0,
             turn: 0,
+            difficulty: 0,
             effects: Vec::new(),
             gamelog: "".to_string(),
         }
     }
 
-    fn start_turn(&self) -> Self {
+    fn start_turn(&self) -> Option<Self> {
+        let mut player_hp = self.player_hp;
         let mut boss_hp = self.boss_hp;
         let mut mana = self.mana;
         let mut armor = 0;
@@ -41,9 +44,14 @@ impl GameState {
             "".to_string()
         };
 
+        player_hp -= self.difficulty;
+        if player_hp <= 0 {
+            return None;
+        }
+
         gamelog = format!("{gamelog}-- {} turn --\n- Player has {} hit points, {} armor, {} mana\n- Boss has {} hit points\n",
             if self.turn % 2 == 0 {"Player"} else {"Boss"},
-            self.player_hp, self.armor, self.mana, self.boss_hp);
+            player_hp, self.armor, self.mana, self.boss_hp);
 
         for effect in &self.effects {
             if effect.armor > 0 {
@@ -75,17 +83,18 @@ impl GameState {
             }
         }
 
-        Self {
-            player_hp: self.player_hp,
+        Some(Self {
+            player_hp,
             boss_hp,
             mana,
             damage: self.damage,
             armor,
             spent: self.spent,
             turn: self.turn + 1,
+            difficulty: self.difficulty,
             effects,
             gamelog,
-        }
+        })
     }
 
     fn cast(&self, spell: &Spell) -> Self {
@@ -105,6 +114,7 @@ impl GameState {
                 armor: self.armor,
                 spent: self.spent + spell.cost,
                 turn: self.turn,
+                difficulty: self.difficulty,
                 effects,
                 gamelog,
             }
@@ -117,6 +127,7 @@ impl GameState {
                 armor: self.armor,
                 spent: self.spent + spell.cost,
                 turn: self.turn,
+                difficulty: self.difficulty,
                 effects: self.effects.clone(),
                 gamelog,
             }
@@ -151,6 +162,7 @@ impl GameState {
             armor: self.armor,
             spent: self.spent,
             turn: self.turn,
+            difficulty: self.difficulty,
             effects: self.effects.clone(),
             gamelog,
         }
@@ -158,7 +170,8 @@ impl GameState {
 
     fn cheapest_win(&self, mut max: i32) -> Option<Self> {
         let mut best_so_far: Option<GameState> = None;
-        let turn = self.start_turn();
+
+        let turn = self.start_turn()?;
 
         if turn.player_hp <= 0 {
             return None;
@@ -232,14 +245,17 @@ impl Runner for Aoc2015_22 {
     fn parse(&mut self) {}
 
     fn part1(&mut self) -> Vec<String> {
-        let starting_state = GameState::new(50, 58, 500, 9);
         // let starting_state = GameState::new(10, 14, 250, 8);
+        let starting_state = GameState::new(50, 58, 500, 9);
         let win = starting_state.cheapest_win(i32::MAX).unwrap();
         crate::output(format!("{} mana spent in {} turns", win.spent, win.turn))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut starting_state = GameState::new(50, 58, 500, 9);
+        starting_state.difficulty = 1;
+        let win = starting_state.cheapest_win(i32::MAX).unwrap();
+        crate::output(format!("{} mana spent in {} turns", win.spent, win.turn))
     }
 }
 
@@ -319,7 +335,7 @@ mod test {
     #[test]
     fn can_start_a_turn_with_no_effects() {
         let state = GameState::new(10, 13, 250, 8);
-        let next_state = state.start_turn();
+        let next_state = state.start_turn().unwrap();
         assert_eq!(state.player_hp, next_state.player_hp);
         assert_eq!(state.boss_hp, next_state.boss_hp);
         assert_eq!(state.mana, next_state.mana);
@@ -330,7 +346,7 @@ mod test {
     fn can_start_a_turn_with_shield() {
         let mut state = GameState::new(10, 13, 250, 8);
         state.effects.push(SPELLS[2].clone());
-        let next_state = state.start_turn();
+        let next_state = state.start_turn().unwrap();
         assert_eq!(state.player_hp, next_state.player_hp);
         assert_eq!(state.boss_hp, next_state.boss_hp);
         assert_eq!(state.mana, next_state.mana);
@@ -344,7 +360,7 @@ mod test {
     fn can_start_a_turn_with_poison() {
         let mut state = GameState::new(10, 13, 250, 8);
         state.effects.push(SPELLS[3].clone());
-        let next_state = state.start_turn();
+        let next_state = state.start_turn().unwrap();
         assert_eq!(state.player_hp, next_state.player_hp);
         assert_eq!(state.boss_hp - 3, next_state.boss_hp);
         assert_eq!(state.mana, next_state.mana);
@@ -357,7 +373,7 @@ mod test {
     fn can_start_a_turn_with_recharge() {
         let mut state = GameState::new(10, 13, 250, 8);
         state.effects.push(SPELLS[4].clone());
-        let next_state = state.start_turn();
+        let next_state = state.start_turn().unwrap();
         assert_eq!(state.player_hp, next_state.player_hp);
         assert_eq!(state.boss_hp, next_state.boss_hp);
         assert_eq!(state.mana + 101, next_state.mana);
