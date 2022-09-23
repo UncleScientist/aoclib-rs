@@ -70,7 +70,7 @@ impl GameState {
                 );
             }
 
-            if effect.duration > 0 {
+            if effect.duration > 1 {
                 effects.push(effect.tick());
             }
         }
@@ -125,7 +125,13 @@ impl GameState {
 
     fn moves(&self) -> Vec<Spell> {
         let mut result = Vec::new();
-        for spell in SPELLS {
+        'outer: for spell in SPELLS {
+            for effect in &self.effects {
+                if effect.name == spell.name {
+                    continue 'outer;
+                }
+            }
+
             if spell.cost <= self.mana {
                 result.push(spell.clone());
             }
@@ -152,28 +158,34 @@ impl GameState {
 
     fn cheapest_win(&self, mut max: i32) -> Option<Self> {
         let mut best_so_far: Option<GameState> = None;
-
         let turn = self.start_turn();
-        if turn.boss_hp <= 0 {
-            println!("{}PLAYER WINS ({} mana spent)\n", turn.gamelog, turn.spent);
-            return Some(turn);
-        }
 
-        if turn.turn > 20 {
-            println!("OUT OF TURNS\n{}", self.gamelog);
+        if turn.player_hp <= 0 {
             return None;
         }
 
-        for spell in &self.moves() {
+        if turn.boss_hp <= 0 {
+            return Some(turn);
+        }
+
+        if turn.turn > 50 {
+            return None;
+        }
+
+        if turn.turn % 2 == 0 {
+            let boss_move = turn.boss_move();
+            if boss_move.player_hp <= 0 {
+                return None;
+            }
+            return boss_move.cheapest_win(max);
+        }
+
+        for spell in &turn.moves() {
             if spell.cost + self.spent >= max {
                 continue;
             }
 
-            let move_state = if turn.turn % 2 == 1 {
-                turn.cast(spell)
-            } else {
-                turn.boss_move()
-            };
+            let move_state = turn.cast(spell);
 
             if let Some(best) = &best_so_far {
                 if best.spent < max {
@@ -183,8 +195,7 @@ impl GameState {
 
             if move_state.boss_hp <= 0 {
                 if let Some(best) = &best_so_far {
-                    if best.spent < move_state.spent {
-                        println!("POSSIBLE SOLUTION\n{}", best.gamelog);
+                    if best.spent > move_state.spent {
                         best_so_far = Some(move_state);
                     }
                 } else {
@@ -194,7 +205,7 @@ impl GameState {
                 continue;
             } else if let Some(cheapest) = move_state.cheapest_win(max) {
                 if let Some(best) = &best_so_far {
-                    if best.spent < cheapest.spent {
+                    if best.spent > cheapest.spent {
                         best_so_far = Some(cheapest);
                     }
                 } else {
@@ -221,10 +232,10 @@ impl Runner for Aoc2015_22 {
     fn parse(&mut self) {}
 
     fn part1(&mut self) -> Vec<String> {
-        // let starting_state = GameState::new(50, 58, 500, 9);
-        let starting_state = GameState::new(10, 14, 250, 8);
-        println!("{:?}", starting_state.cheapest_win(i32::MAX));
-        crate::output("nope")
+        let starting_state = GameState::new(50, 58, 500, 9);
+        // let starting_state = GameState::new(10, 14, 250, 8);
+        let win = starting_state.cheapest_win(i32::MAX).unwrap();
+        crate::output(format!("{} mana spent in {} turns", win.spent, win.turn))
     }
 
     fn part2(&mut self) -> Vec<String> {
