@@ -47,6 +47,80 @@ impl<T: Clone> Iterator for CombinationIterator<T> {
     }
 }
 
+pub trait CombinationsOf<T> {
+    fn combinations_of(&self, combos: usize) -> CombinationsOfIterator<T>;
+}
+
+impl<T: Clone> CombinationsOf<T> for Vec<T> {
+    fn combinations_of(&self, combos: usize) -> CombinationsOfIterator<T> {
+        CombinationsOfIterator::new(self, combos)
+    }
+}
+
+pub struct CombinationsOfIterator<T> {
+    vec: Vec<T>,
+    combo: usize,
+    idx: Vec<usize>,
+    first: bool,
+}
+
+impl<T: Clone> CombinationsOfIterator<T> {
+    fn new(vec: &[T], combo: usize) -> Self {
+        Self {
+            vec: Vec::from(vec),
+            combo,
+            idx: Vec::new(),
+            first: true,
+        }
+    }
+
+    fn combos(&self) -> Vec<T> {
+        self.idx.iter().map(|&idx| self.vec[idx].clone()).collect()
+    }
+}
+
+impl<T: Clone> Iterator for CombinationsOfIterator<T> {
+    type Item = Vec<T>;
+
+    fn next(&mut self) -> Option<<Self as Iterator>::Item> {
+        if self.first {
+            self.idx = Vec::new();
+            for idx in 0..self.combo {
+                self.idx.push(idx);
+            }
+            self.first = false;
+            return Some(self.combos());
+        }
+
+        let mut done = false;
+        while !done {
+            done = true;
+            'inc: for inc_index in (0..self.combo).rev() {
+                self.idx[inc_index] += 1;
+                if self.idx[inc_index] == self.vec.len() {
+                    continue;
+                }
+
+                for next in inc_index + 1..self.combo {
+                    self.idx[next] = self.idx[next - 1] + 1;
+                    if self.idx[next] == self.vec.len() {
+                        continue 'inc;
+                    }
+                }
+
+                done = false;
+                break;
+            }
+
+            if !done {
+                return Some(self.combos());
+            }
+        }
+
+        None
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
