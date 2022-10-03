@@ -32,17 +32,10 @@ impl Runner for Aoc2016_01 {
         let mut x = 0i32;
         let mut y = 0i32;
         let mut dir = Direction::North;
+
         for i in &self.instr {
-            let dist = match i {
-                Instruction::Right(dist) => {
-                    dir = dir.turn_right();
-                    dist
-                }
-                Instruction::Left(dist) => {
-                    dir = dir.turn_left();
-                    dist
-                }
-            };
+            let (new_dir, dist) = i.aim(&dir);
+            dir = new_dir;
 
             match dir {
                 Direction::North => y -= dist,
@@ -55,7 +48,35 @@ impl Runner for Aoc2016_01 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut visited = std::collections::HashSet::new();
+        visited.insert((0i32, 0i32));
+
+        let mut x = 0i32;
+        let mut y = 0i32;
+        let mut dir = Direction::North;
+
+        'outer: for i in &self.instr {
+            let (new_dir, dist) = i.aim(&dir);
+            dir = new_dir;
+
+            let (dx, dy) = match dir {
+                Direction::North => (0, -1),
+                Direction::South => (0, 1),
+                Direction::East => (1, 0),
+                Direction::West => (-1, 0),
+            };
+
+            for _ in 0..dist {
+                x += dx;
+                y += dy;
+                if visited.contains(&(x, y)) {
+                    break 'outer;
+                }
+                visited.insert((x, y));
+            }
+        }
+
+        crate::output(x.abs() + y.abs())
     }
 }
 
@@ -64,6 +85,15 @@ impl Runner for Aoc2016_01 {
 enum Instruction {
     Left(i32),
     Right(i32),
+}
+
+impl Instruction {
+    fn aim(&self, cur_dir: &Direction) -> (Direction, i32) {
+        match self {
+            Instruction::Left(n) => (cur_dir.turn_left(), *n),
+            Instruction::Right(n) => (cur_dir.turn_right(), *n),
+        }
+    }
 }
 
 enum Direction {
