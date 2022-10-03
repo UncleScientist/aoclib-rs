@@ -28,15 +28,6 @@ impl Runner for Aoc2016_02 {
         let keypad = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
         let mut answer = String::from("");
 
-        /*
-        let mylines = vec![
-            "ULL".to_string().chars().collect::<Vec<char>>(),
-            "RRDDD".to_string().chars().collect::<Vec<char>>(),
-            "LURDL".to_string().chars().collect::<Vec<char>>(),
-            "UUUUD".to_string().chars().collect::<Vec<char>>(),
-        ];
-        */
-
         for key in &self.lines {
             for step in key.iter() {
                 match step {
@@ -70,6 +61,60 @@ impl Runner for Aoc2016_02 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let movement = vec![
+            (0, 0, 0, 0), // (0, 0)
+            (0, 0, 0, 0), // (0, 1)
+            (0, 1, 0, 0), // (0, 2)
+            (0, 0, 0, 0), // (0, 3)
+            (0, 0, 0, 0), // (0, 4)
+            (0, 0, 0, 0), // (1, 0)
+            (0, 1, 0, 1), // (1, 1)
+            (1, 1, 1, 1), // (1, 2)
+            (0, 1, 1, 0), // (1, 3)
+            (0, 0, 0, 0), // (1, 4)
+            (0, 0, 0, 1), // (2, 0)
+            (1, 1, 1, 1), // (2, 1)
+            (1, 1, 1, 1), // (2, 2)
+            (1, 1, 1, 1), // (2, 3)
+            (0, 0, 1, 0), // (2, 4)
+            (0, 0, 0, 0), // (3, 0)
+            (1, 0, 0, 1), // (3, 1)
+            (1, 1, 1, 1), // (3, 2)
+            (1, 0, 1, 0), // (3, 3)
+            (0, 0, 0, 0), // (3, 4)
+            (0, 0, 0, 0), // (4, 0)
+            (0, 0, 0, 0), // (4, 1)
+            (1, 0, 0, 0), // (4, 2)
+            (0, 0, 0, 0), // (4, 3)
+            (0, 0, 0, 0), // (4, 4)
+        ];
+
+        let keypad = vec![
+            [' ', ' ', '1', ' ', ' '],
+            [' ', '2', '3', '4', ' '],
+            ['5', '6', '7', '8', '9'],
+            [' ', 'A', 'B', 'C', ' '],
+            [' ', ' ', 'D', ' ', ' '],
+        ];
+
+        let mut x = 0usize;
+        let mut y = 2usize;
+
+        let mut answer = String::from("");
+        for key in &self.lines {
+            for step in key.iter() {
+                let pos = y * 5 + x;
+                match step {
+                    'U' => y -= movement[pos].0,
+                    'D' => y += movement[pos].1,
+                    'L' => x -= movement[pos].2,
+                    'R' => x += movement[pos].3,
+                    _ => panic!("corrupted input file"),
+                }
+            }
+            answer.push(keypad[y][x]);
+        }
+
+        crate::output(answer)
     }
 }
