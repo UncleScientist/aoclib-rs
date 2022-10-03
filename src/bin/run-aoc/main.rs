@@ -4,6 +4,9 @@ use std::time::{Duration, Instant};
 mod aoc2015;
 use aoc2015::*;
 
+mod aoc2016;
+use aoc2016::*;
+
 pub enum Selector {
     All,
     One(usize),
@@ -22,15 +25,37 @@ pub fn output<T: Display>(output: T) -> Vec<String> {
 }
 
 fn main() {
+    let runners: Vec<fn(Selector)> = vec![run_2015, run_2016];
     let args = std::env::args().collect::<Vec<String>>();
-    if args.len() > 1 {
-        if let Ok(day) = args[1].parse::<usize>() {
-            run_2015(Selector::One(day));
-        } else {
-            run_2015(Selector::All);
+
+    if args.len() == 2 && args[1] == "all" {
+        for year in runners {
+            year(Selector::All);
         }
+    } else if args.len() > 2 {
+        let year = if let Ok(year) = args[1].parse::<usize>() {
+            year
+        } else {
+            eprintln!("Invalid year {}", args[1]);
+            std::process::exit(1);
+        };
+
+        let day = if let Ok(day) = args[2].parse::<usize>() {
+            day
+        } else {
+            eprintln!("Invalid year {}", args[1]);
+            std::process::exit(1);
+        };
+
+        if !(2015..=2021).contains(&year) {
+            // if year < 2015 || year > 2021 {
+            eprintln!("Year must be in range 2015..2021");
+            std::process::exit(1);
+        }
+
+        runners[year - 2015](Selector::One(day));
     } else {
-        run_2015(Selector::Last);
+        runners.last().unwrap()(Selector::Last);
     }
 }
 
