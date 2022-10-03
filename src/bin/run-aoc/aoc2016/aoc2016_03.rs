@@ -28,17 +28,28 @@ impl Runner for Aoc2016_03 {
     fn part1(&mut self) -> Vec<String> {
         let mut possible = 0;
         for check in &self.list {
-            if check.0 + check.1 > check.2
-                && check.0 + check.2 > check.1
-                && check.1 + check.2 > check.0
-            {
-                possible += 1;
-            }
+            possible += valid_triangle(check.0, check.1, check.2);
         }
         crate::output(possible)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut possible = 0;
+
+        for i in (0..self.list.len()).step_by(3) {
+            possible += valid_triangle(self.list[i].0, self.list[i + 1].0, self.list[i + 2].0);
+            possible += valid_triangle(self.list[i].1, self.list[i + 1].1, self.list[i + 2].1);
+            possible += valid_triangle(self.list[i].2, self.list[i + 1].2, self.list[i + 2].2);
+        }
+
+        crate::output(possible)
+    }
+}
+
+fn valid_triangle(a: i32, b: i32, c: i32) -> i32 {
+    if a + b > c && a + c > b && b + c > a {
+        1
+    } else {
+        0
     }
 }
