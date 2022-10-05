@@ -40,7 +40,12 @@ impl Runner for Aoc2016_04 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        for r in &self.room {
+            if r.is_real() && r.decrypt() == "northpole object storage" {
+                return crate::output(r.sector);
+            }
+        }
+        crate::output("No Sector Found")
     }
 }
 
@@ -85,5 +90,31 @@ impl Room {
             .iter()
             .take(5)
             .fold(0, |a, (&k, _)| a + (self.checksum.contains(k) as i32))
+    }
+
+    fn decrypt(&self) -> String {
+        let mut result = "".to_string();
+
+        let m = (self.sector % 26) as u8;
+        for c in self.name.chars() {
+            if c == '-' {
+                result.push(' ');
+            } else {
+                result.push((b'a' + ((c as u8 - b'a' + m) % 26)) as char);
+            }
+        }
+
+        result
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn decrypt_name() {
+        let room = Room::new("qzmt-zixmtkozy-ivhz-343[asdfg]");
+        assert_eq!(room.decrypt(), "very encrypted name".to_string());
     }
 }
