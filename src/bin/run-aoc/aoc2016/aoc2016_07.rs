@@ -1,7 +1,12 @@
 use crate::Runner;
 
+struct IPAddr {
+    addr: Vec<String>,
+    hyper: Vec<String>,
+}
+
 pub struct Aoc2016_07 {
-    ip_addr: Vec<String>,
+    ip_addr: Vec<IPAddr>,
 }
 
 impl Aoc2016_07 {
@@ -18,11 +23,13 @@ impl Runner for Aoc2016_07 {
     }
 
     fn parse(&mut self) {
-        self.ip_addr = aoclib::read_lines("input/2016-07.txt");
+        for ip in aoclib::read_lines("input/2016-07.txt") {
+            self.ip_addr.push(IPAddr::new(&ip));
+        }
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.ip_addr.iter().filter(|ip| supports_tls(ip)).count())
+        crate::output(self.ip_addr.iter().filter(|ip| ip.supports_tls()).count())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -30,31 +37,36 @@ impl Runner for Aoc2016_07 {
     }
 }
 
-fn supports_tls(ip: &str) -> bool {
-    let mut addr = Vec::new();
-    let mut hyper = Vec::new();
+impl IPAddr {
+    fn new(ip: &str) -> Self {
+        let mut addr = Vec::new();
+        let mut hyper = Vec::new();
 
-    let (left, rest) = ip.split_once('[').unwrap();
-    addr.push(left);
-    for seg in rest.split('[') {
-        let (inside, outside) = seg.split_once(']').unwrap();
-        hyper.push(inside);
-        addr.push(outside);
-    }
-
-    for h in hyper {
-        if has_abba(h) {
-            return false;
+        let (left, rest) = ip.split_once('[').unwrap();
+        addr.push(left.to_string());
+        for seg in rest.split('[') {
+            let (inside, outside) = seg.split_once(']').unwrap();
+            hyper.push(inside.to_string());
+            addr.push(outside.to_string());
         }
+        Self { addr, hyper }
     }
 
-    for a in addr {
-        if has_abba(a) {
-            return true;
+    fn supports_tls(&self) -> bool {
+        for h in &self.hyper {
+            if has_abba(h) {
+                return false;
+            }
         }
-    }
 
-    false
+        for a in &self.addr {
+            if has_abba(a) {
+                return true;
+            }
+        }
+
+        false
+    }
 }
 
 fn has_abba(s: &str) -> bool {
@@ -83,26 +95,26 @@ mod test {
 
     #[test]
     fn supports() {
-        assert!(supports_tls("abba[mnop]qrst"));
+        assert!(IPAddr::new("abba[mnop]qrst").supports_tls());
     }
 
     #[test]
     fn does_not_support() {
-        assert!(!supports_tls("abcd[bddb]xyyx"));
+        assert!(!IPAddr::new("abcd[bddb]xyyx").supports_tls());
     }
 
     #[test]
     fn must_be_different() {
-        assert!(!supports_tls("aaaa[qwer]tyui"));
+        assert!(!IPAddr::new("aaaa[qwer]tyui").supports_tls());
     }
 
     #[test]
     fn middle_works() {
-        assert!(supports_tls("ioxxoj[asdfgh]zxcvbn"));
+        assert!(IPAddr::new("ioxxoj[asdfgh]zxcvbn").supports_tls());
     }
 
     #[test]
     fn end_works() {
-        assert!(supports_tls("asdfasf[qwoeiruqwe]abba"));
+        assert!(IPAddr::new("asdfasf[qwoeiruqwe]abba").supports_tls());
     }
 }
