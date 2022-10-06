@@ -90,6 +90,6 @@ fn print_solution(which: usize, output: &[String], duration: Duration) {
         i.next().unwrap()
     );
     for line in i {
-        println!("        {line}");
+        println!("{:16}{line}", "");
     }
 }
