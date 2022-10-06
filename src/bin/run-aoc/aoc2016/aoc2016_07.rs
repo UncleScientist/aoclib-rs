@@ -33,7 +33,7 @@ impl Runner for Aoc2016_07 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(self.ip_addr.iter().filter(|ip| ip.supports_ssl()).count())
     }
 }
 
@@ -62,6 +62,26 @@ impl IPAddr {
         for a in &self.addr {
             if has_abba(a) {
                 return true;
+            }
+        }
+
+        false
+    }
+
+    fn supports_ssl(&self) -> bool {
+        for a in &self.addr {
+            let ch: Vec<char> = a.chars().collect();
+            for idx in 0..ch.len() - 2 {
+                if ch[idx] == ch[idx + 2] && ch[idx] != ch[idx + 1] {
+                    let check = [ch[idx + 1], ch[idx], ch[idx + 1]]
+                        .iter()
+                        .collect::<String>();
+                    for h in &self.hyper {
+                        if h.contains(&check) {
+                            return true;
+                        }
+                    }
+                }
             }
         }
 
@@ -116,5 +136,25 @@ mod test {
     #[test]
     fn end_works() {
         assert!(IPAddr::new("asdfasf[qwoeiruqwe]abba").supports_tls());
+    }
+
+    #[test]
+    fn supports_ssl() {
+        assert!(IPAddr::new("aba[bab]xyz").supports_ssl());
+    }
+
+    #[test]
+    fn no_ssl() {
+        assert!(!IPAddr::new("xyx[xyx]xyx").supports_ssl());
+    }
+
+    #[test]
+    fn end_check() {
+        assert!(IPAddr::new("aaa[kek]eke").supports_ssl());
+    }
+
+    #[test]
+    fn overlapping() {
+        assert!(IPAddr::new("zazbz[bzb]cdb").supports_ssl());
     }
 }
