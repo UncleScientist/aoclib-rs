@@ -4,11 +4,15 @@ use crate::Runner;
 
 pub struct Aoc2016_08 {
     inst: Vec<Instruction>,
+    answer: HashSet<(usize, usize)>,
 }
 
 impl Aoc2016_08 {
     pub fn new() -> Self {
-        Self { inst: Vec::new() }
+        Self {
+            inst: Vec::new(),
+            answer: HashSet::new(),
+        }
     }
 }
 
@@ -24,8 +28,6 @@ impl Runner for Aoc2016_08 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut hs = HashSet::new();
-
         let _test_input = vec![
             Instruction::new("rect 3x2"),
             Instruction::new("rotate column x=1 by 1"),
@@ -39,39 +41,52 @@ impl Runner for Aoc2016_08 {
                 Instruction::Rect(col, row) => {
                     for r in 0..*row {
                         for c in 0..*col {
-                            hs.insert((r, c));
+                            self.answer.insert((r, c));
                         }
                     }
                 }
                 Instruction::Column(col, amount) => {
                     let mut new_hs = HashSet::new();
-                    for (r, c) in hs.into_iter() {
-                        if c == *col {
-                            new_hs.insert(((r + amount) % 6, c));
+                    for (r, c) in self.answer.iter() {
+                        if *c == *col {
+                            new_hs.insert(((*r + amount) % 6, *c));
                         } else {
-                            new_hs.insert((r, c));
+                            new_hs.insert((*r, *c));
                         }
                     }
-                    hs = new_hs;
+                    self.answer = new_hs;
                 }
                 Instruction::Row(row, amount) => {
                     let mut new_hs = HashSet::new();
-                    for (r, c) in hs.into_iter() {
-                        if r == *row {
-                            new_hs.insert((r, (c + amount) % 50));
+                    for (r, c) in self.answer.iter() {
+                        if *r == *row {
+                            new_hs.insert((*r, (*c + amount) % 50));
                         } else {
-                            new_hs.insert((r, c));
+                            new_hs.insert((*r, *c));
                         }
                     }
-                    hs = new_hs;
+                    self.answer = new_hs;
                 }
             }
         }
-        crate::output(hs.len())
+        crate::output(self.answer.len())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut answer = Vec::new();
+        for r in 0..6 {
+            let mut line = "".to_string();
+            for c in 0..50 {
+                if self.answer.contains(&(r, c)) {
+                    line.push('#');
+                } else {
+                    line.push('.');
+                }
+            }
+            answer.push(line);
+        }
+
+        answer
     }
 }
 
@@ -106,16 +121,3 @@ impl Instruction {
         }
     }
 }
-
-/*
-rect 1x1
-rotate row y=0 by 2
-rect 1x1
-rotate row y=0 by 5
-rect 1x1
-rotate row y=0 by 3
-rect 1x1
-rotate row y=0 by 3
-rect 2x1
-rotate column x=0 by 5
-*/
