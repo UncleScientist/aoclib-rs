@@ -1,11 +1,15 @@
 use crate::Runner;
 use aoclib::read_lines;
 
-pub struct Aoc2016_09;
+pub struct Aoc2016_09 {
+    input: String,
+}
 
 impl Aoc2016_09 {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            input: "".to_string(),
+        }
     }
 }
 
@@ -40,20 +44,47 @@ impl Decompress for String {
     }
 }
 
+trait Explode {
+    fn explode(&self) -> usize;
+}
+
+impl Explode for String {
+    fn explode(&self) -> usize {
+        let mut answer = 0;
+        let mut loopstr = self.clone();
+
+        while let Some((left, right)) = loopstr.split_once('(') {
+            answer += left.len();
+
+            let (code, rest) = right.split_once(')').unwrap();
+            let (len, count) = code.split_once('x').unwrap();
+            let len: usize = len.parse().unwrap();
+            let count: usize = count.parse().unwrap();
+            let (compressed, remainder) = rest.split_at(len);
+            answer += count * compressed.to_string().explode();
+
+            loopstr = remainder.to_string();
+        }
+
+        answer + loopstr.len()
+    }
+}
+
 impl Runner for Aoc2016_09 {
     fn name(&self) -> (usize, usize) {
         (2016, 9)
     }
 
-    fn parse(&mut self) {}
+    fn parse(&mut self) {
+        self.input = read_lines("input/2016-09.txt")[0].clone();
+    }
 
     fn part1(&mut self) -> Vec<String> {
-        let lines = read_lines("input/2016-09.txt");
-        crate::output(lines[0].decompress())
+        crate::output(self.input.decompress())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(self.input.explode())
     }
 }
 
@@ -89,5 +120,36 @@ mod test {
     #[test]
     fn prefix_juxtaposed() {
         assert_eq!(18, "X(8x2)(3x3)ABCY".to_string().decompress());
+    }
+
+    #[test]
+    fn explode_1() {
+        assert_eq!(9, "(3x3)XYZ".to_string().explode());
+    }
+
+    #[test]
+    fn explode_big() {
+        assert_eq!(
+            "XABCABCABCABCABCABCY".len(),
+            "X(8x2)(3x3)ABCY".to_string().explode()
+        );
+    }
+
+    #[test]
+    fn explode_huge() {
+        assert_eq!(
+            241920,
+            "(27x12)(20x12)(13x14)(7x10)(1x12)A".to_string().explode()
+        );
+    }
+
+    #[test]
+    fn explode_mini() {
+        assert_eq!(
+            445,
+            "(25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN"
+                .to_string()
+                .explode()
+        );
     }
 }
