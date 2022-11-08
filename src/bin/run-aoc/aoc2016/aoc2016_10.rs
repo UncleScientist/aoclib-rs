@@ -18,6 +18,7 @@ impl Bot {
 
 pub struct Aoc2016_10 {
     bot: HashMap<usize, Bot>,
+    bins: HashMap<usize, Vec<i32>>,
 }
 
 type Chip = i32;
@@ -43,6 +44,7 @@ impl Aoc2016_10 {
     pub fn new() -> Self {
         Self {
             bot: HashMap::new(),
+            bins: HashMap::new(),
         }
     }
 }
@@ -68,12 +70,11 @@ impl Runner for Aoc2016_10 {
                 bot.action = (low_dest, high_dest);
             }
         }
-        println!("{:?}", self.bot);
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut bins: HashMap<usize, Vec<i32>> = HashMap::new();
-        let comparison_bot = loop {
+        let mut comparison_bot = 0;
+        loop {
             let mut bot_num = self
                 .bot
                 .iter()
@@ -93,28 +94,31 @@ impl Runner for Aoc2016_10 {
                 bot.hold.clear();
 
                 if low == 17 && high == 61 {
-                    break num;
+                    comparison_bot = num;
                 }
 
                 match low_action {
                     Recipient::Bot(b) => self.bot.get_mut(&b).unwrap().hold.push(low),
-                    Recipient::Output(o) => bins.entry(o).or_insert_with(Vec::new).push(low),
+                    Recipient::Output(o) => self.bins.entry(o).or_insert_with(Vec::new).push(low),
                     Recipient::Empty => panic!("oops"),
                 }
                 match high_action {
                     Recipient::Bot(b) => self.bot.get_mut(&b).unwrap().hold.push(high),
-                    Recipient::Output(o) => bins.entry(o).or_insert_with(Vec::new).push(high),
+                    Recipient::Output(o) => self.bins.entry(o).or_insert_with(Vec::new).push(high),
                     Recipient::Empty => panic!("oops"),
                 }
             } else {
-                break 0;
+                break;
             }
-        };
+        }
 
         crate::output(comparison_bot)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let bin0 = self.bins.get(&0).unwrap().first().unwrap();
+        let bin1 = self.bins.get(&1).unwrap().first().unwrap();
+        let bin2 = self.bins.get(&2).unwrap().first().unwrap();
+        crate::output(bin0 * bin1 * bin2)
     }
 }
