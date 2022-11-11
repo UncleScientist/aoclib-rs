@@ -342,7 +342,12 @@ impl Runner for Aoc2016_11 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut alt = self.building.clone();
+        alt.floor[0].add_microchip("elerium");
+        alt.floor[0].add_microchip("dilithium");
+        alt.floor[0].add_generator("elerium");
+        alt.floor[0].add_generator("dilithium");
+        crate::output(dijkstra_search(&alt))
     }
 }
 
