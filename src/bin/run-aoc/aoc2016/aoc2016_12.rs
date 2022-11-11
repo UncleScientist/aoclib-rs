@@ -63,8 +63,8 @@ struct Machine {
 }
 
 impl Machine {
-    fn run(&mut self) -> i32 {
-        let mut reg: [i32; 4] = [0, 0, 0, 0];
+    fn run(&mut self, first_c: i32) -> i32 {
+        let mut reg: [i32; 4] = [0, 0, first_c, 0];
         let mut ip = 0;
 
         while ip < self.prog.len() {
@@ -126,10 +126,10 @@ impl Runner for Aoc2016_12 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.vm.run())
+        crate::output(self.vm.run(0))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(self.vm.run(1))
     }
 }
