@@ -1,6 +1,6 @@
 use crate::Runner;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Disc {
     num: usize,
     phase: usize,
@@ -37,11 +37,6 @@ impl Runner for Aoc2016_15 {
     }
 
     fn parse(&mut self) {
-        /*
-         * test input
-         * self.discs.push(Disc::new(1, 4, 5));
-         * self.discs.push(Disc::new(2, 1, 2));
-         */
         for (idx, l) in aoclib::read_lines("input/2016-15.txt").iter().enumerate() {
             let words = l.split(' ').collect::<Vec<&str>>();
             self.discs.push(Disc::new(
@@ -58,22 +53,28 @@ impl Runner for Aoc2016_15 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut time = 0;
-
-        'again: loop {
-            for d in &self.discs {
-                if !d.zero_at_time(time) {
-                    time += 1;
-                    continue 'again;
-                }
-            }
-            break;
-        }
-
-        crate::output(time)
+        crate::output(solution_for_discs(&self.discs))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut additional = self.discs.clone();
+        additional.push(Disc::new(self.discs.len() + 1, 0, 11));
+        crate::output(solution_for_discs(&additional))
     }
+}
+
+fn solution_for_discs(discs: &[Disc]) -> usize {
+    let mut time = 0;
+
+    'again: loop {
+        for d in discs {
+            if !d.zero_at_time(time) {
+                time += 1;
+                continue 'again;
+            }
+        }
+        break;
+    }
+
+    time
 }
