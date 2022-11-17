@@ -2,11 +2,15 @@ use crate::Runner;
 
 const PUZZLE_INPUT: &str = "11101000110010100";
 
-pub struct Aoc2016_16;
+pub struct Aoc2016_16 {
+    scram: Scramble,
+}
 
 impl Aoc2016_16 {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            scram: Scramble::new("".to_string()),
+        }
     }
 }
 
@@ -15,15 +19,16 @@ impl Runner for Aoc2016_16 {
         (2016, 16)
     }
 
-    fn parse(&mut self) {}
+    fn parse(&mut self) {
+        self.scram = Scramble::new(PUZZLE_INPUT.to_string());
+    }
 
     fn part1(&mut self) -> Vec<String> {
-        let scram = Scramble::new(PUZZLE_INPUT.to_string());
-        crate::output(scram.checksum(272))
+        crate::output(self.scram.checksum(272))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(self.scram.checksum(35_651_584))
     }
 }
 
