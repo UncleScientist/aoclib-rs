@@ -15,6 +15,9 @@ pub use combo::*;
 mod mathemagic;
 pub use mathemagic::*;
 
+mod search;
+pub use search::*;
+
 pub fn read_to_chars<T: AsRef<Path>>(pathname: T) -> Vec<char> {
     let data = read_to_string(pathname).expect("unable to open file");
     data.chars().collect()
