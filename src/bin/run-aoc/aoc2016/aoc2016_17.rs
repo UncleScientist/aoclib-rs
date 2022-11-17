@@ -4,11 +4,15 @@ use md5::compute;
 
 const PUZZLE_INPUT: &str = "hhhxzeay";
 
-pub struct Aoc2016_17;
+pub struct Aoc2016_17 {
+    vault: Vault,
+}
 
 impl Aoc2016_17 {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            vault: Vault::new(""),
+        }
     }
 }
 
@@ -17,15 +21,16 @@ impl Runner for Aoc2016_17 {
         (2016, 17)
     }
 
-    fn parse(&mut self) {}
+    fn parse(&mut self) {
+        self.vault = Vault::new(PUZZLE_INPUT);
+    }
 
     fn part1(&mut self) -> Vec<String> {
-        let vault = Vault::new(PUZZLE_INPUT);
-        crate::output(dijkstra_search(&vault).unwrap().0.path)
+        crate::output(dijkstra_search(&self.vault).unwrap().0.path)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(longest_path(&self.vault))
     }
 }
 
@@ -93,5 +98,72 @@ impl DijkstraSearch for Vault {
 
     fn is_win_state(&self) -> bool {
         self.loc == (3, 3)
+    }
+}
+
+fn longest_path(v: &Vault) -> usize {
+    let mut longest = 0;
+    let mut stack = vec![v.clone()];
+
+    while let Some(state) = stack.pop() {
+        for m in state.moves() {
+            if m.is_win_state() {
+                longest = longest.max(m.path.len());
+            } else {
+                stack.push(m.clone());
+            }
+        }
+    }
+
+    longest
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn part1_1() {
+        let vault = Vault::new("ihgpwlah");
+        assert_eq!(
+            dijkstra_search(&vault).unwrap().0.path,
+            "DDRRRD".to_string()
+        );
+    }
+
+    #[test]
+    fn part1_2() {
+        let vault = Vault::new("kglvqrro");
+        assert_eq!(
+            dijkstra_search(&vault).unwrap().0.path,
+            "DDUDRLRRUDRD".to_string()
+        );
+    }
+
+    #[test]
+    fn part1_3() {
+        let vault = Vault::new("ulqzkmiv");
+        assert_eq!(
+            dijkstra_search(&vault).unwrap().0.path,
+            "DRURDRUDDLLDLUURRDULRLDUUDDDRR".to_string()
+        );
+    }
+
+    #[test]
+    fn part2_1() {
+        let vault = Vault::new("ihgpwlah");
+        assert_eq!(370, longest_path(&vault));
+    }
+
+    #[test]
+    fn part2_2() {
+        let vault = Vault::new("kglvqrro");
+        assert_eq!(492, longest_path(&vault));
+    }
+
+    #[test]
+    fn part2_3() {
+        let vault = Vault::new("ulqzkmiv");
+        assert_eq!(830, longest_path(&vault));
     }
 }
