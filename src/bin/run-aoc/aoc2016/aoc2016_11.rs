@@ -267,7 +267,7 @@ impl Runner for Aoc2016_11 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(dijkstra_search(&self.building))
+        crate::output(dijkstra_search(&self.building).unwrap().1)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -276,7 +276,7 @@ impl Runner for Aoc2016_11 {
         alt.floor[0].add_microchip("dilithium");
         alt.floor[0].add_generator("elerium");
         alt.floor[0].add_generator("dilithium");
-        crate::output(dijkstra_search(&alt))
+        crate::output(dijkstra_search(&alt).unwrap().1)
     }
 }
 
@@ -417,7 +417,7 @@ mod test {
         b.floor[3].add_generator("hydrogen");
         b.floor[3].add_generator("lithium");
 
-        assert_eq!(1, dijkstra_search(&b));
+        assert_eq!(1, dijkstra_search(&b).unwrap().1);
     }
 
     #[test]
@@ -429,6 +429,6 @@ mod test {
         b.floor[1].add_generator("hydrogen");
         b.floor[2].add_generator("lithium");
 
-        assert_eq!(11, dijkstra_search(&b));
+        assert_eq!(11, dijkstra_search(&b).unwrap().1);
     }
 }
