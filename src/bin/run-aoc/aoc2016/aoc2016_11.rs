@@ -1,6 +1,7 @@
 use crate::Runner;
+use aoclib::{dijkstra_search, DijkstraSearch};
 
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
 
 pub struct Aoc2016_11 {
@@ -19,23 +20,7 @@ struct Building {
     elevator: usize,
 }
 
-impl Building {
-    fn new(floors: usize) -> Self {
-        Self {
-            floor: vec![Floor::default(); floors],
-            elevator: 0,
-        }
-    }
-
-    fn valid(&self) -> bool {
-        for f in &self.floor {
-            if !f.valid() {
-                return false;
-            }
-        }
-        true
-    }
-
+impl DijkstraSearch for Building {
     fn moves(&self) -> Vec<Building> {
         let mut answer = Vec::new();
 
@@ -104,6 +89,34 @@ impl Building {
         answer
     }
 
+    fn is_win_state(&self) -> bool {
+        for i in 0..self.floor.len() - 1 {
+            if !self.floor[i].is_empty() {
+                return false;
+            }
+        }
+
+        true
+    }
+}
+
+impl Building {
+    fn new(floors: usize) -> Self {
+        Self {
+            floor: vec![Floor::default(); floors],
+            elevator: 0,
+        }
+    }
+
+    fn valid(&self) -> bool {
+        for f in &self.floor {
+            if !f.valid() {
+                return false;
+            }
+        }
+        true
+    }
+
     #[cfg(test)]
     fn display(&self) {
         for f in (0..self.floor.len()).rev() {
@@ -120,16 +133,6 @@ impl Building {
 
             println!();
         }
-    }
-
-    fn is_win(&self) -> bool {
-        for i in 0..self.floor.len() - 1 {
-            if !self.floor[i].is_empty() {
-                return false;
-            }
-        }
-
-        true
     }
 }
 
@@ -216,80 +219,6 @@ impl Floor {
         self.gens.is_empty() && self.micros.is_empty()
     }
 }
-
-// --------------------------------------------------------------------------------
-fn dijkstra_search(start: &Building) -> usize {
-    let mut q: HashSet<Building> = HashSet::new();
-
-    let mut dist: HashMap<Building, usize> = HashMap::new();
-    let mut prev: HashMap<Building, Option<Building>> = HashMap::new();
-    let mut index: HashMap<Building, usize> = HashMap::new();
-    let mut target = None;
-
-    let mut cur = 1;
-    index.insert(start.clone(), 0);
-    prev.insert(start.clone(), None);
-    q.insert(start.clone());
-
-    dist.insert(start.clone(), 0);
-
-    while !q.is_empty() {
-        let u = {
-            let mut best = usize::MAX;
-            let mut found = None;
-            for u in &q {
-                let v = dist.get(u).unwrap();
-                if *v < best {
-                    best = *v;
-                    found = Some(u.clone());
-                }
-            }
-
-            found.unwrap()
-        };
-
-        if u.is_win() {
-            target = Some(u);
-            break;
-        }
-
-        if !q.remove(&u) {
-            panic!("tried to remove u from q but failed");
-        }
-
-        for m in u.moves() {
-            let v = if q.contains(&m) {
-                m
-            } else if !index.contains_key(&m) {
-                index.insert(m.clone(), cur);
-                cur += 1;
-                dist.insert(m.clone(), usize::MAX);
-                prev.insert(m.clone(), None);
-                q.insert(m.clone());
-                m
-            } else {
-                continue;
-            };
-            let alt = dist.get(&u).unwrap() + 1;
-            let dist_v = *dist.get(&v).unwrap();
-            if alt < dist_v {
-                dist.insert(v.clone(), alt);
-                prev.insert(v.clone(), Some(u.clone()));
-            }
-        }
-    }
-
-    let mut count = 0;
-    let mut u = &Some(target.unwrap());
-    while let Some(state) = u {
-        count += 1;
-        u = prev.get(state).unwrap();
-    }
-
-    count - 1
-}
-
-// --------------------------------------------------------------------------------
 
 impl Aoc2016_11 {
     pub fn new() -> Self {
