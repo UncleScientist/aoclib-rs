@@ -23,6 +23,16 @@ impl Runner for Aoc2016_19 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let elf_count = 3018458u32;
+        let mut survivor = 1;
+        while survivor * 3 < elf_count {
+            survivor *= 3;
+        }
+        if elf_count < 2 * survivor {
+            survivor = elf_count - survivor;
+        } else {
+            survivor = 2 * elf_count - 3 * survivor;
+        }
+        crate::output(survivor)
     }
 }
