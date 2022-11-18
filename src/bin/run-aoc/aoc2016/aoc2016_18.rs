@@ -26,7 +26,7 @@ impl Runner for Aoc2016_18 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(count_safe(&self.first_line, 400_000))
     }
 }
 
