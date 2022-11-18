@@ -17,6 +17,7 @@ mod aoc2016_14;
 mod aoc2016_15;
 mod aoc2016_16;
 mod aoc2016_17;
+mod aoc2016_18;
 
 use aoc2016_01::*;
 use aoc2016_02::*;
@@ -35,6 +36,7 @@ use aoc2016_14::*;
 use aoc2016_15::*;
 use aoc2016_16::*;
 use aoc2016_17::*;
+use aoc2016_18::*;
 
 pub fn run_2016(which: Selector) {
     let mut day01 = Aoc2016_01::new();
@@ -54,11 +56,12 @@ pub fn run_2016(which: Selector) {
     let mut day15 = Aoc2016_15::new();
     let mut day16 = Aoc2016_16::new();
     let mut day17 = Aoc2016_17::new();
+    let mut day18 = Aoc2016_18::new();
 
     let mut days: Vec<&mut dyn Runner> = vec![
         &mut day01, &mut day02, &mut day03, &mut day04, &mut day05, &mut day06, &mut day07,
         &mut day08, &mut day09, &mut day10, &mut day11, &mut day12, &mut day13, &mut day14,
-        &mut day15, &mut day16, &mut day17,
+        &mut day15, &mut day16, &mut day17, &mut day18,
     ];
 
     match which {
