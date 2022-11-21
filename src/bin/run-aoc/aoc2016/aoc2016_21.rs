@@ -1,5 +1,7 @@
 use std::collections::VecDeque;
 
+use aoclib::Permutations;
+
 use crate::Runner;
 
 pub struct Aoc2016_21 {
@@ -48,7 +50,19 @@ impl Runner for Aoc2016_21 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let vec = "abcdefgh".chars().collect::<Vec<char>>();
+        let mut answer = None;
+        for p in vec.permutations() {
+            let mut result = String::from_iter(&p);
+            for i in &self.inst {
+                result = result.op(i);
+            }
+            if result == "fbgdceah" {
+                answer = Some(String::from_iter(&p));
+                break;
+            }
+        }
+        crate::output(answer.unwrap())
     }
 }
 
