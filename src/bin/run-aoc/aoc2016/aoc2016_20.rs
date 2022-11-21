@@ -36,7 +36,7 @@ impl Runner for Aoc2016_20 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(count_allowed(&self.blacklist))
     }
 }
 
@@ -69,6 +69,14 @@ fn insert_interval(src: &Vec<Range>, insert: Range) -> Vec<Range> {
     result
 }
 
+fn count_allowed(bl: &Vec<Range>) -> usize {
+    let mut allowed: usize = 0;
+    for entry in bl.windows(2) {
+        allowed += entry[1].0 as usize - entry[0].1 as usize - 1;
+    }
+    allowed + (u32::MAX as u64 - bl[bl.len() - 1].1) as usize
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -90,5 +98,13 @@ mod test {
     #[test]
     fn check_inclusive_endings() {
         assert_eq!(vec![(1, 6)], insert_interval(&vec![(1, 3)], (4, 6)));
+    }
+
+    #[test]
+    fn check_allowed() {
+        assert_eq!(
+            (u32::MAX - 8 + 1) as usize,
+            count_allowed(&vec![(0, 2), (4, 8)])
+        );
     }
 }
