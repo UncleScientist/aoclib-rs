@@ -1,9 +1,5 @@
-use crate::Runner;
-
-use crate::aoc2016::asm::*;
-/*
 #[derive(Debug)]
-enum Inst {
+pub enum Inst {
     Cpy(Source, Register),
     Inc(Register),
     Dec(Register),
@@ -11,7 +7,7 @@ enum Inst {
 }
 
 impl Inst {
-    fn parse(s: &str) -> Self {
+    pub fn parse(s: &str) -> Self {
         let tok = s.split(' ').collect::<Vec<&str>>();
         match tok[0] {
             "inc" => Inst::Inc(Register::parse(tok[1]).unwrap()),
@@ -24,7 +20,7 @@ impl Inst {
 }
 
 #[derive(Debug)]
-enum Source {
+pub enum Source {
     Reg(Register),
     Val(i32),
 }
@@ -40,7 +36,7 @@ impl Source {
 }
 
 #[derive(Debug, Copy, Clone)]
-enum Register {
+pub enum Register {
     A,
     B,
     C,
@@ -60,12 +56,16 @@ impl Register {
 }
 
 #[derive(Default)]
-struct Machine {
+pub struct Machine {
     prog: Vec<Inst>,
 }
 
 impl Machine {
-    fn run(&mut self, first_c: i32) -> i32 {
+    pub fn push(&mut self, inst: Inst) {
+        self.prog.push(inst);
+    }
+
+    pub fn run(&mut self, first_c: i32) -> i32 {
         let mut reg: [i32; 4] = [0, 0, first_c, 0];
         let mut ip = 0;
 
@@ -95,44 +95,5 @@ impl Machine {
         }
 
         reg[0]
-    }
-}
-*/
-
-pub struct Aoc2016_12 {
-    vm: Machine,
-}
-
-impl Aoc2016_12 {
-    pub fn new() -> Self {
-        Self {
-            vm: Machine::default(),
-        }
-    }
-}
-
-impl Runner for Aoc2016_12 {
-    fn name(&self) -> (usize, usize) {
-        (2016, 12)
-    }
-
-    fn parse(&mut self) {
-        let _lines = "cpy 41 a\ninc a\ninc a\ndec a\njnz a 2\ndec a"
-            .split('\n')
-            .map(|x| x.to_string())
-            .collect::<Vec<String>>();
-        let lines = aoclib::read_lines("input/2016-12.txt");
-
-        for l in lines {
-            self.vm.push(Inst::parse(&l));
-        }
-    }
-
-    fn part1(&mut self) -> Vec<String> {
-        crate::output(self.vm.run(0))
-    }
-
-    fn part2(&mut self) -> Vec<String> {
-        crate::output(self.vm.run(1))
     }
 }
