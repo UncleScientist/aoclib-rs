@@ -1,5 +1,7 @@
 use crate::{Runner, Selector};
 
+mod asm;
+
 mod aoc2016_01;
 mod aoc2016_02;
 mod aoc2016_03;
