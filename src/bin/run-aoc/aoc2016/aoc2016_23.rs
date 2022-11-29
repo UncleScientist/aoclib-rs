@@ -37,6 +37,6 @@ impl Runner for Aoc2016_23 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(self.vm.run(vec![(Register::A, 12)]))
     }
 }
