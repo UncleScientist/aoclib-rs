@@ -8,8 +8,7 @@ use aoclib::{dijkstra_search, DijkstraSearch, Permutations};
 pub struct Aoc2016_24 {
     points: HashMap<char, (i32, i32)>,
     map: Rc<HashSet<(i32, i32)>>,
-    width: i32,
-    height: i32,
+    dist: HashMap<(char, char), i32>,
 }
 
 impl Aoc2016_24 {
@@ -25,12 +24,11 @@ impl Runner for Aoc2016_24 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2016-24.txt");
-        self.width = lines[0].len() as i32;
-        self.height = lines.len() as i32;
+        let height = lines.len() as i32;
 
         let mut map = HashSet::new();
 
-        for row in 0..self.height {
+        for row in 0..height {
             for col in lines[row as usize].chars().enumerate() {
                 match col.1 {
                     '.' => {
@@ -50,7 +48,6 @@ impl Runner for Aoc2016_24 {
 
     fn part1(&mut self) -> Vec<String> {
         let pointlist: Vec<(&char, &(i32, i32))> = self.points.iter().collect();
-        let mut dist: HashMap<(char, char), i32> = HashMap::new();
 
         for i in 0..pointlist.len() - 1 {
             for j in i + 1..pointlist.len() {
@@ -60,8 +57,10 @@ impl Runner for Aoc2016_24 {
                     end: *pointlist[j].1,
                 };
                 if let Some((_, distance)) = dijkstra_search(&mr) {
-                    dist.insert((*pointlist[i].0, *pointlist[j].0), distance as i32);
-                    dist.insert((*pointlist[j].0, *pointlist[i].0), distance as i32);
+                    self.dist
+                        .insert((*pointlist[i].0, *pointlist[j].0), distance as i32);
+                    self.dist
+                        .insert((*pointlist[j].0, *pointlist[i].0), distance as i32);
                 } else {
                     panic!(
                         "no path found from {} to {}",
@@ -71,16 +70,20 @@ impl Runner for Aoc2016_24 {
             }
         }
 
-        let nonzero: Vec<(&char, &(i32, i32))> =
-            self.points.iter().filter(|(&x, _)| x != '0').collect();
+        let nonzero = self
+            .points
+            .iter()
+            .filter(|(&x, _)| x != '0')
+            .map(|x| *x.0)
+            .collect::<Vec<char>>();
 
         let mut shortest = i32::MAX;
         for p in nonzero.permutations() {
             let mut cur_char = '0';
             let mut total = 0;
-            for (next_char, _) in p {
-                total += dist.get(&(cur_char, *next_char)).unwrap();
-                cur_char = *next_char;
+            for next_char in p {
+                total += self.dist.get(&(cur_char, next_char)).unwrap();
+                cur_char = next_char;
             }
             shortest = shortest.min(total);
         }
@@ -89,7 +92,25 @@ impl Runner for Aoc2016_24 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let nonzero: Vec<&char> = self
+            .points
+            .iter()
+            .filter(|(&x, _)| x != '0')
+            .map(|x| x.0)
+            .collect();
+
+        let mut shortest = i32::MAX;
+        for p in nonzero.permutations() {
+            let mut cur_char = '0';
+            let mut total = 0;
+            for next_char in p {
+                total += self.dist.get(&(cur_char, *next_char)).unwrap();
+                cur_char = *next_char;
+            }
+            total += self.dist.get(&(cur_char, '0')).unwrap();
+            shortest = shortest.min(total);
+        }
+        crate::output(shortest)
     }
 }
 
