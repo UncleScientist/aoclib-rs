@@ -75,7 +75,6 @@ pub struct Machine {
 impl Machine {
     pub fn push(&mut self, inst: Inst) {
         self.prog.push(inst);
-        self.togg.push(false);
     }
 
     pub fn run(&mut self, initial_state: Vec<(Register, i32)>) -> i32 {
@@ -85,6 +84,7 @@ impl Machine {
         for i in initial_state {
             reg[i.0 as usize] = i.1;
         }
+        self.togg = vec![false; self.prog.len()];
 
         while ip < self.prog.len() {
             let oldip = ip;
