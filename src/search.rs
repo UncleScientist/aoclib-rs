@@ -12,31 +12,22 @@ pub fn dijkstra_search<T: DijkstraSearch + Clone + Eq + Hash>(start: &T) -> Opti
     let mut q: HashSet<T> = HashSet::new();
 
     let mut dist: HashMap<T, usize> = HashMap::new();
-    // let mut prev: HashMap<T, Option<T>> = HashMap::new();
-    let mut index: HashMap<T, usize> = HashMap::new();
+    let mut index: HashSet<T> = HashSet::new();
     let mut target = None;
 
-    let mut cur = 1;
-    index.insert(start.clone(), 0);
-    // prev.insert(start.clone(), None);
+    index.insert(start.clone());
     q.insert(start.clone());
 
     dist.insert(start.clone(), 0);
 
     while !q.is_empty() {
-        let u = {
-            let mut best = usize::MAX;
-            let mut found = None;
-            for u in &q {
-                let v = dist.get(u).unwrap();
-                if *v < best {
-                    best = *v;
-                    found = Some(u.clone());
-                }
-            }
-
-            found.unwrap()
-        };
+        let u = q
+            .iter()
+            .map(|item| (item, dist.get(item).unwrap()))
+            .min_by(|a, b| a.1.cmp(b.1))
+            .unwrap()
+            .0
+            .clone();
 
         if u.is_win_state() {
             target = Some(u);
@@ -50,11 +41,8 @@ pub fn dijkstra_search<T: DijkstraSearch + Clone + Eq + Hash>(start: &T) -> Opti
         for m in u.moves() {
             let v = if q.contains(&m) {
                 m
-            } else if !index.contains_key(&m) {
-                index.insert(m.clone(), cur);
-                cur += 1;
+            } else if index.insert(m.clone()) {
                 dist.insert(m.clone(), usize::MAX);
-                // prev.insert(m.clone(), None);
                 q.insert(m.clone());
                 m
             } else {
@@ -64,7 +52,6 @@ pub fn dijkstra_search<T: DijkstraSearch + Clone + Eq + Hash>(start: &T) -> Opti
             let dist_v = *dist.get(&v).unwrap();
             if alt < dist_v {
                 dist.insert(v.clone(), alt);
-                // prev.insert(v.clone(), Some(u.clone()));
             }
         }
     }
