@@ -47,9 +47,5 @@ impl Runner for Aoc2016_03 {
 }
 
 fn valid_triangle(a: i32, b: i32, c: i32) -> i32 {
-    if a + b > c && a + c > b && b + c > a {
-        1
-    } else {
-        0
-    }
+    (a + b > c && a + c > b && b + c > a) as i32
 }
