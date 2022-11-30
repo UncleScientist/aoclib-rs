@@ -29,16 +29,16 @@ impl Runner for Aoc2016_25 {
             self.vm.reset(vec![(Register::A, init)]);
             let mut last_output = 1;
             let answer = loop {
-                if let Some(next_output) = self.vm.run_to_output() {
-                    if next_output == last_output {
+                let Some(next_output) = self.vm.run_to_output()
+                    else {
                         continue 'next_number;
-                    }
-                    last_output = next_output;
-                    if self.vm.looped() {
-                        break init;
-                    }
-                } else {
+                    };
+                if next_output == last_output {
                     continue 'next_number;
+                }
+                last_output = next_output;
+                if self.vm.looped() {
+                    break init;
                 }
             };
             return crate::output(answer);
