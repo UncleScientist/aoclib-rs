@@ -7,6 +7,9 @@ use aoc2015::*;
 mod aoc2016;
 use aoc2016::*;
 
+mod aoc2017;
+use aoc2017::*;
+
 mod aoc2022;
 use aoc2022::*;
 
@@ -29,8 +32,7 @@ pub fn output<T: Display>(output: T) -> Vec<String> {
 
 fn main() {
     let runners: Vec<fn(Selector)> = vec![
-        run_2015, run_2016, run_2016, // 2017
-        run_2016, // 2018
+        run_2015, run_2016, run_2017, run_2016, // 2018
         run_2016, // 2019
         run_2016, // 2020
         run_2016, // 2021
