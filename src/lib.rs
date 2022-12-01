@@ -47,7 +47,24 @@ pub fn read_lines<T: AsRef<Path>>(pathname: T) -> Vec<String> {
     read_to_string(pathname)
         .expect("unable to open file")
         .split('\n')
-        .map(|s| s.to_string())
         .filter(|s| !s.is_empty())
+        .map(|s| s.to_string())
+        .collect()
+}
+
+pub fn read_num_records<T: AsRef<Path>, U: FromStr>(pathname: T) -> Vec<Vec<U>>
+where
+    <U as FromStr>::Err: Debug,
+{
+    read_to_string(pathname)
+        .expect("unable to open file")
+        .split("\n\n")
+        .filter(|s| !s.is_empty())
+        .map(|s| {
+            s.split('\n')
+                .filter(|s| !s.is_empty())
+                .map(|num| num.parse::<U>().expect("unable to parse number"))
+                .collect::<Vec<U>>()
+        })
         .collect()
 }
