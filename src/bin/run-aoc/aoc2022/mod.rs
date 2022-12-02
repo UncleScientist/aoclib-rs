@@ -1,13 +1,16 @@
 use crate::{Runner, Selector};
 
 mod aoc2022_01;
+mod aoc2022_02;
 
 use aoc2022_01::*;
+use aoc2022_02::*;
 
 pub fn run_2022(which: Selector) {
     let mut day01 = Aoc2022_01::new();
+    let mut day02 = Aoc2022_02::new();
 
-    let mut days: Vec<&mut dyn Runner> = vec![&mut day01];
+    let mut days: Vec<&mut dyn Runner> = vec![&mut day01, &mut day02];
 
     match which {
         Selector::Last => {
