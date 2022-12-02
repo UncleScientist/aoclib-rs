@@ -43,6 +43,18 @@ impl Runner for Aoc2017_04 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut count = 0;
+        'next_line: for l in &self.lines {
+            let mut hs = HashSet::new();
+            for word in l {
+                let mut sorted = word.chars().collect::<Vec<char>>();
+                sorted.sort();
+                if !hs.insert(sorted) {
+                    continue 'next_line;
+                }
+            }
+            count += 1;
+        }
+        crate::output(count)
     }
 }
