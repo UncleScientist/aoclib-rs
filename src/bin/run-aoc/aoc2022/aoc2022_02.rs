@@ -59,6 +59,29 @@ impl Runner for Aoc2022_02 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut score = 0;
+
+        for m in &self.moves {
+            let op_move = match m.0 {
+                'A' => 1,
+                'B' => 2,
+                'C' => 3,
+                _ => panic!("bad"),
+            };
+            score += match m.1 {
+                'X' => {
+                    if op_move == 1 {
+                        3
+                    } else {
+                        op_move - 1
+                    }
+                }
+                'Y' => 3 + op_move,
+                'Z' => 6 + if op_move == 3 { 1 } else { op_move + 1 },
+                _ => panic!("very bad"),
+            };
+        }
+
+        crate::output(score)
     }
 }
