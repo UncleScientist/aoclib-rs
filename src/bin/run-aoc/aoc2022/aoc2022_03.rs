@@ -2,6 +2,20 @@ use std::collections::HashSet;
 
 use crate::Runner;
 
+trait Priority {
+    fn priority(&self) -> i32;
+}
+
+impl Priority for char {
+    fn priority(&self) -> i32 {
+        (match self {
+            'a'..='z' => (*self as u8) - b'a' + 1,
+            'A'..='Z' => (*self as u8) - b'A' + 27,
+            _ => panic!("bad input"),
+        }) as i32
+    }
+}
+
 #[derive(Default)]
 pub struct Aoc2022_03 {
     lines: Vec<String>,
@@ -30,33 +44,22 @@ impl Runner for Aoc2022_03 {
             let left: HashSet<char> = HashSet::from_iter(left.chars());
             let right: HashSet<char> = HashSet::from_iter(right.chars());
             let dup: HashSet<&char> = left.intersection(&right).collect();
-            let ch = **dup.iter().next().unwrap();
-            sum += match ch {
-                'a'..='z' => (ch as u8) - b'a' + 1,
-                'A'..='Z' => (ch as u8) - b'A' + 27,
-                _ => panic!("bad input"),
-            } as i32;
+            sum += (dup.iter().next().unwrap()).priority();
         }
         crate::output(sum)
     }
 
     fn part2(&mut self) -> Vec<String> {
+        let all_chars = HashSet::<char>::from_iter(('a'..='z').chain('A'..='Z'));
         let mut sum = 0;
         for lines in self.lines.chunks(3) {
-            let mut sets = lines
+            let dup = lines
                 .iter()
                 .map(|l| HashSet::from_iter(l.chars()))
-                .collect::<Vec<HashSet<char>>>();
-            let mut dup = sets.pop().unwrap();
-            for set in sets {
-                dup = set.intersection(&dup).copied().collect();
-            }
-            let ch = *dup.iter().next().unwrap();
-            sum += match ch {
-                'a'..='z' => (ch as u8) - b'a' + 1,
-                'A'..='Z' => (ch as u8) - b'A' + 27,
-                _ => panic!("bad input"),
-            } as i32;
+                .fold(all_chars.clone(), |a, b| {
+                    a.intersection(&b).copied().collect()
+                });
+            sum += (dup.iter().next().unwrap()).priority();
         }
         crate::output(sum)
     }
