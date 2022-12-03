@@ -41,6 +41,23 @@ impl Runner for Aoc2022_03 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut sum = 0;
+        for lines in self.lines.chunks(3) {
+            let mut sets = lines
+                .iter()
+                .map(|l| HashSet::from_iter(l.chars()))
+                .collect::<Vec<HashSet<char>>>();
+            let mut dup = sets.pop().unwrap();
+            for set in sets {
+                dup = set.intersection(&dup).copied().collect();
+            }
+            let ch = *dup.iter().next().unwrap();
+            sum += match ch {
+                'a'..='z' => (ch as u8) - b'a' + 1,
+                'A'..='Z' => (ch as u8) - b'A' + 27,
+                _ => panic!("bad input"),
+            } as i32;
+        }
+        crate::output(sum)
     }
 }
