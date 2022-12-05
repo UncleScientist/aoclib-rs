@@ -52,11 +52,8 @@ impl Runner for Aoc2022_05 {
                 ship[i.to].push_back(ship_crate);
             }
         }
-        let mut answer = "".to_string();
-        for stack in &ship {
-            answer.push(*stack.back().unwrap());
-        }
-        crate::output(answer)
+
+        crate::output(stack_tops(&ship))
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -67,11 +64,8 @@ impl Runner for Aoc2022_05 {
             let removed = ship[i.from].split_off(split_point);
             ship[i.to].extend(removed);
         }
-        let mut answer = "".to_string();
-        for stack in &ship {
-            answer.push(*stack.back().unwrap());
-        }
-        crate::output(answer)
+
+        crate::output(stack_tops(&ship))
     }
 }
 
@@ -79,4 +73,12 @@ struct Move {
     amount: usize,
     from: usize,
     to: usize,
+}
+
+fn stack_tops(ship: &Vec<VecDeque<char>>) -> String {
+    let mut answer = "".to_string();
+    for stack in ship {
+        answer.push(*stack.back().unwrap());
+    }
+    answer
 }
