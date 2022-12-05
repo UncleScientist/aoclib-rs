@@ -35,6 +35,20 @@ impl Runner for Aoc2017_05 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut jumps = self.jumps.clone();
+
+        let mut ip = 0i32;
+        let mut count = 0;
+        while ip < jumps.len() as i32 {
+            let offset = jumps[ip as usize];
+            if offset >= 3 {
+                jumps[ip as usize] -= 1;
+            } else {
+                jumps[ip as usize] += 1;
+            }
+            ip += offset;
+            count += 1;
+        }
+        crate::output(count)
     }
 }
