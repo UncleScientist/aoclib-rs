@@ -76,3 +76,17 @@ pub fn read_single_line<T: AsRef<Path>>(pathname: T) -> Vec<char> {
         .filter(|&ch| ch != '\n')
         .collect()
 }
+
+pub fn read_numbers<T: AsRef<Path> + Debug, U: FromStr>(pathname: T) -> Vec<U>
+where
+    <U as FromStr>::Err: Debug,
+{
+    let mut result = Vec::new();
+    for line in std::fs::read_to_string(pathname)
+        .expect("Unable to find {pathname:?}")
+        .lines()
+    {
+        result.push(line.parse::<U>().unwrap());
+    }
+    result
+}
