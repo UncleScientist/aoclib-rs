@@ -23,7 +23,7 @@ impl Runner for Aoc2022_05 {
         for line in aoclib::read_lines("input/2022-05.txt") {
             let words = line.split(' ').collect::<Vec<&str>>();
             if words[0] == "move" {
-                let amount = words[1].parse::<usize>().unwrap();
+                let amount = words[1].parse().unwrap();
                 let from = words[3].parse::<usize>().unwrap() - 1;
                 let to = words[5].parse::<usize>().unwrap() - 1;
                 self.instructions.push(Move { amount, from, to });
@@ -44,21 +44,34 @@ impl Runner for Aoc2022_05 {
     }
 
     fn part1(&mut self) -> Vec<String> {
+        let mut ship = self.ship.clone();
+
         for i in &self.instructions {
             for _ in 0..i.amount {
-                let ship_crate = self.ship[i.from].pop_back().unwrap();
-                self.ship[i.to].push_back(ship_crate);
+                let ship_crate = ship[i.from].pop_back().unwrap();
+                ship[i.to].push_back(ship_crate);
             }
         }
         let mut answer = "".to_string();
-        for stack in &self.ship {
+        for stack in &ship {
             answer.push(*stack.back().unwrap());
         }
         crate::output(answer)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut ship = self.ship.clone();
+
+        for i in &self.instructions {
+            let split_point = ship[i.from].len() - i.amount;
+            let removed = ship[i.from].split_off(split_point);
+            ship[i.to].extend(removed);
+        }
+        let mut answer = "".to_string();
+        for stack in &ship {
+            answer.push(*stack.back().unwrap());
+        }
+        crate::output(answer)
     }
 }
 
