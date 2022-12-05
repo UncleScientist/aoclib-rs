@@ -24,32 +24,42 @@ impl Runner for Aoc2017_06 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut banks = self.banks.clone();
         let mut state = HashSet::new();
 
-        let mut cycles = 0;
-        while state.insert(banks.clone()) {
-            let (mut bank, &(mut count)) = banks
-                .iter()
-                .rev()
-                .enumerate()
-                .max_by(|a, b| a.1.cmp(b.1))
-                .unwrap();
-
-            bank = banks.len() - bank - 1;
-            banks[bank] = 0;
-            while count > 0 {
-                bank = (bank + 1) % banks.len();
-                banks[bank] += 1;
-                count -= 1;
-            }
-            cycles += 1;
-        }
-
-        crate::output(cycles)
+        crate::output(loop_till_repeat(&mut self.banks, &mut state))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut state = HashSet::new();
+        state.insert(self.banks.clone());
+
+        crate::output(loop_till_repeat(&mut self.banks, &mut state))
     }
+}
+
+fn loop_till_repeat(banks: &mut Vec<usize>, state: &mut HashSet<Vec<usize>>) -> usize {
+    let mut cycles = 0;
+
+    loop {
+        let (mut bank, &(mut count)) = banks
+            .iter()
+            .rev()
+            .enumerate()
+            .max_by(|a, b| a.1.cmp(b.1))
+            .unwrap();
+
+        bank = banks.len() - bank - 1;
+        banks[bank] = 0;
+        while count > 0 {
+            bank = (bank + 1) % banks.len();
+            banks[bank] += 1;
+            count -= 1;
+        }
+        cycles += 1;
+        if !state.insert(banks.clone()) {
+            break;
+        }
+    }
+
+    cycles
 }
