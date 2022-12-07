@@ -57,9 +57,7 @@ impl Runner for Aoc2022_07 {
         let mut total = 0;
 
         while let Some(dir) = to_visit.pop() {
-            for d in dir.subdir.borrow().values() {
-                to_visit.push(Rc::clone(d));
-            }
+            to_visit.extend(dir.subdir.borrow().values().map(Rc::clone));
 
             let size = dir.get_size();
             if size <= 100000 {
@@ -71,7 +69,22 @@ impl Runner for Aoc2022_07 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let total_size = self.root.get_size();
+        let free_space = 70000000 - total_size;
+        let space_needed = 30000000 - free_space;
+
+        let mut to_visit = vec![Rc::clone(&self.root)];
+        let mut best = usize::MAX;
+
+        while let Some(dir) = to_visit.pop() {
+            to_visit.extend(dir.subdir.borrow().values().map(Rc::clone));
+
+            let size = dir.get_size();
+            if size >= space_needed {
+                best = best.min(size);
+            }
+        }
+        crate::output(best)
     }
 }
 
