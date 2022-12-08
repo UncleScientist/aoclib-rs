@@ -3,6 +3,7 @@ use crate::Runner;
 #[derive(Default)]
 pub struct Aoc2017_09 {
     stream: Vec<char>,
+    garbage_count: usize,
 }
 
 impl Aoc2017_09 {
@@ -51,6 +52,8 @@ impl Runner for Aoc2017_09 {
                     } else if ch == '!' {
                         state = State::Skip;
                         prev_state = State::Garbage;
+                    } else {
+                        self.garbage_count += 1;
                     }
                 }
             }
@@ -59,7 +62,7 @@ impl Runner for Aoc2017_09 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(self.garbage_count)
     }
 }
 
