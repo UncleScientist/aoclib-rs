@@ -5,6 +5,7 @@ use crate::Runner;
 #[derive(Default)]
 pub struct Aoc2017_08 {
     inst: Vec<Inst>,
+    high_water_mark: i32,
 }
 
 impl Aoc2017_08 {
@@ -51,13 +52,14 @@ impl Runner for Aoc2017_08 {
                 } else {
                     *val -= i.amount;
                 }
+                self.high_water_mark = self.high_water_mark.max(*val);
             }
         }
         crate::output(reg.values().max().unwrap())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(self.high_water_mark)
     }
 }
 
