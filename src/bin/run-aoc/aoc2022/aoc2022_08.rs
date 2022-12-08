@@ -75,6 +75,35 @@ impl Runner for Aoc2022_08 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut max_score = 0;
+
+        for row in 1..self.height - 1 {
+            for col in 1..self.width - 1 {
+                let mut score = 1;
+                for step in [UP, DOWN, LEFT, RIGHT] {
+                    let mut walk = (row, col);
+                    let my_height = self.grid[row as usize][col as usize];
+                    walk.0 += step.0;
+                    walk.1 += step.1;
+                    let mut count = 0;
+                    while walk.0 >= 0 && walk.0 < self.height && walk.1 >= 0 && walk.1 < self.width
+                    {
+                        count += 1;
+
+                        if self.grid[walk.0 as usize][walk.1 as usize] >= my_height {
+                            break;
+                        }
+
+                        walk.0 += step.0;
+                        walk.1 += step.1;
+                    }
+
+                    score *= count;
+                }
+
+                max_score = max_score.max(score);
+            }
+        }
+        crate::output(max_score)
     }
 }
