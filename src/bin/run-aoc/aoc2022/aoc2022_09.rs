@@ -28,7 +28,17 @@ impl Runner for Aoc2022_09 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut snake = Snake::default();
+        crate::output(self.run_snake(2))
+    }
+
+    fn part2(&mut self) -> Vec<String> {
+        crate::output(self.run_snake(10))
+    }
+}
+
+impl Aoc2022_09 {
+    fn run_snake(&self, len: usize) -> usize {
+        let mut snake = Snake::new(len);
 
         for (dir, amount) in &self.steps {
             for _ in 0..*amount {
@@ -36,11 +46,7 @@ impl Runner for Aoc2022_09 {
             }
         }
 
-        crate::output(snake.visited.len())
-    }
-
-    fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        snake.visited.len()
     }
 }
 
@@ -66,50 +72,35 @@ impl Direction {
 
 #[derive(Default)]
 struct Snake {
-    head: (i32, i32),
-    tail: (i32, i32),
+    seg: Vec<(i32, i32)>,
     visited: HashSet<(i32, i32)>,
 }
 
 impl Snake {
     const DIR: [(i32, i32); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
 
+    fn new(len: usize) -> Self {
+        Self {
+            seg: vec![(0, 0); len],
+            visited: HashSet::new(),
+        }
+    }
+
     fn make_move(&mut self, dir: &Direction) {
         let delta = Self::DIR[*dir as usize];
-        self.head.0 += delta.0;
-        self.head.1 += delta.1;
+        self.seg[0].0 += delta.0;
+        self.seg[0].1 += delta.1;
 
-        let rowdiff = self.head.0 - self.tail.0;
-        let coldiff = self.head.1 - self.tail.1;
+        for i in 1..self.seg.len() {
+            let rowdiff = self.seg[i - 1].0 - self.seg[i].0;
+            let coldiff = self.seg[i - 1].1 - self.seg[i].1;
 
-        if rowdiff == 0 && coldiff.abs() > 1 {
-            self.tail.1 += coldiff.signum();
-        } else if coldiff == 0 && rowdiff.abs() > 1 {
-            self.tail.0 += rowdiff.signum();
-        } else if rowdiff.abs() > 1 || coldiff.abs() > 1 {
-            self.tail.0 += rowdiff.signum();
-            self.tail.1 += coldiff.signum();
-        }
-
-        self.visited.insert(self.tail);
-
-        /*
-        for row in -5..5 {
-            for col in -5..5 {
-                if (row, col) == self.head {
-                    print!("H");
-                } else if (row, col) == self.tail {
-                    print!("T");
-                } else if self.visited.contains(&(row, col)) {
-                    print!("#");
-                } else {
-                    print!(".");
-                }
+            if rowdiff.abs() > 1 || coldiff.abs() > 1 {
+                self.seg[i].0 += rowdiff.signum();
+                self.seg[i].1 += coldiff.signum();
             }
-            println!();
         }
 
-        println!("-----");
-        */
+        self.visited.insert(self.seg[self.seg.len() - 1]);
     }
 }
