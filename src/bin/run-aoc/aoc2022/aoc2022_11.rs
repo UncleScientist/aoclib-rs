@@ -64,7 +64,7 @@ impl Runner for Aoc2022_11 {
         let mut part1 = self.monkey.clone();
 
         for _ in 0..20 {
-            round(&mut part1);
+            round(&mut part1, true);
         }
 
         let mut monkey_business = part1.iter().map(|m| m.count).collect::<Vec<usize>>();
@@ -74,15 +74,24 @@ impl Runner for Aoc2022_11 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut part2 = self.monkey.clone();
+
+        for _ in 0..10000 {
+            round(&mut part2, false);
+        }
+
+        let mut monkey_business = part2.iter().map(|m| m.count).collect::<Vec<usize>>();
+        monkey_business.sort_by(|a, b| b.cmp(a));
+
+        crate::output(monkey_business[0] * monkey_business[1])
     }
 }
 
 #[derive(Debug, Default, Clone)]
 struct Monkey {
-    items: VecDeque<i32>,
+    items: VecDeque<i64>,
     op: Op,
-    test: i32,
+    test: i64,
     dest: (usize, usize),
     count: usize,
 }
@@ -92,12 +101,12 @@ enum Op {
     #[default]
     AddSelf,
     MulSelf,
-    Mul(i32),
-    Add(i32),
+    Mul(i64),
+    Add(i64),
 }
 
 impl Op {
-    fn calc(&self, val: i32) -> i32 {
+    fn calc(&self, val: i64) -> i64 {
         match self {
             Self::AddSelf => val + val,
             Self::MulSelf => val * val,
@@ -107,10 +116,16 @@ impl Op {
     }
 }
 
-fn round(mvec: &mut Vec<Monkey>) {
+fn round(mvec: &mut Vec<Monkey>, part1: bool) {
+    let modval: i64 = mvec.iter().map(|m| m.test).product();
+
     for i in 0..mvec.len() {
         while let Some(item) = mvec[i].items.pop_front() {
-            let worry = mvec[i].op.calc(item) / 3;
+            let worry = if part1 {
+                mvec[i].op.calc(item) / 3
+            } else {
+                mvec[i].op.calc(item) % modval
+            };
             let dest = if worry % mvec[i].test == 0 {
                 mvec[i].dest.0
             } else {
