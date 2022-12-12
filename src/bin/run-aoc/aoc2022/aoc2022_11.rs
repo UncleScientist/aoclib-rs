@@ -64,7 +64,7 @@ impl Runner for Aoc2022_11 {
         let mut part1 = self.monkey.clone();
 
         for _ in 0..20 {
-            round(&mut part1, true);
+            round(&mut part1, 0);
         }
 
         let mut monkey_business = part1.iter().map(|m| m.count).collect::<Vec<usize>>();
@@ -75,9 +75,10 @@ impl Runner for Aoc2022_11 {
 
     fn part2(&mut self) -> Vec<String> {
         let mut part2 = self.monkey.clone();
+        let modval: i64 = part2.iter().map(|m| m.test).product();
 
         for _ in 0..10000 {
-            round(&mut part2, false);
+            round(&mut part2, modval);
         }
 
         let mut monkey_business = part2.iter().map(|m| m.count).collect::<Vec<usize>>();
@@ -116,12 +117,10 @@ impl Op {
     }
 }
 
-fn round(mvec: &mut Vec<Monkey>, part1: bool) {
-    let modval: i64 = mvec.iter().map(|m| m.test).product();
-
+fn round(mvec: &mut Vec<Monkey>, modval: i64) {
     for i in 0..mvec.len() {
         while let Some(item) = mvec[i].items.pop_front() {
-            let worry = if part1 {
+            let worry = if modval == 0 {
                 mvec[i].op.calc(item) / 3
             } else {
                 mvec[i].op.calc(item) % modval
