@@ -23,7 +23,7 @@ impl Runner for Aoc2022_12 {
     }
 
     fn parse(&mut self) {
-        let lines = aoclib::read_lines("input/2022-12.txt"); //"test-input.txt");
+        let lines = aoclib::read_lines("input/2022-12.txt");
 
         for (row, line) in lines.iter().enumerate() {
             let mut gridline = line.chars().map(|c| c as u8).collect::<Vec<u8>>();
@@ -43,12 +43,51 @@ impl Runner for Aoc2022_12 {
     }
 
     fn part1(&mut self) -> Vec<String> {
+        crate::output(self.find_shortest(self.start).unwrap())
+    }
+
+    fn part2(&mut self) -> Vec<String> {
+        let mut startpoints = Vec::new();
+        for (row, line) in self.grid.iter().enumerate() {
+            for (col, ch) in line.iter().enumerate() {
+                if *ch == b'a' {
+                    startpoints.push((row, col));
+                }
+            }
+        }
+
+        crate::output(
+            startpoints
+                .iter()
+                .filter_map(|p| self.find_shortest(*p))
+                .min()
+                .unwrap(),
+        )
+    }
+}
+
+impl Aoc2022_12 {
+    const DIR: [(i32, i32); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
+
+    fn get_surrounding_points(&self, pos: (usize, usize)) -> Vec<(usize, usize)> {
+        let ipos = (pos.0 as i32, pos.1 as i32);
+        let width = self.width as i32;
+        let height = self.height as i32;
+        Self::DIR
+            .iter()
+            .map(|d| (ipos.0 + d.0, ipos.1 + d.1))
+            .filter(|pos| pos.0 >= 0 && pos.1 >= 0 && pos.0 < height && pos.1 < width)
+            .map(|pos| (pos.0 as usize, pos.1 as usize))
+            .collect()
+    }
+
+    fn find_shortest(&self, start_point: (usize, usize)) -> Option<usize> {
         let mut to_visit = Vec::new();
 
         let mut shortest: HashMap<(usize, usize), usize> = HashMap::new();
-        shortest.insert(self.start, 0);
+        shortest.insert(start_point, 0);
 
-        to_visit.extend(self.get_surrounding_points(self.start));
+        to_visit.extend(self.get_surrounding_points(start_point));
         while let Some(loc) = to_visit.pop() {
             let cur_elevation = self.grid[loc.0][loc.1];
             let points = self.get_surrounding_points(loc);
@@ -73,26 +112,6 @@ impl Runner for Aoc2022_12 {
             }
         }
 
-        crate::output(shortest.get(&self.end).unwrap())
-    }
-
-    fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
-    }
-}
-
-impl Aoc2022_12 {
-    const DIR: [(i32, i32); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
-
-    fn get_surrounding_points(&self, pos: (usize, usize)) -> Vec<(usize, usize)> {
-        let ipos = (pos.0 as i32, pos.1 as i32);
-        let width = self.width as i32;
-        let height = self.height as i32;
-        Self::DIR
-            .iter()
-            .map(|d| (ipos.0 + d.0, ipos.1 + d.1))
-            .filter(|pos| pos.0 >= 0 && pos.1 >= 0 && pos.0 < height && pos.1 < width)
-            .map(|pos| (pos.0 as usize, pos.1 as usize))
-            .collect()
+        shortest.get(&self.end).copied()
     }
 }
