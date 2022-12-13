@@ -5,7 +5,7 @@ use crate::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_13 {
-    pairs: Vec<(Val, Val)>,
+    packets: Vec<Val>,
 }
 
 impl Aoc2022_13 {
@@ -20,19 +20,15 @@ impl Runner for Aoc2022_13 {
     }
 
     fn parse(&mut self) {
-        let lines = aoclib::read_lines("input/2022-13.txt");
-
-        for pair in lines.chunks(2) {
-            let left = Val::parse(&pair[0]);
-            let right = Val::parse(&pair[1]);
-            self.pairs.push((left, right))
+        for line in aoclib::read_lines("input/2022-13.txt") {
+            self.packets.push(Val::parse(&line));
         }
     }
 
     fn part1(&mut self) -> Vec<String> {
         let mut sum = 0;
-        for (index, pair) in self.pairs.iter().enumerate() {
-            if pair.0 < pair.1 {
+        for (index, pair) in self.packets.chunks(2).enumerate() {
+            if pair[0] < pair[1] {
                 sum += index + 1;
             }
         }
@@ -40,27 +36,20 @@ impl Runner for Aoc2022_13 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        let mut list = Vec::new();
-
-        for p in self.pairs.iter() {
-            list.push(p.0.clone());
-            list.push(p.1.clone());
-        }
         let d2 = Val::parse("[[2]]");
         let d6 = Val::parse("[[6]]");
-        list.push(d2.clone());
-        list.push(d6.clone());
+
+        let mut list = vec![d2.clone(), d6.clone()];
+        list.extend(self.packets.iter().cloned());
 
         list.sort(); // <- does all the work!
 
-        let mut answer = 1;
-        for (index, val) in list.iter().enumerate() {
-            if *val == d2 || *val == d6 {
-                answer *= index + 1;
-            }
-        }
-
-        crate::output(answer)
+        crate::output(
+            list.into_iter()
+                .enumerate()
+                .filter(|(_, p)| *p == d2 || *p == d6)
+                .fold(1, |a, b| a * (b.0 + 1)),
+        )
     }
 }
 
