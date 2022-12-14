@@ -19,7 +19,7 @@ impl Runner for Aoc2022_14 {
     }
 
     fn parse(&mut self) {
-        let lines = aoclib::read_lines("input/2022-14.txt"); // "test-input.txt");
+        let lines = aoclib::read_lines("input/2022-14.txt");
 
         for line in lines {
             let mut iter = line.split(" -> ");
@@ -38,13 +38,20 @@ impl Runner for Aoc2022_14 {
         while part1.drop_one() {
             count += 1;
         }
-        part1.display();
 
         crate::output(count)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut part2 = self.cave.clone();
+        part2.has_floor = true;
+
+        let mut count = 0;
+        while part2.drop_one() {
+            count += 1;
+        }
+
+        crate::output(count)
     }
 }
 
@@ -52,6 +59,7 @@ impl Runner for Aoc2022_14 {
 struct Cave {
     tile: HashMap<(i32, i32), char>,
     bottom: i32,
+    has_floor: bool,
 }
 
 impl Cave {
@@ -82,11 +90,18 @@ impl Cave {
     fn drop_one(&mut self) -> bool {
         let mut sand = (500, 0);
 
+        if self.has_floor && self.tile.contains_key(&sand) {
+            return false;
+        }
+
         while let Some(next_pos) = self.fall(sand) {
-            if next_pos.1 > self.bottom {
+            if !self.has_floor && next_pos.1 > self.bottom {
                 return false;
             }
             sand = next_pos;
+            if self.has_floor && sand.1 == self.bottom + 1 {
+                break;
+            }
         }
 
         self.tile.insert(sand, 'o');
@@ -102,24 +117,5 @@ impl Cave {
         }
 
         None
-    }
-
-    fn display(&self) {
-        for y in 0..=9 {
-            for x in 494..=503 {
-                print!(
-                    "{}",
-                    if x == 500 && y == 0 {
-                        '+'
-                    } else if let Some(ch) = self.tile.get(&(x, y)) {
-                        *ch
-                    } else {
-                        '.'
-                    }
-                );
-            }
-            println!()
-        }
-        println!("-")
     }
 }
