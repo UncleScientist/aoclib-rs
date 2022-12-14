@@ -57,7 +57,7 @@ impl Aoc2022_12 {
     fn get_surrounding_points(
         &self,
         pos: (usize, usize),
-        f: &dyn Fn((usize, usize), u8) -> bool,
+        f: &dyn Fn(u8, u8) -> bool,
     ) -> Vec<(usize, usize)> {
         let ipos = (pos.0 as i32, pos.1 as i32);
         let width = self.width as i32;
@@ -69,7 +69,7 @@ impl Aoc2022_12 {
             .map(|d| (ipos.0 + d.0, ipos.1 + d.1))
             .filter(|pos| pos.0 >= 0 && pos.1 >= 0 && pos.0 < height && pos.1 < width)
             .map(|pos| (pos.0 as usize, pos.1 as usize))
-            .filter(|pos| f(*pos, cur_elevation))
+            .filter(|pos| f(self.grid[pos.0][pos.1], cur_elevation))
             .collect()
     }
 
@@ -82,12 +82,12 @@ impl Aoc2022_12 {
 
         while let Some(loc) = queue.pop_front() {
             let valid = if backwards {
-                self.get_surrounding_points(loc.0, &|pos: (usize, usize), elevation: u8| {
-                    self.grid[pos.0][pos.1] >= elevation - 1
+                self.get_surrounding_points(loc.0, &|new_elev: u8, cur_elev: u8| {
+                    cur_elev <= new_elev + 1
                 })
             } else {
-                self.get_surrounding_points(loc.0, &|pos: (usize, usize), elevation: u8| {
-                    self.grid[pos.0][pos.1] <= elevation + 1
+                self.get_surrounding_points(loc.0, &|new_elev: u8, cur_elev: u8| {
+                    new_elev <= cur_elev + 1
                 })
             };
 
