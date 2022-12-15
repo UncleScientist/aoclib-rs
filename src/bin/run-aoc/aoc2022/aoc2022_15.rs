@@ -22,8 +22,8 @@ impl Runner for Aoc2022_15 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2022-15.txt");
-        self.part1row = 2000000;
-        self.part2max = 4000000;
+        self.part1row = 2000000; // use 10 for test input
+        self.part2max = 4000000; // use 20 for test input
 
         for line in lines {
             self.sensors.push(Sensor::parse(&line));
@@ -59,26 +59,22 @@ impl Runner for Aoc2022_15 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        // row[0]    vec![Range { low..high }, Range {low..high}....]
-        // row[1]    vec![Range { 0..part2max} }
-        // row[2]
+        for row in 0..=self.part2max {
+            let mut rowdata = vec![0..=self.part2max];
+            for s in &self.sensors {
+                let radius = s.radius();
+                let top = 0.max(s.loc.1 - radius);
+                let bottom = self.part2max.min(s.loc.1 + radius);
+                if top > row || bottom < row {
+                    continue;
+                }
 
-        let mut rowdata = vec![vec![0..=self.part2max]; self.part2max as usize + 1];
-        for s in &self.sensors {
-            let radius = s.radius();
-            let top = 0.max(s.loc.1 - radius);
-            let bottom = self.part2max.min(s.loc.1 + radius);
-
-            for row in top..=bottom {
                 let dist = (s.loc.1 - row).abs();
                 let min_x = 0.max(s.loc.0 - (radius - dist));
                 let max_x = self.part2max.min(s.loc.0 + (radius - dist));
-                // start............end
-                //      min...max
-                //              min.......max
-                // .......max
+
                 let mut new_range = Vec::new();
-                for r in &rowdata[row as usize] {
+                for r in &rowdata {
                     let start = *r.start();
                     if start > max_x {
                         new_range.push(r.clone());
@@ -98,15 +94,12 @@ impl Runner for Aoc2022_15 {
                         new_range.push(max_x + 1..=end);
                     }
                 }
-
-                rowdata[row as usize] = new_range;
+                rowdata = new_range;
             }
-        }
 
-        for (y, r) in rowdata.iter().enumerate() {
-            if !r.is_empty() {
-                let x = *r[0].start();
-                return crate::output(x * 4000000 + y as i64);
+            if !rowdata.is_empty() {
+                let x = *rowdata[0].start();
+                return crate::output(x * 4000000 + row);
             }
         }
 
