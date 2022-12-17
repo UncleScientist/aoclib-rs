@@ -21,8 +21,8 @@ impl Runner for Aoc2022_16 {
     }
 
     fn parse(&mut self) {
-        // let lines = aoclib::read_lines("test-input.txt");
-        let lines = aoclib::read_lines("input/2022-16.txt");
+        let lines = aoclib::read_lines("test-input.txt");
+        //let lines = aoclib::read_lines("input/2022-16.txt");
         for line in lines {
             let (v, t) = line.split_once(';').unwrap();
             let (vname, rate) = v.split_once('=').unwrap();
@@ -38,7 +38,7 @@ impl Runner for Aoc2022_16 {
             self.tunnels.insert(
                 name.to_string(),
                 Valve {
-                    _name: name.to_string(),
+                    name: name.to_string(),
                     flow_rate: rate.parse().unwrap(),
                     paths,
                 },
@@ -56,6 +56,7 @@ impl Runner for Aoc2022_16 {
         let walker = Walk {
             loc: "AA".to_string(),
             remaining_time: 30,
+            helper: false,
             turned_on: HashSet::new(),
         };
         crate::output(search.bfs(&walker, &self.tunnels, &self.shortcuts))
@@ -63,13 +64,20 @@ impl Runner for Aoc2022_16 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut search = Search::default();
+        let walker = Walk {
+            loc: "AA".to_string(),
+            remaining_time: 30,
+            helper: true,
+            turned_on: HashSet::new(),
+        };
+        crate::output(search.bfs(&walker, &self.tunnels, &self.shortcuts))
     }
 }
 
 #[derive(Debug)]
 struct Valve {
-    _name: String,
+    name: String,
     flow_rate: usize,
     paths: Vec<String>,
 }
@@ -90,11 +98,11 @@ fn shortcuts(start: &String, tunnels: &HashMap<String, Valve>) -> HashMap<String
                 continue;
             }
             let room = tunnels.get(path).unwrap();
-            if room.flow_rate > 0 && &room._name != start {
-                paths.insert(room._name.clone(), dist + 1);
+            if room.flow_rate > 0 && &room.name != start {
+                paths.insert(room.name.clone(), dist + 1);
             }
 
-            queue.push_back((&room._name, dist + 1));
+            queue.push_back((&room.name, dist + 1));
         }
     }
 
@@ -105,12 +113,14 @@ fn shortcuts(start: &String, tunnels: &HashMap<String, Valve>) -> HashMap<String
 struct Walk {
     loc: String,
     remaining_time: usize,
+    helper: bool,
     turned_on: HashSet<String>,
 }
 
 impl PartialEq for Walk {
     fn eq(&self, other: &Self) -> bool {
         self.loc == other.loc
+            && self.helper == other.helper
             && self.remaining_time == other.remaining_time
             && self.turned_on == other.turned_on
     }
@@ -121,6 +131,7 @@ impl Eq for Walk {}
 impl Hash for Walk {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.loc.hash(state);
+        self.helper.hash(state);
         self.remaining_time.hash(state);
         let mut vec = self.turned_on.iter().collect::<Vec<&String>>();
         vec.sort();
@@ -150,7 +161,20 @@ impl Search {
             return 0;
         }
 
-        let mut max_flow = 0;
+        let mut max_flow = if walk.helper {
+            self.bfs(
+                &Walk {
+                    loc: "AA".to_string(),
+                    remaining_time: walk.remaining_time,
+                    helper: false,
+                    turned_on: walk.turned_on.clone(),
+                },
+                tunnels,
+                shortcuts,
+            )
+        } else {
+            0
+        };
 
         if !walk.turned_on.contains(&walk.loc) {
             let mut turned_on = walk.turned_on.clone();
@@ -162,6 +186,7 @@ impl Search {
                     &Walk {
                         loc: walk.loc.clone(),
                         remaining_time: walk.remaining_time - 1,
+                        helper: walk.helper,
                         turned_on,
                     },
                     tunnels,
@@ -178,6 +203,7 @@ impl Search {
                     &Walk {
                         loc: dest.to_string(),
                         remaining_time: walk.remaining_time - *cost,
+                        helper: walk.helper,
                         turned_on: walk.turned_on.clone(),
                     },
                     tunnels,
