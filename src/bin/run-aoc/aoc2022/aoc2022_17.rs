@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::Runner;
 
 #[derive(Default)]
@@ -35,7 +37,68 @@ impl Runner for Aoc2022_17 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut part2 = self.chamber.clone();
+
+        // state will be: current piece number, current jet index, top 4 rows of chamber
+        // if we get a repeat, then we found a cycle
+        //      -- delta_height: height from previous cycle to this one
+        //      -- delta_drops: how many drops were needed to get to delta_height
+        //      -- offset_height: how high the tower was when the cycle began for the first time
+        //      -- offset_drops: how many drops it took to get to offset_height
+
+        let mut cycle_finder = HashMap::new();
+
+        // map state to (height, drops)
+        cycle_finder.insert((part2.piecenum, part2.jetnum, 0usize), (0usize, 0usize));
+
+        let mut drops = 0;
+        loop {
+            part2.drop_one();
+            drops += 1;
+            let height = part2.height();
+            if height < 4 {
+                continue;
+            }
+
+            let shape = ((part2.rocks[height - 1] as usize) << 24)
+                | ((part2.rocks[height - 2] as usize) << 16)
+                | ((part2.rocks[height - 3] as usize) << 8)
+                | (part2.rocks[height - 4] as usize);
+
+            if let Some(entry) = cycle_finder.get(&(part2.piecenum, part2.jetnum, shape)) {
+                // println!("piece = {}", part2.piecenum);
+                // println!("jetnum = {}", part2.jetnum);
+                // println!("shape = {}", shape);
+
+                // println!("drops until start of loop = {}", entry.1);
+                // println!("height of tower when the loop started = {}", entry.0);
+                let delta_height = height - entry.0;
+                let delta_drops = drops - entry.1;
+                // println!(
+                // "There is an increase of {delta_height} rows for every {delta_drops} drops"
+                // );
+                let remaining_drops = Chamber::OUCH - entry.1;
+                // println!("There are still {remaining_drops} left to go");
+
+                let needed_drops = remaining_drops / delta_drops;
+                let leftover_drops = remaining_drops % delta_drops;
+                let integral_height = entry.0 + delta_height * needed_drops;
+
+                // println!(
+                // "The height will reach {integral_height} but there are still {leftover_drops} drops left"
+                // );
+
+                for _ in 0..leftover_drops {
+                    part2.drop_one();
+                }
+                let leftover_height = part2.height() - height;
+                // println!("After {leftover_drops} more drops, we added {leftover_height} rows");
+
+                return crate::output(integral_height + leftover_height);
+            } else {
+                cycle_finder.insert((part2.piecenum, part2.jetnum, shape), (height, drops));
+            }
+        }
     }
 }
 
@@ -55,6 +118,8 @@ impl Chamber {
         [0b0010000, 0b0010000, 0b0010000, 0b0010000],
         [0b0000000, 0b0000000, 0b0011000, 0b0011000],
     ];
+
+    const OUCH: usize = 1_000_000_000_000;
 
     fn new(jets: Vec<char>) -> Self {
         Self {
