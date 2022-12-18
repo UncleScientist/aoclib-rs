@@ -21,8 +21,8 @@ impl Runner for Aoc2022_16 {
     }
 
     fn parse(&mut self) {
-        let lines = aoclib::read_lines("test-input.txt");
-        //let lines = aoclib::read_lines("input/2022-16.txt");
+        // let lines = aoclib::read_lines("test-input.txt");
+        let lines = aoclib::read_lines("input/2022-16.txt");
         for line in lines {
             let (v, t) = line.split_once(';').unwrap();
             let (vname, rate) = v.split_once('=').unwrap();
@@ -67,7 +67,7 @@ impl Runner for Aoc2022_16 {
         let mut search = Search::default();
         let walker = Walk {
             loc: "AA".to_string(),
-            remaining_time: 30,
+            remaining_time: 26,
             helper: true,
             turned_on: HashSet::new(),
         };
@@ -143,7 +143,7 @@ impl Hash for Walk {
 
 #[derive(Default)]
 struct Search {
-    seen: HashMap<Walk, usize>, // current state, flow so far
+    seen: HashMap<Walk, usize>, // current state -> flow so far
 }
 
 impl Search {
@@ -157,15 +157,13 @@ impl Search {
             return *answer;
         }
 
-        if walk.remaining_time == 0 {
-            return 0;
-        }
-
         let mut max_flow = if walk.helper {
+            // let me walk through the tunnels too, while the elephant is doing
+            // the elephant things
             self.bfs(
                 &Walk {
                     loc: "AA".to_string(),
-                    remaining_time: walk.remaining_time,
+                    remaining_time: 26,
                     helper: false,
                     turned_on: walk.turned_on.clone(),
                 },
@@ -176,7 +174,7 @@ impl Search {
             0
         };
 
-        if !walk.turned_on.contains(&walk.loc) {
+        if !walk.turned_on.contains(&walk.loc) && walk.remaining_time > 0 {
             let mut turned_on = walk.turned_on.clone();
             turned_on.insert(walk.loc.clone());
             let flow = tunnels.get(&walk.loc).unwrap().flow_rate * (walk.remaining_time - 1);
