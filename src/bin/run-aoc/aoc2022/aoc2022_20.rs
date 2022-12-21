@@ -27,11 +27,25 @@ impl Runner for Aoc2022_20 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut result = self.data.clone();
+        crate::output(decrypt(&self.data, 1, 1))
+    }
 
-        let len = self.data.len() as i64 - 1;
+    fn part2(&mut self) -> Vec<String> {
+        crate::output(decrypt(&self.data, 10, 811589153))
+    }
+}
 
-        for d in &self.data {
+fn decrypt(data: &[(i64, i64)], rounds: usize, key: i64) -> i64 {
+    let data = data
+        .iter()
+        .map(|(index, value)| (*index, value * key))
+        .collect::<Vec<_>>();
+    let mut result = data.clone();
+
+    let len = result.len() as i64 - 1;
+
+    for _ in 0..rounds {
+        for d in &data {
             let pos = result.iter().position(|n| n == d).unwrap() as i64;
             let mut new_pos = (pos + d.1) % len;
 
@@ -46,16 +60,9 @@ impl Runner for Aoc2022_20 {
             let val = result.remove(pos as usize);
             result.insert(new_pos as usize, val);
         }
-
-        let zero = result.iter().position(|p| p.1 == 0).unwrap();
-        crate::output(
-            result[(zero + 1000) % result.len()].1
-                + result[(zero + 2000) % result.len()].1
-                + result[(zero + 3000) % result.len()].1,
-        )
     }
-
-    fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
-    }
+    let zero = result.iter().position(|p| p.1 == 0).unwrap();
+    result[(zero + 1000) % result.len()].1
+        + result[(zero + 2000) % result.len()].1
+        + result[(zero + 3000) % result.len()].1
 }
