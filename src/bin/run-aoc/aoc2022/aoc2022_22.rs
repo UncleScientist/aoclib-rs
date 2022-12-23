@@ -96,7 +96,43 @@ impl Runner for Aoc2022_22 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut start_col = 0;
+
+        for col in 0..self.map.width {
+            if Some(&Tile::Space) == self.map.tiles.get(&(0, col)) {
+                start_col = col as i64;
+                break;
+            }
+        }
+
+        let mut pos = (0, start_col);
+        let mut facing = 0;
+
+        for step in &self.steps {
+            match step {
+                Move::Right => facing = (facing + 1) % Map::DIR.len(),
+                Move::Left => facing = (facing + Map::DIR.len() - 1) % Map::DIR.len(),
+                Move::Forward(n) => {
+                    for _ in 0..*n {
+                        let dir = Map::DIR[facing];
+                        let next_pos = (pos.0 + dir.0, pos.1 + dir.1);
+
+                        if let Some(tile) = self.map.tiles.get(&next_pos) {
+                            match tile {
+                                Tile::Space => pos = next_pos,
+                                Tile::Wall => break,
+                            }
+                        } else {
+                            let (new_facing, new_pos) = self.map.wrap_cube(&pos, facing);
+                            facing = new_facing;
+                            pos = new_pos;
+                        }
+                    }
+                }
+            }
+        }
+
+        crate::output((pos.0 + 1) * 1000 + (pos.1 + 1) * 4 + facing as i64)
     }
 }
 
@@ -136,6 +172,49 @@ impl Map {
             Tile::Wall => *pos,
             Tile::Space => result,
         }
+    }
+
+    //  23
+    //  1
+    // 45
+    // 6
+    // right=0, down=1, left=2, up=3
+
+    fn wrap_cube(&self, pos: &(i64, i64), facing: usize) -> (usize, (i64, i64)) {
+        let current_face = self.face(pos);
+        let row = pos.0;
+        let col = pos.1;
+
+        let (new_face, new_facing, new_pos) = match (current_face, facing) {
+            (1, 0) => (3, 3, (49, row + 50)),
+            (1, 2) => (4, 1, (100, row - 50)),
+            (2, 3) => (6, 0, (col + 100, 0)),
+            (2, 2) => (4, 0, (149 - row, 0)),
+            (3, 3) => (6, 3, (199, col - 100)),
+            (3, 0) => (5, 2, (149 - row, 99)),
+            (3, 1) => (1, 2, (col - 50, 99)),
+            (4, 3) => (1, 0, (col + 50, 50)),
+            (4, 2) => (2, 0, (149 - row, 50)),
+            (5, 0) => (3, 2, (149 - row, 149)),
+            (5, 1) => (6, 2, (col + 100, 49)),
+            (6, 0) => (5, 3, (149, row - 100)),
+            (6, 1) => (3, 1, (0, col + 100)),
+            (6, 2) => (2, 1, (0, row - 100)),
+            _ => panic!("weird location {current_face}, {facing}"),
+        };
+
+        assert!(self.face(&new_pos) == new_face);
+
+        if matches!(self.tiles.get(&new_pos).unwrap(), Tile::Wall) {
+            (facing, *pos)
+        } else {
+            (new_facing, new_pos)
+        }
+    }
+
+    fn face(&self, pos: &(i64, i64)) -> usize {
+        let face_index = (pos.0 / 50) * 3 + pos.1 / 50;
+        [0, 2, 3, 0, 1, 0, 4, 5, 0, 6][face_index as usize]
     }
 }
 
