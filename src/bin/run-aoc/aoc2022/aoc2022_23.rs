@@ -32,15 +32,11 @@ impl Runner for Aoc2022_23 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        // self.grove._draw();
-
         let mut grove = self.grove.clone();
 
         for _ in 0..10 {
-            grove = grove.round();
+            grove = grove.round().unwrap();
         }
-
-        // grove._draw();
 
         let dim = grove.dimensions();
         let area = (dim.2 - dim.0 + 1) * (dim.3 - dim.1 + 1);
@@ -49,7 +45,15 @@ impl Runner for Aoc2022_23 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut grove = Some(self.grove.clone());
+        let mut count = 0;
+        loop {
+            count += 1;
+            grove = grove.unwrap().round();
+            if grove.is_none() {
+                return crate::output(count);
+            }
+        }
     }
 }
 
@@ -77,9 +81,10 @@ impl Grove {
         [(0, 1), (-1, 1), (1, 1)],
     ];
 
-    fn round(&self) -> Self {
+    fn round(&self) -> Option<Self> {
         let mut result = HashSet::new();
         let mut consider: HashMap<(i64, i64), (usize, (i64, i64))> = HashMap::new();
+        let mut moved = false;
         for g in &self.grove {
             let count = Self::DIR
                 .iter()
@@ -89,6 +94,7 @@ impl Grove {
             if count == 0 {
                 result.insert(*g);
             } else {
+                moved = true;
                 let mut found = false;
                 for i in 0..4 {
                     let count = Self::CHECK[(i + self.dir) % Self::CHECK.len()]
@@ -103,7 +109,6 @@ impl Grove {
                         e.0 += 1;
                         if e.0 != 1 {
                             result.insert(*g);
-                        } else {
                         }
                         found = true;
                         break;
@@ -124,9 +129,13 @@ impl Grove {
             }
         }
 
-        Self {
-            grove: result,
-            dir: (self.dir + 1) % Self::DIR.len(),
+        if moved {
+            Some(Self {
+                grove: result,
+                dir: (self.dir + 1) % Self::DIR.len(),
+            })
+        } else {
+            None
         }
     }
 
