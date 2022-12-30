@@ -45,6 +45,19 @@ fn to_i64(s: &str) -> i64 {
 }
 
 fn to_snafu(mut num: i64) -> String {
+    let mut s = String::new();
+    while num > 0 {
+        s.push("012=-".chars().nth((num % 5) as usize).unwrap());
+        num = (num + 2) / 5;
+    }
+    if s.is_empty() {
+        "0".to_string()
+    } else {
+        s.chars().rev().collect()
+    }
+}
+
+fn _to_snafu(mut num: i64) -> String {
     let mut result = String::new();
 
     loop {
