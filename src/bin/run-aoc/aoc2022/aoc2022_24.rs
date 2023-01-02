@@ -1,6 +1,6 @@
 use std::hash::{Hash, Hasher};
 
-use aoclib::{dijkstra_search, DijkstraSearch};
+use aoclib::{dijkstra_search, Searcher};
 
 use crate::Runner;
 
@@ -236,7 +236,7 @@ impl Blizzard {
     }
 }
 
-impl<'a> DijkstraSearch for State<'a> {
+impl<'a> Searcher for State<'a> {
     fn moves(&self) -> Vec<Self> {
         let mut moves = Vec::new();
 

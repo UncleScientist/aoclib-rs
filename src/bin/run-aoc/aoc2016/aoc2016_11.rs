@@ -1,5 +1,5 @@
 use crate::Runner;
-use aoclib::{dijkstra_search, DijkstraSearch};
+use aoclib::{dijkstra_search, Searcher};
 
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
@@ -20,7 +20,7 @@ struct Building {
     elevator: usize,
 }
 
-impl DijkstraSearch for Building {
+impl Searcher for Building {
     fn moves(&self) -> Vec<Building> {
         let mut answer = Vec::new();
 

@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 
 use crate::Runner;
-use aoclib::{dijkstra_search, DijkstraSearch, Permutations};
+use aoclib::{dijkstra_search, Permutations, Searcher};
 
 #[derive(Default)]
 pub struct Aoc2016_24 {
@@ -137,7 +137,7 @@ impl std::cmp::PartialEq for MazeRunner {
     }
 }
 
-impl DijkstraSearch for MazeRunner {
+impl Searcher for MazeRunner {
     fn moves(&self) -> Vec<Self> {
         let mut result = Vec::new();
         let directions = vec![

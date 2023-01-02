@@ -1,14 +1,14 @@
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 
-pub trait DijkstraSearch {
+pub trait Searcher {
     fn moves(&self) -> Vec<Self>
     where
         Self: Sized;
     fn is_win_state(&self) -> bool;
 }
 
-pub fn dijkstra_search<T: DijkstraSearch + Clone + Eq + Hash>(start: &T) -> Option<(T, usize)> {
+pub fn dijkstra_search<T: Searcher + Clone + Eq + Hash>(start: &T) -> Option<(T, usize)> {
     let mut q: HashSet<T> = HashSet::new();
 
     let mut dist: HashMap<T, usize> = HashMap::new();
