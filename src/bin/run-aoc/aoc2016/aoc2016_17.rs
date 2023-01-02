@@ -51,7 +51,7 @@ impl Vault {
     }
 }
 
-impl DijkstraSearch for Vault {
+impl Searcher for Vault {
     fn moves(&self) -> Vec<Vault> {
         let mut result = Vec::new();
         // println!("Considering: {self:?}");
