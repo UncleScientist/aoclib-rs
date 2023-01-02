@@ -2,7 +2,7 @@ use crate::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_13 {
-    scanners: Vec<(usize, usize)>,
+    firewall: Firewall,
 }
 
 impl Aoc2017_13 {
@@ -21,29 +21,53 @@ impl Runner for Aoc2017_13 {
 
         for line in lines {
             let (layer, depth) = line.split_once(": ").unwrap();
-            self.scanners
-                .push((layer.parse().unwrap(), depth.parse().unwrap()));
+            self.firewall
+                .add(layer.parse().unwrap(), depth.parse().unwrap());
         }
     }
 
     fn part1(&mut self) -> Vec<String> {
+        crate::output(self.firewall.severity(0).unwrap())
+    }
+
+    fn part2(&mut self) -> Vec<String> {
+        crate::output(
+            (0usize..)
+                .find(|&delay| Some(0) == self.firewall.severity(delay))
+                .unwrap(),
+        )
+    }
+}
+
+#[derive(Default)]
+struct Firewall {
+    scanners: Vec<(usize, usize)>,
+}
+
+impl Firewall {
+    fn add(&mut self, layer: usize, depth: usize) {
+        self.scanners.push((layer, depth));
+    }
+
+    fn severity(&self, delay: usize) -> Option<usize> {
         let mut severity = 0;
-        let mut picoseconds = 0;
+        let mut range = 0;
+        let mut picoseconds = delay;
 
         for &(layer, depth) in &self.scanners {
-            let dist = layer - picoseconds;
+            let dist = layer - range;
 
+            range += dist;
             picoseconds += dist;
 
-            if picoseconds % ((depth - 1) * 2) == 0 {
+            if (picoseconds % ((depth - 1) * 2)) == 0 {
+                if delay != 0 {
+                    return None;
+                }
                 severity += layer * depth;
             }
         }
 
-        crate::output(severity)
-    }
-
-    fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        Some(severity)
     }
 }
