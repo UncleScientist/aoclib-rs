@@ -3,6 +3,7 @@ use crate::Runner;
 #[derive(Default)]
 pub struct Aoc2017_11 {
     steps: Vec<Dir>,
+    max: i32,
 }
 
 impl Aoc2017_11 {
@@ -40,12 +41,13 @@ impl Runner for Aoc2017_11 {
                 }
                 Dir::Northwest => x -= 1,
             }
+            self.max = self.max.max(y.abs().max(x.abs()));
         }
         crate::output(y.abs().max(x.abs()))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(self.max)
     }
 }
 
