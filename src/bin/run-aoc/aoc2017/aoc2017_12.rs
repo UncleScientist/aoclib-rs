@@ -47,6 +47,30 @@ impl Runner for Aoc2017_12 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut unvisited = HashSet::new();
+        for prog in self.progmap.keys() {
+            unvisited.insert(prog);
+        }
+
+        let mut group_count = 0;
+        while !unvisited.is_empty() {
+            group_count += 1;
+
+            let start = **unvisited.iter().next().unwrap();
+            unvisited.remove(&start);
+
+            let mut stack = vec![start];
+            let mut visited = HashSet::new();
+
+            while let Some(next) = stack.pop() {
+                unvisited.remove(&next);
+                if visited.insert(next) {
+                    let to_visit = self.progmap.get(&next).unwrap();
+                    stack.extend(to_visit.iter().filter(|n| !visited.contains(n)));
+                }
+            }
+        }
+
+        crate::output(group_count)
     }
 }
