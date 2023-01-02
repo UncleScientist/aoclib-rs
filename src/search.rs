@@ -60,3 +60,42 @@ pub fn dijkstra_search<T: Searcher + Clone + Eq + Hash>(start: &T) -> Option<(T,
 
     Some((target.clone(), *dist.get(&target)?))
 }
+
+pub fn astar_search<T: Searcher + Clone + Eq + Hash, H: Fn(&T) -> usize>(
+    start: &T,
+    heuristic: H,
+) -> Option<(T, usize)> {
+    let mut open_set = HashSet::new();
+    open_set.insert(start.clone());
+
+    let mut gscore = HashMap::new();
+    gscore.insert(start.clone(), 0);
+
+    let mut fscore = HashMap::new();
+    fscore.insert(start.clone(), heuristic(start));
+
+    while !open_set.is_empty() {
+        let current = open_set
+            .iter()
+            .min_by(|a, b| fscore.get(a).unwrap().cmp(fscore.get(b).unwrap()))
+            .unwrap()
+            .clone();
+        if current.is_win_state() {
+            let dist = *gscore.get(&current).unwrap();
+            return Some((current, dist));
+        }
+
+        open_set.remove(&current);
+
+        for neighbor in current.moves() {
+            let tentative_gscore = gscore.get(&current).unwrap() + 1;
+            if tentative_gscore < *gscore.entry(neighbor.clone()).or_insert(usize::MAX) {
+                gscore.insert(neighbor.clone(), tentative_gscore);
+                fscore.insert(neighbor.clone(), tentative_gscore + heuristic(&neighbor));
+                open_set.insert(neighbor);
+            }
+        }
+    }
+
+    None
+}

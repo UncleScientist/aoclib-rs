@@ -1,6 +1,6 @@
 use std::hash::{Hash, Hasher};
 
-use aoclib::{dijkstra_search, Searcher};
+use aoclib::{astar_search, Searcher};
 
 use crate::Runner;
 
@@ -54,7 +54,11 @@ impl Runner for Aoc2022_24 {
     fn part1(&mut self) -> Vec<String> {
         let state = State::new(&self.valley);
 
-        let (result, time) = dijkstra_search(&state).unwrap();
+        let (result, time) = astar_search(&state, |s| {
+            ((s.player_pos.0 - (s.bliz.height - 1)).abs()
+                + (s.player_pos.1 - (s.bliz.width - 2)).abs()) as usize
+        })
+        .unwrap();
         self.first_trip_map_idx = result.map_idx;
         self.first_trip_time = time;
         crate::output(time)
@@ -66,10 +70,18 @@ impl Runner for Aoc2022_24 {
         return_trip.map_idx = self.first_trip_map_idx;
         return_trip.find_start = true;
 
-        let (mut back_to_end, return_time) = dijkstra_search(&return_trip).unwrap();
+        let (mut back_to_end, return_time) = astar_search(&return_trip, |s| {
+            ((s.player_pos.0 - 1).abs() + (s.player_pos.1).abs()) as usize
+        })
+        .unwrap();
         back_to_end.find_start = false;
 
-        let final_time = dijkstra_search(&back_to_end).unwrap().1;
+        let final_time = astar_search(&back_to_end, |s| {
+            ((s.player_pos.0 - (s.bliz.height - 1)).abs()
+                + (s.player_pos.1 - (s.bliz.width - 2)).abs()) as usize
+        })
+        .unwrap()
+        .1;
 
         crate::output(self.first_trip_time + return_time + final_time)
     }
