@@ -67,7 +67,9 @@ fn main() {
 
         runners[year - 2015](Selector::One(day));
     } else {
-        runners.last().unwrap()(Selector::Last);
+        // normally use this: runners.last().unwrap()(Selector::Last);
+        // but for 2017 dev, we're gonna do this:
+        runners[2](Selector::Last)
     }
 }
 
