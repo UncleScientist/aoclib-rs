@@ -37,7 +37,15 @@ impl Runner for Aoc2017_15 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut gen_a = Generator::new(GeneratorType::SlowA, self.gen_a_start);
+        let mut gen_b = Generator::new(GeneratorType::SlowB, self.gen_b_start);
+
+        crate::output(
+            (0..5_000_000)
+                .map(|_| (gen_a.next().unwrap(), gen_b.next().unwrap()))
+                .filter(|(a, b)| (*a & 0xffff) == (*b & 0xffff))
+                .count(),
+        )
     }
 }
 
@@ -45,22 +53,28 @@ impl Runner for Aoc2017_15 {
 enum GeneratorType {
     A,
     B,
+    SlowA,
+    SlowB,
 }
 
 struct Generator {
     val: i64,
     mul: i64,
+    mod_check: i64,
 }
 
 impl Generator {
     fn new(gen_type: GeneratorType, val: i64) -> Self {
+        let (mul, mod_check) = match gen_type {
+            GeneratorType::A => (16807, 0),
+            GeneratorType::B => (48271, 0),
+            GeneratorType::SlowA => (16807, 4),
+            GeneratorType::SlowB => (48271, 8),
+        };
         Self {
             val,
-            mul: if gen_type == GeneratorType::A {
-                16807
-            } else {
-                48271
-            },
+            mul,
+            mod_check,
         }
     }
 }
@@ -69,7 +83,17 @@ impl Iterator for Generator {
     type Item = i64;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.val = (self.val * self.mul) % 2147483647;
+        if self.mod_check == 0 {
+            self.val = (self.val * self.mul) % 2147483647;
+        } else {
+            loop {
+                self.val = (self.val * self.mul) % 2147483647;
+                if self.val % self.mod_check == 0 {
+                    break;
+                }
+            }
+        }
+
         Some(self.val)
     }
 }
