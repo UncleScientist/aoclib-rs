@@ -40,13 +40,30 @@ impl Runner for Aoc2017_16 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let programs: VecDeque<char> = ('a'..='p').collect();
+        let mut programs: VecDeque<char> = ('a'..='p').collect();
 
-        crate::output(dance(&programs, &self.moves))
+        crate::output(dance(&mut programs, &self.moves))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut programs: VecDeque<char> = ('a'..='p').collect();
+
+        let original_state = programs.clone();
+        let mut count = 1;
+        dance(&mut programs, &self.moves);
+
+        while programs != original_state {
+            dance(&mut programs, &self.moves);
+            count += 1;
+        }
+
+        let remaining_moves = 1_000_000_000 % count;
+        let mut result = "".to_string();
+        for _ in 0..remaining_moves {
+            result = dance(&mut programs, &self.moves);
+        }
+
+        crate::output(result)
     }
 }
 
@@ -57,9 +74,7 @@ enum Move {
     Partner(char, char),
 }
 
-fn dance(programs: &VecDeque<char>, moves: &[Move]) -> String {
-    let mut programs = programs.clone();
-
+fn dance(programs: &mut VecDeque<char>, moves: &[Move]) -> String {
     for step in moves {
         match step {
             Move::Spin(amount) => programs.rotate_right(*amount),
@@ -85,29 +100,29 @@ mod test {
 
     #[test]
     fn test_spin() {
-        let programs: VecDeque<char> = ('a'..='e').collect();
+        let mut programs: VecDeque<char> = ('a'..='e').collect();
         let moves = [Move::Spin(3)];
-        assert_eq!("cdeab".to_string(), dance(&programs, &moves));
+        assert_eq!("cdeab".to_string(), dance(&mut programs, &moves));
     }
 
     #[test]
     fn test_spin2() {
-        let programs: VecDeque<char> = ('a'..='e').collect();
+        let mut programs: VecDeque<char> = ('a'..='e').collect();
         let moves = [Move::Spin(1)];
-        assert_eq!("eabcd".to_string(), dance(&programs, &moves));
+        assert_eq!("eabcd".to_string(), dance(&mut programs, &moves));
     }
 
     #[test]
     fn test_exchange() {
-        let programs: VecDeque<char> = VecDeque::from(['e', 'a', 'b', 'c', 'd']);
+        let mut programs: VecDeque<char> = VecDeque::from(['e', 'a', 'b', 'c', 'd']);
         let moves = [Move::Exchange(3, 4)];
-        assert_eq!("eabdc".to_string(), dance(&programs, &moves));
+        assert_eq!("eabdc".to_string(), dance(&mut programs, &moves));
     }
 
     #[test]
     fn test_partner() {
-        let programs: VecDeque<char> = VecDeque::from(['e', 'a', 'b', 'd', 'c']);
+        let mut programs: VecDeque<char> = VecDeque::from(['e', 'a', 'b', 'd', 'c']);
         let moves = [Move::Partner('e', 'b')];
-        assert_eq!("baedc".to_string(), dance(&programs, &moves));
+        assert_eq!("baedc".to_string(), dance(&mut programs, &moves));
     }
 }
