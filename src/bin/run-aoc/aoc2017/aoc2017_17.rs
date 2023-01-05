@@ -30,7 +30,16 @@ impl Runner for Aoc2017_17 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut loc = 0;
+        let mut result = 0;
+        for i in 1..50_000_000 {
+            loc = (1 + (loc + 349)) % (i + 1);
+            if loc == 0 {
+                result = i + 1;
+            }
+        }
+
+        crate::output(result)
     }
 }
 
@@ -58,9 +67,9 @@ impl Spinlock {
     fn _print(&self) {
         for (i, c) in self.buffer.iter().enumerate() {
             if i == self.current_pos {
-                print!("({c})");
+                print!("({c:2})");
             } else {
-                print!(" {c} ");
+                print!(" {c:2} ");
             }
         }
         println!();
