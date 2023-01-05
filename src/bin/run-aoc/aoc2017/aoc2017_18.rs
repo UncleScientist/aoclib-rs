@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 use crate::Runner;
 
 #[derive(Default)]
@@ -18,7 +20,6 @@ impl Runner for Aoc2017_18 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2017-18.txt");
-        // let lines = aoclib::read_lines("test-input.txt");
 
         for line in &lines {
             self.inst.push(Inst::parse(line))
@@ -26,7 +27,7 @@ impl Runner for Aoc2017_18 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut machine = Machine::new(&self.inst);
+        let mut machine = Machine::new(&self.inst, 0);
 
         while machine.recovered_freq.is_none() {
             machine.step();
@@ -36,7 +37,34 @@ impl Runner for Aoc2017_18 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut m0 = Machine::new(&self.inst, 0);
+        let mut m1 = Machine::new(&self.inst, 1);
+        let mut changed = true;
+
+        while changed {
+            while m0.receive_reg.is_none() {
+                if !m0.step() {
+                    break;
+                }
+            }
+            while m1.receive_reg.is_none() {
+                if !m1.step() {
+                    break;
+                }
+            }
+
+            changed = false;
+            if let Some(val) = m1.pop() {
+                m0.receive(val);
+                changed = true;
+            }
+            if let Some(val) = m0.pop() {
+                m1.receive(val);
+                changed = true;
+            }
+        }
+
+        crate::output(m1.send_count)
     }
 }
 
@@ -47,7 +75,7 @@ enum Inst {
     Add(char, Source),
     Mul(char, Source),
     Mod(char, Source),
-    Rcv(Source),
+    Rcv(char),
     Jgz(Source, Source),
 }
 
@@ -60,7 +88,7 @@ impl Inst {
             "add" => Inst::Add(words[1].first_char(), Source::parse(words[2])),
             "mul" => Inst::Mul(words[1].first_char(), Source::parse(words[2])),
             "mod" => Inst::Mod(words[1].first_char(), Source::parse(words[2])),
-            "rcv" => Inst::Rcv(Source::parse(words[1])),
+            "rcv" => Inst::Rcv(words[1].first_char()),
             "jgz" => Inst::Jgz(Source::parse(words[1]), Source::parse(words[2])),
             _ => panic!("invalid instruction"),
         }
@@ -94,18 +122,22 @@ impl Source {
 struct Machine<'a> {
     reg: Vec<i64>,
     ip: usize,
-    last_sound: i64,
+    last_sound: VecDeque<i64>,
     recovered_freq: Option<i64>,
+    receive_reg: Option<char>,
+    send_count: usize,
     prog: &'a [Inst],
 }
 
 impl<'a> Machine<'a> {
-    fn new(prog: &'a [Inst]) -> Self {
-        Self {
+    fn new(prog: &'a [Inst], p_reg: i64) -> Self {
+        let mut machine = Self {
             reg: vec![0; 26],
             prog,
             ..Default::default()
-        }
+        };
+        machine.reg[(b'p' - b'a') as usize] = p_reg;
+        machine
     }
 
     fn set(&mut self, reg: char, val: i64) {
@@ -116,16 +148,31 @@ impl<'a> Machine<'a> {
         self.reg[((reg as u8) - b'a') as usize]
     }
 
-    fn step(&mut self) {
-        self.ip += 1;
+    fn pop(&mut self) -> Option<i64> {
+        self.last_sound.pop_front()
+    }
+
+    fn receive(&mut self, val: i64) {
+        if let Some(reg) = self.receive_reg {
+            self.set(reg, val);
+        }
+        self.receive_reg = None;
+    }
+
+    fn step(&mut self) -> bool {
+        assert!(self.receive_reg.is_none());
+
         if self.ip >= self.prog.len() {
-            return;
+            return false;
         }
 
-        // print!("{}: {:?} -> ", self.ip, self.prog[self.ip]);
+        self.ip += 1;
 
         match &self.prog[self.ip - 1] {
-            Inst::Snd(source) => self.last_sound = source.value(&self.reg),
+            Inst::Snd(source) => {
+                self.last_sound.push_back(source.value(&self.reg));
+                self.send_count += 1;
+            }
             Inst::Set(reg, source) => self.set(*reg, source.value(&self.reg)),
             Inst::Add(reg, source) => {
                 let val = source.value(&self.reg) + self.get(*reg);
@@ -139,10 +186,13 @@ impl<'a> Machine<'a> {
                 let val = self.get(*reg) % source.value(&self.reg);
                 self.set(*reg, val);
             }
-            Inst::Rcv(source) => {
-                if source.value(&self.reg) != 0 {
-                    self.recovered_freq = Some(self.last_sound);
+            Inst::Rcv(reg) => {
+                if self.get(*reg) != 0 {
+                    if let Some(&freq) = self.last_sound.back() {
+                        self.recovered_freq = Some(freq);
+                    }
                 }
+                self.receive_reg = Some(*reg);
             }
             Inst::Jgz(value, offset) => {
                 let value = value.value(&self.reg);
@@ -154,11 +204,11 @@ impl<'a> Machine<'a> {
                     } else {
                         self.ip += dist as usize;
                     }
-                    // println!("offset = {offset}, new_ip = {}", self.ip);
                 }
             }
         }
-        // println!("{:?}", self.reg);
+
+        true
     }
 }
 
