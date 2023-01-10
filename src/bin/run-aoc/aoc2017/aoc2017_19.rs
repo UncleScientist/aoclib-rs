@@ -40,7 +40,7 @@ impl Runner for Aoc2017_19 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(self.grid.steps)
     }
 }
 
@@ -53,6 +53,7 @@ struct Grid {
     width: i64,
     height: i64,
     turn: HashMap<(i64, i64), Vec<(i64, i64)>>,
+    steps: usize,
 }
 
 impl Grid {
@@ -68,6 +69,7 @@ impl Grid {
         self.turn.insert((0, 1), vec![(1, 0), (-1, 0)]);
         self.turn.insert((-1, 0), vec![(0, 1), (0, -1)]);
         self.turn.insert((0, -1), vec![(1, 0), (-1, 0)]);
+        self.steps = 1;
     }
 
     fn step(&mut self) -> bool {
@@ -92,6 +94,7 @@ impl Grid {
                 _ => panic!("unexpected character '{next_char}' in input"),
             }
             self.packet_pos = next_pos;
+            self.steps += 1;
             true
         } else {
             false
