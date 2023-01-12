@@ -26,7 +26,7 @@ impl Runner for Aoc2016_05 {
     fn part1(&mut self) -> Vec<String> {
         let mut result = "".to_string();
         while let Some(d) = self.next() {
-            result.push(val_to_char((d[2] & 0xf) as u8));
+            result.push(val_to_char(d[2] & 0xf));
             self.digest.push(d);
             if result.len() == 8 {
                 println!("result is 8");
@@ -46,7 +46,7 @@ impl Runner for Aoc2016_05 {
                 continue;
             }
 
-            let val = ((d[3] & 0xf0) >> 4) as u8;
+            let val = (d[3] & 0xf0) >> 4;
             if ary[idx] == ' ' {
                 ary[idx] = val_to_char(val);
                 count += 1;
@@ -60,7 +60,7 @@ impl Runner for Aoc2016_05 {
                 continue;
             }
 
-            let val = ((d[3] & 0xf0) >> 4) as u8;
+            let val = (d[3] & 0xf0) >> 4;
             if ary[idx] == ' ' {
                 ary[idx] = val_to_char(val);
                 count += 1;

@@ -62,7 +62,7 @@ impl Runner for Aoc2022_22 {
 
         for col in 0..self.map.width {
             if Some(&Tile::Space) == self.map.tiles.get(&(0, col)) {
-                start_col = col as i64;
+                start_col = col;
                 break;
             }
         }
@@ -100,7 +100,7 @@ impl Runner for Aoc2022_22 {
 
         for col in 0..self.map.width {
             if Some(&Tile::Space) == self.map.tiles.get(&(0, col)) {
-                start_col = col as i64;
+                start_col = col;
                 break;
             }
         }

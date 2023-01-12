@@ -32,9 +32,7 @@ impl Runner for Aoc2016_02 {
             for step in key.iter() {
                 match step {
                     'U' => {
-                        if y > 0 {
-                            y -= 1
-                        }
+                        y = y.saturating_sub(1);
                     }
                     'D' => {
                         if y < 2 {
@@ -42,9 +40,7 @@ impl Runner for Aoc2016_02 {
                         }
                     }
                     'L' => {
-                        if x > 0 {
-                            x -= 1
-                        }
+                        x = x.saturating_sub(1);
                     }
                     'R' => {
                         if x < 2 {
