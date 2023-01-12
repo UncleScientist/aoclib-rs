@@ -20,6 +20,7 @@ impl Runner for Aoc2017_20 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2017-20.txt");
+        // let lines = aoclib::read_lines("test-input.txt");
 
         for line in lines {
             self.particles.push(Particle::parse(&line));
@@ -47,7 +48,53 @@ impl Runner for Aoc2017_20 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut step = 0;
+        while step < 5000 {
+            step += 1;
+            let prev_step = self.particles.clone();
+
+            for p in self.particles.iter_mut() {
+                p.step();
+            }
+
+            let mut finished = true;
+            'outer: for i in 0..self.particles.len() - 1 {
+                for j in i + 1..self.particles.len() {
+                    let prev_dist = prev_step[i].distance_to(&prev_step[j]);
+                    let cur_dist = self.particles[i].distance_to(&self.particles[j]);
+                    if cur_dist < prev_dist {
+                        finished = false;
+                        break 'outer;
+                    }
+                }
+            }
+
+            if finished {
+                return crate::output(self.particles.len());
+            }
+
+            let mut i = 0;
+            while i < self.particles.len() - 1 {
+                let comparison = self.particles[i].pos;
+                let mut j = i + 1;
+                let mut to_remove = false;
+                while j < self.particles.len() {
+                    if comparison == self.particles[j].pos {
+                        self.particles.remove(j);
+                        to_remove = true;
+                    } else {
+                        j += 1;
+                    }
+                }
+                if to_remove {
+                    self.particles.remove(i);
+                } else {
+                    i += 1;
+                }
+            }
+        }
+
+        crate::output("could not find solution after {step} tries")
     }
 }
 
@@ -94,10 +141,10 @@ impl Ord for Vec3 {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 struct Particle {
     pos: Vec3,
-    _vel: Vec3,
+    vel: Vec3,
     acc: Vec3,
 }
 
@@ -106,13 +153,17 @@ impl Particle {
         let three_vec = s.split(", ").collect::<Vec<_>>();
         Self {
             pos: Vec3::parse(three_vec[0].split_once('=').unwrap().1),
-            _vel: Vec3::parse(three_vec[1].split_once('=').unwrap().1),
+            vel: Vec3::parse(three_vec[1].split_once('=').unwrap().1),
             acc: Vec3::parse(three_vec[2].split_once('=').unwrap().1),
         }
     }
 
-    fn _step(&mut self) {
-        self._vel += self.acc;
-        self.pos += self._vel;
+    fn step(&mut self) {
+        self.vel += self.acc;
+        self.pos += self.vel;
+    }
+
+    fn distance_to(&self, other: &Self) -> i64 {
+        (self.pos.dist() - other.pos.dist()).abs()
     }
 }
