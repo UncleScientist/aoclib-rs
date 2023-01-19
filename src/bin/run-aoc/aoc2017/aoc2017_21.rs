@@ -25,39 +25,19 @@ impl Runner for Aoc2017_21 {
             let (left, right) = line.split_once(" => ").unwrap();
             self.pattern.insert(left.to_string(), right.to_string());
         }
-
-        /*
-        self.pattern.clear();
-        self.pattern
-            .insert("../.#".to_string(), "##./#../...".to_string());
-        self.pattern
-            .insert(".#./..#/###".to_string(), "#..#/..../..../#..#".to_string());
-        */
-        println!("{}", self.pattern.len());
     }
 
     fn part1(&mut self) -> Vec<String> {
         let mut grid = Grid::new();
         for _ in 0..5 {
             let sub_grids = grid.split();
-            println!("sub grids:");
-            for s in &sub_grids {
-                s._draw();
-                println!("-");
-            }
+
             let mut enhanced_grids = Vec::new();
             for sg in sub_grids {
                 enhanced_grids.push(sg.transform(&self.pattern));
             }
-            println!("enhanced grids:");
-            for e in &enhanced_grids {
-                e._draw();
-                println!("-");
-            }
+
             grid = Grid::rejoin(&enhanced_grids);
-            println!("-- final grid: --");
-            grid._draw();
-            println!("---");
         }
         crate::output(grid.pixels.len())
     }
@@ -142,16 +122,12 @@ impl Grid {
     fn transform(&self, pattern: &HashMap<String, String>) -> Self {
         let mut s = self.to_string();
 
-        if let Some(enhanced) = pattern.get(&s) {
-            return enhanced.into();
-        }
-
         for _ in 0..2 {
             for _ in 0..4 {
-                s = s.rotate();
                 if let Some(enhanced) = pattern.get(&s) {
                     return enhanced.into();
                 }
+                s = s.rotate();
             }
             s = self.to_string().flip();
         }
@@ -254,17 +230,17 @@ impl Rotate for String {
             result[4] = original[3];
             result[3] = original[0];
         } else if self.len() == 11 {
-            // 012
-            // 456
-            // 89a
-            result[0] = original[1];
-            result[1] = original[2];
-            result[2] = original[6];
-            result[4] = original[0];
-            result[6] = original[10];
-            result[8] = original[4];
-            result[9] = original[8];
-            result[10] = original[9];
+            // 012    26a
+            // 456 <- 159
+            // 89a    048
+            result[0] = original[2];
+            result[1] = original[6];
+            result[2] = original[10];
+            result[4] = original[1];
+            result[6] = original[9];
+            result[8] = original[0];
+            result[9] = original[4];
+            result[10] = original[8];
         } else {
             panic!("invalid grid for rotation");
         }
@@ -276,19 +252,6 @@ impl Rotate for String {
 #[cfg(test)]
 mod test {
     use super::*;
-
-    /*
-    #[test]
-    fn split_2x2() {
-        let points = vec![(0, 0), (0, 3), (3, 0), (3, 3)];
-        let grid = Grid {
-            size: 4,
-            pixels: HashSet::from_iter(points),
-        };
-        println!("{:?}", grid.split());
-        assert_eq!(1, 0);
-    }
-    */
 
     #[test]
     fn flip_2x2() {
@@ -311,12 +274,12 @@ mod test {
 
     #[test]
     fn rotate_3x3() {
-        // #..          ..#
-        // .##          ###
-        // ..#          ...
+        // #..          .##
+        // .##          .#.
+        // ..#          #..
         assert_eq!(
             "#../.##/..#".to_string().rotate(),
-            "..#/###/...".to_string()
+            ".##/.#./#..".to_string()
         );
     }
 
