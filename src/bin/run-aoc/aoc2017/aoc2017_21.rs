@@ -28,8 +28,18 @@ impl Runner for Aoc2017_21 {
     }
 
     fn part1(&mut self) -> Vec<String> {
+        crate::output(self.iterate_grid(5).pixels.len())
+    }
+
+    fn part2(&mut self) -> Vec<String> {
+        crate::output(self.iterate_grid(18).pixels.len())
+    }
+}
+
+impl Aoc2017_21 {
+    fn iterate_grid(&self, count: usize) -> Grid {
         let mut grid = Grid::new();
-        for _ in 0..5 {
+        for _ in 0..count {
             let sub_grids = grid.split();
 
             let mut enhanced_grids = Vec::new();
@@ -39,11 +49,7 @@ impl Runner for Aoc2017_21 {
 
             grid = Grid::rejoin(&enhanced_grids);
         }
-        crate::output(grid.pixels.len())
-    }
-
-    fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        grid
     }
 }
 
