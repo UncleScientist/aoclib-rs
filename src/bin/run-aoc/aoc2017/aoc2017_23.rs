@@ -44,7 +44,8 @@ impl Runner for Aoc2017_23 {
             if n % 2 == 0 {
                 total += 1;
             } else {
-                for d in (3..n - 1).step_by(2) {
+                let sqrt = (n as f64).sqrt() as i64;
+                for d in (3..sqrt).step_by(2) {
                     if n % d == 0 {
                         total += 1;
                         continue 'next_num;
