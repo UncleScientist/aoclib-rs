@@ -31,7 +31,28 @@ impl Runner for Aoc2017_23 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut m = Machine::new(&self.prog);
+        m.reg[0] = 1;
+        while !m.f_cleared && m.step() {}
+
+        /*
+         * Re-implement the VM code in rust to avoid the "ineffcient"
+         * solution that makes up the puzzle input.
+         */
+        let mut total = 0;
+        'next_num: for n in (m.reg[1]..=m.reg[2]).step_by(17) {
+            if n % 2 == 0 {
+                total += 1;
+            } else {
+                for d in (3..n - 1).step_by(2) {
+                    if n % d == 0 {
+                        total += 1;
+                        continue 'next_num;
+                    }
+                }
+            }
+        }
+        crate::output(total)
     }
 }
 
@@ -82,6 +103,7 @@ struct Machine<'a> {
     ip: usize,
     reg: [i64; 8],
     mul_count: usize,
+    f_cleared: bool,
     prog: &'a Vec<Instruction>,
 }
 
@@ -91,6 +113,7 @@ impl<'a> Machine<'a> {
             ip: 0,
             reg: [0; 8],
             mul_count: 0,
+            f_cleared: false,
             prog,
         }
     }
@@ -114,6 +137,9 @@ impl<'a> Machine<'a> {
             Instruction::Set(r, val) => {
                 let val = self.get(&val);
                 self.reg[r] = val;
+                if r == 5 && val == 0 {
+                    self.f_cleared = true;
+                }
             }
 
             Instruction::Mul(r, val) => {
