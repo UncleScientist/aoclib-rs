@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use crate::Runner;
 
 #[derive(Default)]
@@ -17,7 +19,6 @@ impl Runner for Aoc2017_24 {
     }
 
     fn parse(&mut self) {
-        // for line in aoclib::read_lines("test-input.txt") {
         for line in aoclib::read_lines("input/2017-24.txt") {
             self.components.push(Component::parse(&line));
         }
@@ -28,7 +29,7 @@ impl Runner for Aoc2017_24 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(find_longest_from(0, &self.components).1)
     }
 }
 
@@ -47,6 +48,35 @@ fn find_strongest_from(start: usize, components: &[Component]) -> usize {
     }
 
     strongest
+}
+
+fn find_longest_from(start: usize, components: &[Component]) -> (usize, usize) {
+    let mut longest = (0, 0); // length, strength
+
+    if !components.is_empty() {
+        for i in 0..components.len() {
+            if let Some(next) = components[i].connects(start) {
+                let mut rest = components.to_vec();
+                rest.remove(i);
+
+                let result = find_longest_from(next, &rest);
+
+                let length = (1 + result.0, components[i].strength() + result.1);
+
+                match length.0.cmp(&longest.0) {
+                    Ordering::Equal => {
+                        if length.1 > longest.1 {
+                            longest = length;
+                        }
+                    }
+                    Ordering::Greater => longest = length,
+                    Ordering::Less => {}
+                }
+            }
+        }
+    }
+
+    longest
 }
 
 #[derive(Debug, Clone)]
