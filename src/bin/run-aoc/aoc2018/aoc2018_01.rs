@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::Runner;
 
 #[derive(Default)]
@@ -28,6 +30,16 @@ impl Runner for Aoc2018_01 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut freq = HashSet::new();
+        let mut cur_freq = 0;
+
+        loop {
+            for delta in &self.nums {
+                cur_freq += *delta;
+                if !freq.insert(cur_freq) {
+                    return crate::output(cur_freq);
+                }
+            }
+        }
     }
 }
