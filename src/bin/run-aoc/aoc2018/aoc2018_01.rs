@@ -2,7 +2,7 @@ use crate::Runner;
 
 #[derive(Default)]
 pub struct Aoc2018_01 {
-    // insert items here (or not, i'm not the boss of you)
+    nums: Vec<i64>,
 }
 
 impl Aoc2018_01 {
@@ -16,10 +16,15 @@ impl Runner for Aoc2018_01 {
         (2018, 1)
     }
 
-    fn parse(&mut self) {}
+    fn parse(&mut self) {
+        self.nums = aoclib::read_lines("input/2018-01.txt")
+            .into_iter()
+            .map(|s| s.parse::<i64>().unwrap())
+            .collect::<Vec<_>>();
+    }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(self.nums.iter().sum::<i64>())
     }
 
     fn part2(&mut self) -> Vec<String> {
