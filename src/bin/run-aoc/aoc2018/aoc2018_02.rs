@@ -35,6 +35,28 @@ impl Runner for Aoc2018_02 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        for i in 0..self.boxid.len() - 1 {
+            'next_pair: for j in i + 1..self.boxid.len() {
+                let mut count = 0;
+                let mut diff = 'a';
+                for (a, b) in self.boxid[i].chars().zip(self.boxid[j].chars()) {
+                    if a != b {
+                        if count > 0 {
+                            continue 'next_pair;
+                        }
+                        count += 1;
+                        diff = a;
+                    }
+                }
+
+                if count == 1 {
+                    let pos = self.boxid[i].find(diff).unwrap();
+                    let mut common = self.boxid[i].clone();
+                    common.remove(pos);
+                    return crate::output(common);
+                }
+            }
+        }
+        crate::output("** no answer found **")
     }
 }
