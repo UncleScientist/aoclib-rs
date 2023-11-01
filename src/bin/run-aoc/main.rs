@@ -10,6 +10,9 @@ use aoc2016::*;
 mod aoc2017;
 use aoc2017::*;
 
+mod aoc2018;
+use aoc2018::*;
+
 mod aoc2022;
 use aoc2022::*;
 
@@ -32,10 +35,10 @@ pub fn output<T: Display>(output: T) -> Vec<String> {
 
 fn main() {
     let runners: Vec<fn(Selector)> = vec![
-        run_2015, run_2016, run_2017, run_2016, // 2018
-        run_2016, // 2019
-        run_2016, // 2020
-        run_2016, // 2021
+        run_2015, run_2016, run_2017, run_2018, // comment
+        run_2016, // placeholder for 2019
+        run_2016, // placeholder for 2020
+        run_2016, // placeholder for 2021
         run_2022,
     ];
     let args = std::env::args().collect::<Vec<String>>();
@@ -68,8 +71,8 @@ fn main() {
         runners[year - 2015](Selector::One(day));
     } else {
         // normally use this: runners.last().unwrap()(Selector::Last);
-        // but for 2017 dev, we're gonna do this:
-        runners[2](Selector::Last)
+        // but for 2018 dev, we're gonna do this:
+        runners[3](Selector::Last)
     }
 }
 
