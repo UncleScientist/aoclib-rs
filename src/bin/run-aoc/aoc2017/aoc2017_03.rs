@@ -52,7 +52,7 @@ impl Runner for Aoc2017_03 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        let surround = vec![
+        let surround = [
             (-1, -1),
             (0, -1),
             (1, -1),

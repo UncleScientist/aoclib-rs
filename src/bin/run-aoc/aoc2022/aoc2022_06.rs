@@ -50,7 +50,7 @@ fn _first_marker(stream: &[char], width: usize) -> Option<usize> {
 
 fn sliding_window(stream: &[char], width: usize) -> Option<usize> {
     let mut start = width + 1;
-    let mut counts = vec![0; 26];
+    let mut counts = [0; 26];
     let mut dups = 0;
 
     let mut front = stream.iter();
