@@ -42,20 +42,12 @@ impl Runner for Aoc2018_04 {
 
     fn part1(&mut self) -> Vec<String> {
         let (guard_id, guard_data) = self.guards.iter().max_by_key(|g| g.1.total).unwrap();
-
-        let max_minute = guard_data
-            .minute
-            .iter()
-            .enumerate()
-            .max_by_key(|m| m.1)
-            .unwrap()
-            .0;
-
-        crate::output(*guard_id * max_minute)
+        crate::output(*guard_id * guard_data.max_minute())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let (guard_id, guard_data) = self.guards.iter().max_by_key(|g| g.1.max_time()).unwrap();
+        crate::output(*guard_id * guard_data.max_minute())
     }
 }
 
@@ -72,6 +64,19 @@ impl Guard {
             minute: [0usize; 60],
         }
     }
+
+    fn max_time(&self) -> usize {
+        *self.minute.iter().max().unwrap()
+    }
+
+    fn max_minute(&self) -> usize {
+        self.minute
+            .iter()
+            .enumerate()
+            .max_by_key(|m| m.1)
+            .unwrap()
+            .0
+    }
 }
 
 enum Log {
@@ -82,7 +87,7 @@ enum Log {
 
 impl Log {
     fn parse(s: &str) -> Self {
-        let split = s.split(" ").collect::<Vec<_>>();
+        let split = s.split(' ').collect::<Vec<_>>();
         let minute = split[1][3..5].parse().unwrap();
         match split[2] {
             "Guard" => Self::GuardID(split[3][1..].parse().unwrap()),
