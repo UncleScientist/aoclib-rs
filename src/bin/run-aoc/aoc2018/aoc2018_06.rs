@@ -27,8 +27,8 @@ impl Runner for Aoc2018_06 {
         self.min.x = i64::MAX;
         self.min.y = i64::MAX;
 
-        for l in lines {
-            let p = Point::from_str(&l).unwrap();
+        for l in &lines {
+            let p = Point::from_str(l).unwrap();
             self.min = self.min.min(&p);
             self.max = self.max.max(&p);
             self.points.push(p);
@@ -74,7 +74,16 @@ impl Runner for Aoc2018_06 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut total = 0;
+
+        for x in self.min.x..=self.max.x {
+            for y in self.min.y..=self.max.y {
+                let total_dist = self.points.iter().map(|p| p.dist(x, y)).sum::<i64>();
+                total += (total_dist < 10_000) as i32;
+            }
+        }
+
+        crate::output(total)
     }
 }
 
