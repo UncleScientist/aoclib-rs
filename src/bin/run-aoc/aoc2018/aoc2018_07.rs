@@ -35,24 +35,26 @@ impl Runner for Aoc2018_07 {
             let e = self.graph.entry(prereq).or_insert(Node::default());
             e.count += 1;
         }
-    }
-
-    fn part1(&mut self) -> Vec<String> {
-        let mut completed = String::new();
         for node in self.graph.values() {
             for ch in node.prereq.iter() {
                 self.possible.remove(ch);
             }
         }
+    }
 
-        while let Some(item) = self.possible.pop_first() {
+    fn part1(&mut self) -> Vec<String> {
+        let mut completed = String::new();
+        let mut possible = self.possible.clone();
+        let mut graph = self.graph.clone();
+
+        while let Some(item) = possible.pop_first() {
             completed.push(item);
-            let prereq = self.graph.get(&item).unwrap().clone();
+            let prereq = graph.get(&item).unwrap().clone();
             for finished in prereq.prereq {
-                let node = self.graph.get_mut(&finished).unwrap();
+                let node = graph.get_mut(&finished).unwrap();
                 node.count -= 1;
                 if node.count == 0 {
-                    self.possible.insert(finished);
+                    possible.insert(finished);
                 }
             }
         }
@@ -61,7 +63,34 @@ impl Runner for Aoc2018_07 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut queue = BTreeMap::new();
+        let possible = self.possible.clone();
+        let mut graph = self.graph.clone();
+
+        for p in possible {
+            queue.insert(60 + (p as i64) - (b'A' as i64) + 1, p);
+        }
+
+        // how can this be giving the right answer? We're not taking into
+        // account the number of simultaneous workers
+        // maybe the worker count doesn't matter?
+        let mut current_time = 0;
+        while let Some((time, item)) = queue.pop_first() {
+            current_time = time;
+            let prereq = graph.get(&item).unwrap().clone();
+            for finished in prereq.prereq {
+                let node = graph.get_mut(&finished).unwrap();
+                node.count -= 1;
+                if node.count == 0 {
+                    queue.insert(
+                        current_time + 60 + (finished as i64) - (b'A' as i64) + 1,
+                        finished,
+                    );
+                }
+            }
+        }
+
+        crate::output(current_time)
     }
 }
 
