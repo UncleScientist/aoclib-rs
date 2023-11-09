@@ -12,6 +12,35 @@ impl Aoc2018_09 {
     pub fn new() -> Self {
         Self::default()
     }
+
+    fn solve_for(&self, marbles: i64) -> i64 {
+        let mut score = vec![0i64; self.player_count as usize];
+        let mut circle = VecDeque::new();
+
+        circle.push_back(0i64);
+
+        let mut current_player = 0;
+        for m in 1..=marbles {
+            if m % 23 == 0 {
+                score[current_player] += m;
+                for _ in 0..6 {
+                    let tail = circle.pop_back().unwrap();
+                    circle.push_front(tail);
+                }
+                score[current_player] += circle.pop_back().unwrap();
+            } else {
+                let head = circle.pop_front().unwrap();
+                circle.push_back(head);
+                let head = circle.pop_front().unwrap();
+                circle.push_back(head);
+                circle.push_front(m);
+            }
+
+            current_player = (current_player + 1) % self.player_count as usize;
+        }
+
+        *score.iter().max().unwrap()
+    }
 }
 
 impl Runner for Aoc2018_09 {
@@ -32,35 +61,10 @@ impl Runner for Aoc2018_09 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut score = vec![0i64; self.player_count as usize];
-        let mut circle = VecDeque::new();
-
-        circle.push_back(0i64);
-
-        let mut current_player = 0;
-        for m in 1..=self.marble_count {
-            if m % 23 == 0 {
-                score[current_player] += m;
-                for _ in 0..6 {
-                    let tail = circle.pop_back().unwrap();
-                    circle.push_front(tail);
-                }
-                score[current_player] += circle.pop_back().unwrap();
-            } else {
-                let head = circle.pop_front().unwrap();
-                circle.push_back(head);
-                let head = circle.pop_front().unwrap();
-                circle.push_back(head);
-                circle.push_front(m);
-            }
-
-            current_player = (current_player + 1) % self.player_count as usize;
-        }
-
-        crate::output(score.iter().max().unwrap())
+        crate::output(self.solve_for(self.marble_count))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(self.solve_for(self.marble_count * 100))
     }
 }
