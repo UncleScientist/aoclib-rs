@@ -27,18 +27,18 @@ impl Runner for Aoc2015_06 {
             let s = line.split(' ').collect::<Vec<&str>>();
             match s[1] {
                 "off" => {
-                    let start = Point::parse(s[2]);
-                    let end = Point::parse(s[4]);
+                    let start = Point::parse(s[2], ",");
+                    let end = Point::parse(s[4], ",");
                     self.commands.push(Command::Off(start, end));
                 }
                 "on" => {
-                    let start = Point::parse(s[2]);
-                    let end = Point::parse(s[4]);
+                    let start = Point::parse(s[2], ",");
+                    let end = Point::parse(s[4], ",");
                     self.commands.push(Command::On(start, end));
                 }
                 _ => {
-                    let start = Point::parse(s[1]);
-                    let end = Point::parse(s[3]);
+                    let start = Point::parse(s[1], ",");
+                    let end = Point::parse(s[3], ",");
                     self.commands.push(Command::Toggle(start, end));
                 }
             }
