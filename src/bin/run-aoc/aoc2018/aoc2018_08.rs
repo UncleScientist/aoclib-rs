@@ -23,6 +23,7 @@ impl Runner for Aoc2018_08 {
             .first()
             .unwrap()
             .clone();
+        // self.tree = vec![2, 3, 0, 3, 10, 11, 12, 1, 1, 0, 1, 99, 2, 1, 1, 2];
     }
 
     fn part1(&mut self) -> Vec<String> {
@@ -30,7 +31,7 @@ impl Runner for Aoc2018_08 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(value_of(&mut self.tree.iter()))
     }
 }
 
@@ -48,4 +49,28 @@ fn sum_metadata(iter: &mut Iter<u64>) -> u64 {
     }
 
     result
+}
+
+fn value_of(iter: &mut Iter<u64>) -> u64 {
+    let child_count = *iter.next().unwrap();
+    let metadata_count = *iter.next().unwrap();
+
+    if child_count == 0 {
+        return iter.take(metadata_count as usize).sum();
+    }
+
+    let mut child_values = Vec::new();
+    for _ in 0..child_count {
+        child_values.push(value_of(iter));
+    }
+
+    let mut value = 0;
+    for _ in 0..metadata_count {
+        let index = *iter.next().unwrap() as usize;
+        if index > 0 && index <= child_values.len() {
+            value += child_values[index - 1];
+        }
+    }
+
+    value
 }
