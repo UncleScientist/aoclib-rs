@@ -22,14 +22,27 @@ impl Aoc2018_11 {
         let mut found_x = 0;
         let mut found_y = 0;
 
-        for x in 1..=300 - size + 1 {
-            for y in 1..=300 - size + 1 {
-                let mut pl = 0;
-                for dx in 0..size {
-                    for dy in 0..size {
-                        pl += self.grid[(dy + y) as usize][(dx + x) as usize];
-                    }
+        for y in 1..=300 - size + 1 {
+            let mut pl = 0;
+
+            for dx in 0..size {
+                for dy in 0..size {
+                    pl += self.grid[(dy + y) as usize][(dx + 1) as usize];
                 }
+            }
+
+            if pl > max_pl {
+                found_x = 1;
+                found_y = y;
+                max_pl = pl;
+            }
+
+            for x in 2..=300 - size {
+                for dy in 0..size {
+                    pl -= self.grid[(dy + y) as usize][(x - 1) as usize];
+                    pl += self.grid[(dy + y) as usize][(x + size - 1) as usize];
+                }
+
                 if pl > max_pl {
                     found_x = x;
                     found_y = y;
@@ -50,7 +63,7 @@ impl Runner for Aoc2018_11 {
     fn parse(&mut self) {
         self.serial = 5235;
 
-        self.grid.push(Vec::new());
+        self.grid.push(vec![0i64; 301]);
         for y in 1..=300 {
             let mut row = Vec::new();
             row.push(0);
@@ -73,14 +86,12 @@ impl Runner for Aoc2018_11 {
         let mut window_size = 0;
 
         for size in 1..=300 {
-            println!("size {size}");
             let (x, y, pl) = self.highest_coord_for_size(size);
             if pl > max_pl {
                 found_x = x;
                 found_y = y;
                 max_pl = pl;
                 window_size = size;
-                println!("{x},{y},{size}");
             }
         }
 
