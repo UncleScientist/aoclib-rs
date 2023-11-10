@@ -15,6 +15,30 @@ impl Aoc2018_11 {
 
         ((((rack_id * y) + self.serial) * rack_id) / 100) % 10 - 5
     }
+
+    fn highest_coord_for_size(&self, size: i64) -> String {
+        let mut max_pl = 0;
+        let mut found_x = 0;
+        let mut found_y = 0;
+
+        for x in 1..=300 - size {
+            for y in 1..=300 - size {
+                let mut pl = 0;
+                for dx in 0..size {
+                    for dy in 0..size {
+                        pl += self.power_level(x + dx, y + dy);
+                    }
+                }
+                if pl > max_pl {
+                    found_x = x;
+                    found_y = y;
+                    max_pl = pl;
+                }
+            }
+        }
+
+        format!("{found_x},{found_y}")
+    }
 }
 
 impl Runner for Aoc2018_11 {
@@ -27,27 +51,7 @@ impl Runner for Aoc2018_11 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut max_pl = 0;
-        let mut found_x = 0;
-        let mut found_y = 0;
-
-        for x in 1..=298 {
-            for y in 1..=298 {
-                let mut pl = 0;
-                for dx in 0..3 {
-                    for dy in 0..3 {
-                        pl += self.power_level(x + dx, y + dy);
-                    }
-                }
-                if pl > max_pl {
-                    found_x = x;
-                    found_y = y;
-                    max_pl = pl;
-                }
-            }
-        }
-
-        crate::output(format!("{found_x},{found_y}"))
+        crate::output(self.highest_coord_for_size(3))
     }
 
     fn part2(&mut self) -> Vec<String> {
