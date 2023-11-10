@@ -7,6 +7,7 @@ use crate::Runner;
 #[derive(Default)]
 pub struct Aoc2018_10 {
     lights: Vec<Light>,
+    count: usize,
 }
 
 impl Aoc2018_10 {
@@ -53,6 +54,7 @@ impl Runner for Aoc2018_10 {
                 max_x = max_x.max(light.pos.x);
             }
 
+            self.count += 1;
             if max_y - min_y == 10 {
                 break;
             }
@@ -80,7 +82,7 @@ impl Runner for Aoc2018_10 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        crate::output(self.count)
     }
 }
 
