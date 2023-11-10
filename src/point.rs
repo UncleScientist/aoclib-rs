@@ -1,14 +1,21 @@
 use std::fmt::Debug;
-use std::ops::{Add, Sub};
+use std::ops::{Add, AddAssign, Sub};
 use std::str::FromStr;
 
 #[derive(Debug)]
 enum ParsePointError {}
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub struct Point<T> {
     pub x: T,
     pub y: T,
+}
+
+impl<T: AddAssign> AddAssign for Point<T> {
+    fn add_assign(&mut self, other: Self) {
+        self.x += other.x;
+        self.y += other.y;
+    }
 }
 
 impl<T: FromStr> Point<T> {
@@ -29,9 +36,11 @@ impl<T: FromStr> FromStr for Point<T> {
 
     fn from_str(p: &str) -> Result<Self, Self::Err> {
         let (x, y) = p.split_once(", ").ok_or("input file corrupt")?;
+        let (x, y) = (x.trim(), y.trim());
+
         Ok(Self {
-            x: x.parse().map_err(|_| "x value corrupt")?,
-            y: y.parse().map_err(|_| "y value corrupt")?,
+            x: x.parse().map_err(|_| format!("x value '{x}' corrupt"))?,
+            y: y.parse().map_err(|_| format!("y value '{y}' corrupt"))?,
         })
     }
 }
