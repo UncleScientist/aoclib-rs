@@ -5,7 +5,7 @@ use std::str::FromStr;
 #[derive(Debug)]
 enum ParsePointError {}
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct Point<T> {
     pub x: T,
     pub y: T,
@@ -59,5 +59,16 @@ impl<T: Copy + Ord + Add<T, Output = T> + Sub<T, Output = T>> Point<T> {
         let delta_y = if self.y > y { self.y - y } else { y - self.y };
 
         delta_x + delta_y
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn comma_space_separated() {
+        let p = "1, 2".parse::<Point<usize>>().unwrap();
+        assert_eq!(Point { x: 1usize, y: 2 }, p);
     }
 }
