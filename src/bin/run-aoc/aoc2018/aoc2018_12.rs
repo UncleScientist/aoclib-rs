@@ -80,17 +80,6 @@ impl Runner for Aoc2018_12 {
 
         for _ in 0..20 {
             (current_zp, current_state) = self.step(current_zp, &current_state);
-            /*
-            print!("{current_zp:4}: ");
-            for val in current_state.iter() {
-                if *val {
-                    print!("#");
-                } else {
-                    print!(".");
-                }
-            }
-            println!();
-            */
         }
 
         crate::output(current_state.calc_sum(current_zp))
@@ -106,11 +95,8 @@ impl Runner for Aoc2018_12 {
         loop {
             count += 1;
             (current_zp, current_state) = self.step(current_zp, &current_state);
-            if let Some((pcount, pzp)) = states.get(&current_state) {
-                println!("prev = {pcount} @ {pzp}, curr = {count} @ {current_zp}");
+            if states.insert(current_state.clone(), current_zp).is_some() {
                 break;
-            } else {
-                states.insert(current_state.clone(), (count, current_zp));
             }
         }
 
