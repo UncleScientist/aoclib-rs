@@ -99,12 +99,12 @@ impl Runner for Aoc2016_10 {
 
                 match low_action {
                     Recipient::Bot(b) => self.bot.get_mut(&b).unwrap().hold.push(low),
-                    Recipient::Output(o) => self.bins.entry(o).or_insert_with(Vec::new).push(low),
+                    Recipient::Output(o) => self.bins.entry(o).or_default().push(low),
                     Recipient::Empty => panic!("oops"),
                 }
                 match high_action {
                     Recipient::Bot(b) => self.bot.get_mut(&b).unwrap().hold.push(high),
-                    Recipient::Output(o) => self.bins.entry(o).or_insert_with(Vec::new).push(high),
+                    Recipient::Output(o) => self.bins.entry(o).or_default().push(high),
                     Recipient::Empty => panic!("oops"),
                 }
             } else {

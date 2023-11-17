@@ -29,10 +29,10 @@ impl Runner for Aoc2018_07 {
             self.possible.insert(node);
             self.possible.insert(prereq);
 
-            let e = self.graph.entry(node).or_insert(Node::default());
+            let e = self.graph.entry(node).or_default();
             e.prereq.insert(prereq);
 
-            let e = self.graph.entry(prereq).or_insert(Node::default());
+            let e = self.graph.entry(prereq).or_default();
             e.count += 1;
         }
         for node in self.graph.values() {
