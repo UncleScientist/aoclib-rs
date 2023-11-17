@@ -23,12 +23,18 @@ impl Aoc2018_13 {
         for c in self.carts.iter_mut() {
             let mut direction = c.direction;
             let mut next_move = c.next_move;
+
             let (x, y) = match c.direction {
                 Direction::North => (c.pos.0, c.pos.1 - 1),
                 Direction::South => (c.pos.0, c.pos.1 + 1),
                 Direction::East => (c.pos.0 + 1, c.pos.1),
                 Direction::West => (c.pos.0 - 1, c.pos.1),
             };
+
+            if prev_pos.contains(&(x, y)) {
+                return Some((x, y));
+            }
+
             let track = self.data.get(&(x, y)).unwrap();
             match track {
                 TrackType::EastWest | TrackType::NorthSouth => {}
@@ -54,10 +60,6 @@ impl Aoc2018_13 {
                 }
             }
 
-            if prev_pos.contains(&(x, y)) {
-                return Some((x, y));
-            }
-
             prev_pos.remove(&c.pos);
             prev_pos.insert((x, y));
 
@@ -73,23 +75,6 @@ impl Aoc2018_13 {
                 c1.pos.0.cmp(&c2.pos.0)
             }
         });
-
-        let mut crashlist = HashSet::new();
-        let mut count = HashMap::new();
-        for c in &self.carts {
-            *count.entry(c.pos).or_insert(0) += 1;
-        }
-        for (c, _) in count.iter().filter(|c| *c.1 > 1) {
-            let mut i = 0;
-            while i < self.carts.len() {
-                if self.carts[i].pos == *c {
-                    let pos = self.carts.remove(i).pos;
-                    crashlist.insert(pos);
-                } else {
-                    i += 1;
-                }
-            }
-        }
 
         None
     }
