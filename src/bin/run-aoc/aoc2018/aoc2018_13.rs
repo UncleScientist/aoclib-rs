@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeSet, HashMap},
     fmt::Display,
 };
 
@@ -17,10 +17,13 @@ impl Aoc2018_13 {
     }
 
     fn tick(&mut self) -> Option<(usize, usize)> {
-        let mut prev_pos: HashSet<(usize, usize)> =
-            HashSet::from_iter(self.carts.iter().map(|c| c.pos));
+        let mut prev_pos: HashMap<(usize, usize), usize> =
+            HashMap::from_iter(self.carts.iter().enumerate().map(|(i, c)| (c.pos, i)));
 
-        for c in self.carts.iter_mut() {
+        let mut crashed = BTreeSet::new();
+        let mut first_crash = None;
+
+        for (i, c) in self.carts.iter_mut().enumerate() {
             let mut direction = c.direction;
             let mut next_move = c.next_move;
 
@@ -31,8 +34,12 @@ impl Aoc2018_13 {
                 Direction::West => (c.pos.0 - 1, c.pos.1),
             };
 
-            if prev_pos.contains(&(x, y)) {
-                return Some((x, y));
+            if let Some(cart) = prev_pos.get(&(x, y)) {
+                crashed.insert(i);
+                crashed.insert(*cart);
+                if first_crash.is_none() {
+                    first_crash = Some((x, y));
+                }
             }
 
             let track = self.data.get(&(x, y)).unwrap();
@@ -61,11 +68,15 @@ impl Aoc2018_13 {
             }
 
             prev_pos.remove(&c.pos);
-            prev_pos.insert((x, y));
+            prev_pos.insert((x, y), i);
 
             c.direction = direction;
             c.next_move = next_move;
             c.pos = (x, y);
+        }
+
+        for i in crashed.iter().rev() {
+            self.carts.remove(*i);
         }
 
         self.carts.sort_by(|c1, c2| {
@@ -76,7 +87,7 @@ impl Aoc2018_13 {
             }
         });
 
-        None
+        first_crash
     }
 }
 
@@ -87,7 +98,7 @@ impl Runner for Aoc2018_13 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2018-13.txt");
-        // let lines = aoclib::read_lines("test-input");
+        let _lines = aoclib::read_lines("test-input");
 
         for (y, l) in lines.iter().enumerate() {
             for (x, c) in l.chars().enumerate() {
@@ -132,19 +143,6 @@ impl Runner for Aoc2018_13 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        /*
-        for y in 0..15 {
-            for x in 0..80 {
-                if let Some(track) = self.data.get(&(x, y)) {
-                    print!("{track}");
-                } else {
-                    print!(" ");
-                }
-            }
-            println!();
-        }
-        */
-
         loop {
             if let Some((x, y)) = self.tick() {
                 return crate::output(format!("{x},{y}"));
@@ -153,7 +151,11 @@ impl Runner for Aoc2018_13 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        while self.carts.len() != 1 {
+            self.tick();
+        }
+        let (x, y) = self.carts[0].pos;
+        crate::output(format!("{x},{y}"))
     }
 }
 
