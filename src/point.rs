@@ -5,20 +5,20 @@ use std::str::FromStr;
 #[derive(Debug)]
 enum ParsePointError {}
 
-#[derive(Debug, Clone, Copy, Default, PartialEq)]
-pub struct Point<T> {
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
+pub struct Point<T: Ord> {
     pub x: T,
     pub y: T,
 }
 
-impl<T: AddAssign> AddAssign for Point<T> {
+impl<T: Ord + AddAssign> AddAssign for Point<T> {
     fn add_assign(&mut self, other: Self) {
         self.x += other.x;
         self.y += other.y;
     }
 }
 
-impl<T: FromStr> Point<T> {
+impl<T: Ord + FromStr> Point<T> {
     pub fn parse(s: &str, separator: &str) -> Self
     where
         <T as FromStr>::Err: Debug,
@@ -31,7 +31,7 @@ impl<T: FromStr> Point<T> {
     }
 }
 
-impl<T: FromStr> FromStr for Point<T> {
+impl<T: Ord + FromStr> FromStr for Point<T> {
     type Err = String;
 
     fn from_str(p: &str) -> Result<Self, Self::Err> {

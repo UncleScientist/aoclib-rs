@@ -31,8 +31,8 @@ impl Runner for Aoc2018_06 {
 
         for l in &lines {
             let p = l.parse::<Point<i64>>().unwrap();
-            self.min = self.min.min(&p);
-            self.max = self.max.max(&p);
+            self.min = self.min.min(p);
+            self.max = self.max.max(p);
             self.points.push(p);
         }
     }
