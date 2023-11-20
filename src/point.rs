@@ -60,6 +60,10 @@ impl<T: Copy + Ord + Add<T, Output = T> + Sub<T, Output = T>> Point<T> {
         }
     }
 
+    pub fn dist_to(&self, other: &Self) -> T {
+        self.dist(other.x, other.y)
+    }
+
     pub fn dist(&self, x: T, y: T) -> T
     where
         <T as Sub>::Output: Add<T>,

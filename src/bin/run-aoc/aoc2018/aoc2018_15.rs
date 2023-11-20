@@ -68,11 +68,53 @@ impl Aoc2018_15 {
         result
     }
 
-    fn move_units(&mut self) {
+    fn in_range(&self, (point, unit): &(Point<usize>, Unit)) -> Option<Point<usize>> {
+        let look = vec![
+            Point {
+                x: point.x - 1, // up
+                y: point.y,
+            },
+            Point {
+                x: point.x,
+                y: point.y - 1, // left
+            },
+            Point {
+                x: point.x,
+                y: point.y + 1, // right
+            },
+            Point {
+                x: point.x + 1, // down
+                y: point.y,
+            },
+        ];
+
+        let mut result = BTreeSet::new();
+        for l in look {
+            if let Some(other) = self.units.get(&l) {
+                if !other.same_type(&unit) {
+                    result.insert((other.hp(), l.x, l.y));
+                }
+            }
+        }
+
+        if let Some((_, row, col)) = result.first() {
+            Some(Point { x: *row, y: *col })
+        } else {
+            None
+        }
+    }
+
+    fn move_units(&mut self) -> bool {
+        let mut found_an_enemy = false;
         let unitlist = self.units.clone();
-        for unit in &unitlist {
+
+        'next_unit: for unit in &unitlist {
             let mut dest = HashSet::new();
             for enemy in self.units.iter().filter(|u| !u.1.same_type(unit.1)) {
+                found_an_enemy = true;
+                if enemy.0.dist_to(&unit.0) == 1 {
+                    continue 'next_unit;
+                }
                 for p in self.surround(enemy.0) {
                     dest.insert(p);
                 }
@@ -83,6 +125,40 @@ impl Aoc2018_15 {
                 self.units.insert(dest, unit);
             }
         }
+
+        found_an_enemy
+    }
+
+    // returns true if the attack round completed successfully
+    fn attack(&mut self) -> bool {
+        let unitlist = self.units.clone();
+        let mut ecount = 1;
+        let mut gcount = 1;
+
+        for unit in unitlist {
+            if !self.units.contains_key(&unit.0) {
+                println!("unit {unit:?} died before being able to attack");
+                continue;
+            }
+            if ecount == 0 || gcount == 0 {
+                return false;
+            }
+            if let Some(attackee) = self.in_range(&unit) {
+                println!("unit {unit:?} attacks {attackee:?}");
+                self.units.entry(attackee).and_modify(|unit| unit.hit());
+                self.units.retain(|_, unit| unit.hp() > 0); // TODO: fix
+                ecount = 0;
+                gcount = 0;
+                for (_, u) in &self.units {
+                    match u {
+                        Unit::Elf(_) => ecount += 1,
+                        Unit::Goblin(_) => gcount += 1,
+                    }
+                }
+            }
+        }
+
+        true
     }
 
     // - takes in a starting location and a list of possible destinations
@@ -137,7 +213,8 @@ impl Runner for Aoc2018_15 {
     }
 
     fn parse(&mut self) {
-        let lines = aoclib::read_lines("test-input");
+        let lines = aoclib::read_lines("input/2018-15.txt");
+        let _lines = aoclib::read_lines("test-input");
 
         self.rows = lines.len();
         self.cols = lines[0].len();
@@ -165,11 +242,18 @@ impl Runner for Aoc2018_15 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        self.move_units();
-        self._dump();
-        self.move_units();
-        self._dump();
-        crate::output("unsolved")
+        let mut rounds = 0;
+        while self.move_units() {
+            if self.attack() {
+                rounds += 1;
+            } else {
+                break;
+            }
+            println!("=========== ROUND {rounds} =============");
+            self._dump();
+        }
+        println!("{rounds} rounds");
+        crate::output(rounds * self.units.iter().map(|u| u.1.hp()).sum::<i64>())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -189,6 +273,20 @@ impl Unit {
             (self, other),
             (Self::Elf(_), Self::Elf(_)) | (Self::Goblin(_), Self::Goblin(_))
         )
+    }
+
+    fn hp(&self) -> i64 {
+        match self {
+            Self::Elf(hp) => *hp,
+            Self::Goblin(hp) => *hp,
+        }
+    }
+
+    fn hit(&mut self) {
+        match self {
+            Self::Elf(hp) => *hp -= 3,
+            Self::Goblin(hp) => *hp -= 3,
+        }
     }
 }
 
