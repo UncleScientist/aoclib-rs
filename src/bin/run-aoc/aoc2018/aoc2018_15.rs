@@ -74,7 +74,7 @@ impl Aoc2018_15 {
         result
     }
 
-    fn move_units(&mut self, units: &mut BTreeMap<Point<usize>, Unit>) -> bool {
+    fn move_units(&mut self, units: &mut BTreeMap<Point<usize>, Unit>, amount: i64) -> bool {
         let mut unitlist = units.clone();
 
         while let Some(unit) = unitlist.pop_first() {
@@ -97,7 +97,7 @@ impl Aoc2018_15 {
                     make_move = false;
                     break;
                 }
-                for p in self.surround(enemy.0, &units) {
+                for p in self.surround(enemy.0, units) {
                     dest.insert(p);
                 }
             }
@@ -111,7 +111,7 @@ impl Aoc2018_15 {
             let mut attack_from = unit.0;
 
             if make_move {
-                let unitmove = self.bfs(&unit.0, &dest, &units);
+                let unitmove = self.bfs(&unit.0, &dest, units);
                 if let Some(dest) = unitmove {
                     let unittype = units.remove(&unit.0).unwrap();
                     // println!("Moving {unit:?} to {dest:?}");
@@ -142,9 +142,9 @@ impl Aoc2018_15 {
             }
 
             if let Some(enemy) = best {
-                println!("unit {unit:?} attacks {enemy:?}");
+                // println!("unit {unit:?} attacks {enemy:?}");
                 let eval = units.get_mut(&enemy.0).unwrap();
-                eval.hit();
+                eval.hit(amount);
                 if eval.hp() < 0 {
                     unitlist.remove(&enemy.0);
                 }
@@ -188,7 +188,7 @@ impl Aoc2018_15 {
                 }
             }
 
-            for neighbor in self.surround(&next, &units) {
+            for neighbor in self.surround(&next, units) {
                 if let Entry::Vacant(e) = steps.entry(neighbor) {
                     e.insert(Some(next));
                     queue.push_back((neighbor, depth + 1));
@@ -206,6 +206,19 @@ impl Aoc2018_15 {
         } else {
             None
         }
+    }
+
+    fn battle(&mut self, units: &mut BTreeMap<Point<usize>, Unit>, amount: i64) -> (i64, i64) {
+        let mut rounds = 0;
+        while self.move_units(units, amount) {
+            rounds += 1;
+            // println!("=========== ROUND {rounds} =============");
+            // self._dump(&units);
+        }
+        // println!("{rounds} rounds");
+        // println!("final board:");
+        // self._dump();
+        (rounds, units.iter().map(|u| u.1.hp()).sum::<i64>())
     }
 }
 
@@ -244,21 +257,46 @@ impl Runner for Aoc2018_15 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut rounds = 0;
         let mut units = self.units.clone();
-        while self.move_units(&mut units) {
-            rounds += 1;
-            println!("=========== ROUND {rounds} =============");
-            self._dump(&units);
-        }
-        // println!("{rounds} rounds");
-        // println!("final board:");
-        // self._dump();
-        crate::output(rounds * units.iter().map(|u| u.1.hp()).sum::<i64>())
+        let (rounds, total) = self.battle(&mut units, 3);
+        crate::output(rounds * total)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unsolved")
+        let mut max = 4;
+        let elfcount = self
+            .units
+            .iter()
+            .filter(|(_, u)| matches!(u, Unit::Elf(_)))
+            .count();
+
+        loop {
+            let mut units = self.units.clone();
+
+            self.battle(&mut units, max);
+            let newelfcount = units
+                .iter()
+                .filter(|(_, u)| matches!(u, Unit::Elf(_)))
+                .count();
+            if elfcount == newelfcount {
+                break;
+            }
+            max *= 2;
+        }
+
+        max /= 2;
+        loop {
+            let mut units = self.units.clone();
+            let (rounds, total) = self.battle(&mut units, max);
+            let newelfcount = units
+                .iter()
+                .filter(|(_, u)| matches!(u, Unit::Elf(_)))
+                .count();
+            if newelfcount == elfcount {
+                return crate::output(rounds * total);
+            }
+            max += 1;
+        }
     }
 }
 
@@ -283,10 +321,10 @@ impl Unit {
         }
     }
 
-    fn hit(&mut self) {
+    fn hit(&mut self, amount: i64) {
         match self {
             Self::Elf(hp) => *hp -= 3,
-            Self::Goblin(hp) => *hp -= 3,
+            Self::Goblin(hp) => *hp -= amount,
         }
     }
 }
