@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeMap, BTreeSet, HashSet, VecDeque},
+    collections::{btree_map::Entry, BTreeMap, BTreeSet, HashSet, VecDeque},
     fmt::Display,
 };
 
@@ -22,17 +22,19 @@ impl Aoc2018_15 {
 
     fn _dump(&self) {
         for row in 0..self.rows {
+            let mut info = "    ".to_string();
             for col in 0..self.cols {
                 let p = Point { x: row, y: col };
                 if let Some(unit) = self.units.get(&p) {
                     print!("{unit}");
+                    info.push_str(format!("{unit:?} ").as_str());
                 } else if self.map.contains(&p) {
                     print!("#");
                 } else {
                     print!(".");
                 }
             }
-            println!();
+            println!("{info}");
         }
         println!("{:?}", self.units);
     }
@@ -68,93 +70,83 @@ impl Aoc2018_15 {
         result
     }
 
-    fn in_range(&self, (point, unit): &(Point<usize>, Unit)) -> Option<Point<usize>> {
-        let look = vec![
-            Point {
-                x: point.x - 1, // up
-                y: point.y,
-            },
-            Point {
-                x: point.x,
-                y: point.y - 1, // left
-            },
-            Point {
-                x: point.x,
-                y: point.y + 1, // right
-            },
-            Point {
-                x: point.x + 1, // down
-                y: point.y,
-            },
-        ];
-
-        let mut result = BTreeSet::new();
-        for l in look {
-            if let Some(other) = self.units.get(&l) {
-                if !other.same_type(&unit) {
-                    result.insert((other.hp(), l.x, l.y));
-                }
-            }
-        }
-
-        if let Some((_, row, col)) = result.first() {
-            Some(Point { x: *row, y: *col })
-        } else {
-            None
-        }
-    }
-
     fn move_units(&mut self) -> bool {
-        let mut found_an_enemy = false;
-        let unitlist = self.units.clone();
+        let mut unitlist = self.units.clone();
 
-        'next_unit: for unit in &unitlist {
+        while let Some(unit) = unitlist.pop_first() {
+            let mut found_an_enemy = false;
+            // println!("TURN: {unit:?}");
+            // this checks to see if the unit that is about to move has been killed
+            if self.units.get(&unit.0).is_none() {
+                continue;
+            }
+
             let mut dest = HashSet::new();
-            for enemy in self.units.iter().filter(|u| !u.1.same_type(unit.1)) {
+            let mut make_move = true;
+
+            // this bit finds a move to make; if we're within range of an enemy already,
+            // don't move anywhere
+            for enemy in self.units.iter().filter(|u| !u.1.same_type(&unit.1)) {
                 found_an_enemy = true;
+                // println!("ENEMY {enemy:?}");
                 if enemy.0.dist_to(&unit.0) == 1 {
-                    continue 'next_unit;
+                    make_move = false;
+                    break;
                 }
                 for p in self.surround(enemy.0) {
                     dest.insert(p);
                 }
             }
-            let unitmove = self.bfs(unit.0, &dest);
-            if let Some(dest) = unitmove {
-                let unit = self.units.remove(&unit.0).unwrap();
-                self.units.insert(dest, unit);
-            }
-        }
 
-        found_an_enemy
-    }
-
-    // returns true if the attack round completed successfully
-    fn attack(&mut self) -> bool {
-        let unitlist = self.units.clone();
-        let mut ecount = 1;
-        let mut gcount = 1;
-
-        for unit in unitlist {
-            if !self.units.contains_key(&unit.0) {
-                println!("unit {unit:?} died before being able to attack");
-                continue;
-            }
-            if ecount == 0 || gcount == 0 {
+            if !found_an_enemy {
                 return false;
             }
-            if let Some(attackee) = self.in_range(&unit) {
-                println!("unit {unit:?} attacks {attackee:?}");
-                self.units.entry(attackee).and_modify(|unit| unit.hit());
-                self.units.retain(|_, unit| unit.hp() > 0); // TODO: fix
-                ecount = 0;
-                gcount = 0;
-                for (_, u) in &self.units {
-                    match u {
-                        Unit::Elf(_) => ecount += 1,
-                        Unit::Goblin(_) => gcount += 1,
-                    }
+
+            // println!("{unit:?} found enemy");
+
+            let mut attack_from = unit.0;
+
+            if make_move {
+                let unitmove = self.bfs(&unit.0, &dest);
+                if let Some(dest) = unitmove {
+                    let unittype = self.units.remove(&unit.0).unwrap();
+                    // println!("Moving {unit:?} to {dest:?}");
+                    self.units.insert(dest, unittype);
+                    attack_from = dest;
                 }
+            }
+
+            // this bit finds an enemy to attack
+            let mut best: Option<(Point<usize>, Unit)> = None;
+            // println!("Attack decision: {unit:?}");
+            for enemy in self.units.iter().filter(|u| !u.1.same_type(&unit.1)) {
+                // println!("  Considering: {enemy:?}");
+                let dist = attack_from.dist_to(enemy.0);
+                if dist == 1 {
+                    if let Some(b) = best {
+                        if b.1.hp() > enemy.1.hp() {
+                            // println!("   choosing better: {enemy:?}");
+                            best = Some((*enemy.0, *enemy.1));
+                        }
+                    } else {
+                        // println!("   choosing: {enemy:?}");
+                        best = Some((*enemy.0, *enemy.1));
+                    }
+                } else {
+                    // println!("   enemy too far {dist}: {enemy:?}");
+                }
+            }
+
+            if let Some(enemy) = best {
+                // println!("unit {unit:?} attacks {enemy:?}");
+                let eval = self.units.get_mut(&enemy.0).unwrap();
+                eval.hit();
+                if eval.hp() < 0 {
+                    unitlist.remove(&enemy.0);
+                }
+                self.units.retain(|_, unit| unit.hp() > 0); // TODO: fix
+            } else {
+                // println!("unit {unit:?} can't find anyone to hit");
             }
         }
 
@@ -170,31 +162,32 @@ impl Aoc2018_15 {
         let mut min_depth = i64::MAX;
         let mut candidates = BTreeSet::new();
 
-        queue.push_back((start.clone(), 0));
-        steps.insert(start.clone(), None);
+        queue.push_back((*start, 0));
+        steps.insert(*start, None);
 
         while let Some((next, depth)) = queue.pop_front() {
             if depth > min_depth {
                 continue;
             }
             if dest.contains(&next) {
+                #[allow(clippy::comparison_chain)]
                 if min_depth > depth {
                     min_depth = depth;
-                    candidates.insert(next.clone());
+                    candidates.insert(next);
                 } else if min_depth == depth {
-                    candidates.insert(next.clone());
+                    candidates.insert(next);
                 }
             }
 
             for neighbor in self.surround(&next) {
-                if !steps.contains_key(&neighbor) {
-                    steps.insert(neighbor.clone(), Some(next.clone()));
-                    queue.push_back((neighbor.clone(), depth + 1));
+                if let Entry::Vacant(e) = steps.entry(neighbor) {
+                    e.insert(Some(next));
+                    queue.push_back((neighbor, depth + 1));
                 }
             }
         }
         if let Some(mut best) = candidates.first() {
-            while let Some(Some(prev)) = steps.get(&best) {
+            while let Some(Some(prev)) = steps.get(best) {
                 if prev == start {
                     return Some(*best);
                 }
@@ -214,7 +207,7 @@ impl Runner for Aoc2018_15 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2018-15.txt");
-        let _lines = aoclib::read_lines("test-input");
+        // let lines = aoclib::read_lines("test-input");
 
         self.rows = lines.len();
         self.cols = lines[0].len();
@@ -238,21 +231,19 @@ impl Runner for Aoc2018_15 {
             }
         }
 
-        self._dump();
+        // self._dump();
     }
 
     fn part1(&mut self) -> Vec<String> {
         let mut rounds = 0;
         while self.move_units() {
-            if self.attack() {
-                rounds += 1;
-            } else {
-                break;
-            }
-            println!("=========== ROUND {rounds} =============");
-            self._dump();
+            rounds += 1;
+            // println!("=========== ROUND {rounds} =============");
+            // self._dump();
         }
-        println!("{rounds} rounds");
+        // println!("{rounds} rounds");
+        // println!("final board:");
+        // self._dump();
         crate::output(rounds * self.units.iter().map(|u| u.1.hp()).sum::<i64>())
     }
 
