@@ -20,12 +20,12 @@ impl Aoc2018_15 {
         Self::default()
     }
 
-    fn _dump(&self) {
+    fn _dump(&self, units: &BTreeMap<Point<usize>, Unit>) {
         for row in 0..self.rows {
             let mut info = "    ".to_string();
             for col in 0..self.cols {
                 let p = Point { x: row, y: col };
-                if let Some(unit) = self.units.get(&p) {
+                if let Some(unit) = units.get(&p) {
                     print!("{unit}");
                     info.push_str(format!("{unit:?} ").as_str());
                 } else if self.map.contains(&p) {
@@ -36,10 +36,14 @@ impl Aoc2018_15 {
             }
             println!("{info}");
         }
-        println!("{:?}", self.units);
+        println!("{:?}", units);
     }
 
-    fn surround(&self, point: &Point<usize>) -> Vec<Point<usize>> {
+    fn surround(
+        &self,
+        point: &Point<usize>,
+        units: &BTreeMap<Point<usize>, Unit>,
+    ) -> Vec<Point<usize>> {
         let look = vec![
             Point {
                 x: point.x - 1, // up
@@ -61,7 +65,7 @@ impl Aoc2018_15 {
 
         let mut result = Vec::new();
         for l in look {
-            if self.map.contains(&l) || self.units.contains_key(&l) {
+            if self.map.contains(&l) || units.contains_key(&l) {
                 continue;
             }
             result.push(l);
@@ -70,14 +74,14 @@ impl Aoc2018_15 {
         result
     }
 
-    fn move_units(&mut self) -> bool {
-        let mut unitlist = self.units.clone();
+    fn move_units(&mut self, units: &mut BTreeMap<Point<usize>, Unit>) -> bool {
+        let mut unitlist = units.clone();
 
         while let Some(unit) = unitlist.pop_first() {
             let mut found_an_enemy = false;
             // println!("TURN: {unit:?}");
             // this checks to see if the unit that is about to move has been killed
-            if self.units.get(&unit.0).is_none() {
+            if units.get(&unit.0).is_none() {
                 continue;
             }
 
@@ -86,14 +90,14 @@ impl Aoc2018_15 {
 
             // this bit finds a move to make; if we're within range of an enemy already,
             // don't move anywhere
-            for enemy in self.units.iter().filter(|u| !u.1.same_type(&unit.1)) {
+            for enemy in units.iter().filter(|u| !u.1.same_type(&unit.1)) {
                 found_an_enemy = true;
                 // println!("ENEMY {enemy:?}");
                 if enemy.0.dist_to(&unit.0) == 1 {
                     make_move = false;
                     break;
                 }
-                for p in self.surround(enemy.0) {
+                for p in self.surround(enemy.0, &units) {
                     dest.insert(p);
                 }
             }
@@ -107,11 +111,11 @@ impl Aoc2018_15 {
             let mut attack_from = unit.0;
 
             if make_move {
-                let unitmove = self.bfs(&unit.0, &dest);
+                let unitmove = self.bfs(&unit.0, &dest, &units);
                 if let Some(dest) = unitmove {
-                    let unittype = self.units.remove(&unit.0).unwrap();
+                    let unittype = units.remove(&unit.0).unwrap();
                     // println!("Moving {unit:?} to {dest:?}");
-                    self.units.insert(dest, unittype);
+                    units.insert(dest, unittype);
                     attack_from = dest;
                 }
             }
@@ -119,7 +123,7 @@ impl Aoc2018_15 {
             // this bit finds an enemy to attack
             let mut best: Option<(Point<usize>, Unit)> = None;
             // println!("Attack decision: {unit:?}");
-            for enemy in self.units.iter().filter(|u| !u.1.same_type(&unit.1)) {
+            for enemy in units.iter().filter(|u| !u.1.same_type(&unit.1)) {
                 // println!("  Considering: {enemy:?}");
                 let dist = attack_from.dist_to(enemy.0);
                 if dist == 1 {
@@ -138,13 +142,13 @@ impl Aoc2018_15 {
             }
 
             if let Some(enemy) = best {
-                // println!("unit {unit:?} attacks {enemy:?}");
-                let eval = self.units.get_mut(&enemy.0).unwrap();
+                println!("unit {unit:?} attacks {enemy:?}");
+                let eval = units.get_mut(&enemy.0).unwrap();
                 eval.hit();
                 if eval.hp() < 0 {
                     unitlist.remove(&enemy.0);
                 }
-                self.units.retain(|_, unit| unit.hp() > 0); // TODO: fix
+                units.retain(|_, unit| unit.hp() > 0); // TODO: fix
             } else {
                 // println!("unit {unit:?} can't find anyone to hit");
             }
@@ -156,7 +160,12 @@ impl Aoc2018_15 {
     // - takes in a starting location and a list of possible destinations
     // - finds the closest destination (in reading order for tie-breaking)
     // - returns the move to make to go to that desination, if any
-    fn bfs(&self, start: &Point<usize>, dest: &HashSet<Point<usize>>) -> Option<Point<usize>> {
+    fn bfs(
+        &self,
+        start: &Point<usize>,
+        dest: &HashSet<Point<usize>>,
+        units: &BTreeMap<Point<usize>, Unit>,
+    ) -> Option<Point<usize>> {
         let mut steps = BTreeMap::new(); // (neighbor -> visited node)
         let mut queue = VecDeque::new();
         let mut min_depth = i64::MAX;
@@ -179,7 +188,7 @@ impl Aoc2018_15 {
                 }
             }
 
-            for neighbor in self.surround(&next) {
+            for neighbor in self.surround(&next, &units) {
                 if let Entry::Vacant(e) = steps.entry(neighbor) {
                     e.insert(Some(next));
                     queue.push_back((neighbor, depth + 1));
@@ -236,15 +245,16 @@ impl Runner for Aoc2018_15 {
 
     fn part1(&mut self) -> Vec<String> {
         let mut rounds = 0;
-        while self.move_units() {
+        let mut units = self.units.clone();
+        while self.move_units(&mut units) {
             rounds += 1;
-            // println!("=========== ROUND {rounds} =============");
-            // self._dump();
+            println!("=========== ROUND {rounds} =============");
+            self._dump(&units);
         }
         // println!("{rounds} rounds");
         // println!("final board:");
         // self._dump();
-        crate::output(rounds * self.units.iter().map(|u| u.1.hp()).sum::<i64>())
+        crate::output(rounds * units.iter().map(|u| u.1.hp()).sum::<i64>())
     }
 
     fn part2(&mut self) -> Vec<String> {
