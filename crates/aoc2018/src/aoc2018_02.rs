@@ -31,7 +31,7 @@ impl Runner for Aoc2018_02 {
             count_of_twos += counts.contains(&2) as i32;
             count_of_threes += counts.contains(&3) as i32;
         }
-        crate::output(count_of_twos * count_of_threes)
+        aoclib::output(count_of_twos * count_of_threes)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -53,10 +53,10 @@ impl Runner for Aoc2018_02 {
                     let pos = self.boxid[i].find(diff).unwrap();
                     let mut common = self.boxid[i].clone();
                     common.remove(pos);
-                    return crate::output(common);
+                    return aoclib::output(common);
                 }
             }
         }
-        crate::output("** no answer found **")
+        aoclib::output("** no answer found **")
     }
 }

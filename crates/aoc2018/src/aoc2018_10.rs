@@ -82,7 +82,7 @@ impl Runner for Aoc2018_10 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.count)
+        aoclib::output(self.count)
     }
 }
 

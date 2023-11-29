@@ -76,7 +76,7 @@ impl Runner for Aoc2018_11 {
 
     fn part1(&mut self) -> Vec<String> {
         let (x, y, _) = self.highest_coord_for_size(3);
-        crate::output(format!("{x},{y}"))
+        aoclib::output(format!("{x},{y}"))
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -95,7 +95,7 @@ impl Runner for Aoc2018_11 {
             }
         }
 
-        crate::output(format!("{found_x},{found_y},{window_size}"))
+        aoclib::output(format!("{found_x},{found_y},{window_size}"))
     }
 }
 

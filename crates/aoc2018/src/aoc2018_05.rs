@@ -21,7 +21,7 @@ impl Runner for Aoc2018_05 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(react(self.reactant.clone()))
+        aoclib::output(react(self.reactant.clone()))
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -34,7 +34,7 @@ impl Runner for Aoc2018_05 {
                 .collect::<String>();
             smallest = smallest.min(react(reactant));
         }
-        crate::output(smallest)
+        aoclib::output(smallest)
     }
 }
 

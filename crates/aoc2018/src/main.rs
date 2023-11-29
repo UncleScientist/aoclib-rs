@@ -1,4 +1,4 @@
-use crate::{Runner, Selector};
+use aoclib::{Runner, Selector};
 
 mod aoc2018_01;
 mod aoc2018_02;
@@ -34,6 +34,10 @@ use aoc2018_14::*;
 use aoc2018_15::*;
 use aoc2018_16::*;
 
+pub fn main() {
+    run_2018(Selector::Last);
+}
+
 pub fn run_2018(which: Selector) {
     let mut day01 = Aoc2018_01::new();
     let mut day02 = Aoc2018_02::new();
@@ -62,16 +66,16 @@ pub fn run_2018(which: Selector) {
         Selector::Last => {
             let last = days.len() - 1;
             let d = &mut days[last];
-            crate::run_solution(*d);
+            aoclib::run_solution(*d);
         }
         Selector::All => {
             for d in days {
-                crate::run_solution(d);
+                aoclib::run_solution(d);
             }
         }
         Selector::One(num) => {
             let d = &mut days[num - 1];
-            crate::run_solution(*d);
+            aoclib::run_solution(*d);
         }
     }
 }

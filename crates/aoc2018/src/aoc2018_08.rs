@@ -27,11 +27,11 @@ impl Runner for Aoc2018_08 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(sum_metadata(&mut self.tree.iter()))
+        aoclib::output(sum_metadata(&mut self.tree.iter()))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(value_of(&mut self.tree.iter()))
+        aoclib::output(value_of(&mut self.tree.iter()))
     }
 }
 

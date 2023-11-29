@@ -82,7 +82,7 @@ impl Runner for Aoc2018_12 {
             (current_zp, current_state) = self.step(current_zp, &current_state);
         }
 
-        crate::output(current_state.calc_sum(current_zp))
+        aoclib::output(current_state.calc_sum(current_zp))
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -101,7 +101,7 @@ impl Runner for Aoc2018_12 {
         }
 
         let remaining_generations = 50_000_000_000i64 - count;
-        crate::output(current_state.calc_sum(current_zp - remaining_generations))
+        aoclib::output(current_state.calc_sum(current_zp - remaining_generations))
     }
 }
 

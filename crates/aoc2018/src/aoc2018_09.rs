@@ -61,10 +61,10 @@ impl Runner for Aoc2018_09 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.solve_for(self.marble_count))
+        aoclib::output(self.solve_for(self.marble_count))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.solve_for(self.marble_count * 100))
+        aoclib::output(self.solve_for(self.marble_count * 100))
     }
 }

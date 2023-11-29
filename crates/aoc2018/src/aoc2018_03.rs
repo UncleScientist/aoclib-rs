@@ -45,7 +45,7 @@ impl Runner for Aoc2018_03 {
             }
         }
 
-        crate::output(self.fabric.values().filter(|count| **count >= 2).count())
+        aoclib::output(self.fabric.values().filter(|count| **count >= 2).count())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -57,10 +57,10 @@ impl Runner for Aoc2018_03 {
                     }
                 }
             }
-            return crate::output(c.id);
+            return aoclib::output(c.id);
         }
 
-        crate::output("** no answer found **")
+        aoclib::output("** no answer found **")
     }
 }
 

@@ -73,7 +73,7 @@ impl Runner for Aoc2018_14 {
         for c in &self.recipes[self.recipe_count..] {
             answer.push((*c + b'0') as char);
         }
-        crate::output(answer)
+        aoclib::output(answer)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -91,7 +91,7 @@ impl Runner for Aoc2018_14 {
             }
 
             // total hack because I assume the puzzle input ends with a '1' digit
-            return crate::output(format!("{}", self.recipes.len() - self.digits.len() - 1));
+            return aoclib::output(format!("{}", self.recipes.len() - self.digits.len() - 1));
         }
     }
 }

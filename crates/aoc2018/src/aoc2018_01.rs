@@ -26,7 +26,7 @@ impl Runner for Aoc2018_01 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.nums.iter().sum::<i64>())
+        aoclib::output(self.nums.iter().sum::<i64>())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -37,7 +37,7 @@ impl Runner for Aoc2018_01 {
             for delta in &self.nums {
                 cur_freq += *delta;
                 if !freq.insert(cur_freq) {
-                    return crate::output(cur_freq);
+                    return aoclib::output(cur_freq);
                 }
             }
         }

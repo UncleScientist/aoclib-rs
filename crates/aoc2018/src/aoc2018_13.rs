@@ -145,7 +145,7 @@ impl Runner for Aoc2018_13 {
     fn part1(&mut self) -> Vec<String> {
         loop {
             if let Some((x, y)) = self.tick() {
-                return crate::output(format!("{x},{y}"));
+                return aoclib::output(format!("{x},{y}"));
             }
         }
     }
@@ -155,7 +155,7 @@ impl Runner for Aoc2018_13 {
             self.tick();
         }
         let (x, y) = self.carts[0].pos;
-        crate::output(format!("{x},{y}"))
+        aoclib::output(format!("{x},{y}"))
     }
 }
 

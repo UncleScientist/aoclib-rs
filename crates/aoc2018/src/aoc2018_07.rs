@@ -59,7 +59,7 @@ impl Runner for Aoc2018_07 {
             }
         }
 
-        crate::output(completed)
+        aoclib::output(completed)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -90,7 +90,7 @@ impl Runner for Aoc2018_07 {
             }
         }
 
-        crate::output(current_time)
+        aoclib::output(current_time)
     }
 }
 

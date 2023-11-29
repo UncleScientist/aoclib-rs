@@ -259,7 +259,7 @@ impl Runner for Aoc2018_15 {
     fn part1(&mut self) -> Vec<String> {
         let mut units = self.units.clone();
         let (rounds, total) = self.battle(&mut units, 3);
-        crate::output(rounds * total)
+        aoclib::output(rounds * total)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -293,7 +293,7 @@ impl Runner for Aoc2018_15 {
                 .filter(|(_, u)| matches!(u, Unit::Elf(_)))
                 .count();
             if newelfcount == elfcount {
-                return crate::output(rounds * total);
+                return aoclib::output(rounds * total);
             }
             max += 1;
         }

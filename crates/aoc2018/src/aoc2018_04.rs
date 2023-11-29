@@ -42,12 +42,12 @@ impl Runner for Aoc2018_04 {
 
     fn part1(&mut self) -> Vec<String> {
         let (guard_id, guard_data) = self.guards.iter().max_by_key(|g| g.1.total).unwrap();
-        crate::output(*guard_id * guard_data.max_minute())
+        aoclib::output(*guard_id * guard_data.max_minute())
     }
 
     fn part2(&mut self) -> Vec<String> {
         let (guard_id, guard_data) = self.guards.iter().max_by_key(|g| g.1.max_time()).unwrap();
-        crate::output(*guard_id * guard_data.max_minute())
+        aoclib::output(*guard_id * guard_data.max_minute())
     }
 }
 

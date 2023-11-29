@@ -59,7 +59,7 @@ impl Runner for Aoc2018_16 {
                 }
             }
         }
-        crate::output(three_or_more)
+        aoclib::output(three_or_more)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -106,7 +106,7 @@ impl Runner for Aoc2018_16 {
         for cmd in &self.program {
             m.step(actual[cmd[0] as usize], cmd[1], cmd[2], cmd[3]);
         }
-        crate::output(m.regs[0])
+        aoclib::output(m.regs[0])
     }
 }
 

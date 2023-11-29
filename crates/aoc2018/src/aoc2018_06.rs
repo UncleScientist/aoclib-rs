@@ -73,7 +73,7 @@ impl Runner for Aoc2018_06 {
             }
         }
 
-        crate::output(map.iter().max().unwrap())
+        aoclib::output(map.iter().max().unwrap())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -86,6 +86,6 @@ impl Runner for Aoc2018_06 {
             }
         }
 
-        crate::output(total)
+        aoclib::output(total)
     }
 }
