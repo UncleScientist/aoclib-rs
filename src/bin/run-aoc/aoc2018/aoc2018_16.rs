@@ -64,6 +64,7 @@ impl Runner for Aoc2018_16 {
 
     fn part2(&mut self) -> Vec<String> {
         let mut possible = vec![HashSet::new(); 16];
+        let mut actual = [Opcode::BanI; 16];
         for ex in &self.examples {
             for op in &OPCODES {
                 let mut m = Machine::new(ex.before);
@@ -73,10 +74,39 @@ impl Runner for Aoc2018_16 {
                 }
             }
         }
-        for (i, p) in possible.iter().enumerate() {
-            println!("{i:2} -> {p:?}");
+        let mut found = 0;
+        while found < OPCODES.len() {
+            /*
+            for (i, p) in possible.iter().enumerate() {
+                println!("{i:2} -> {p:?}");
+            }
+            */
+            let mut found_opcode = None;
+            for (i, p) in possible.iter().enumerate() {
+                if p.len() == 1 {
+                    let Some(opcode) = p.iter().next() else {
+                        panic!("bug in HashSet code");
+                    };
+                    found_opcode = Some((i, *opcode));
+                    break;
+                }
+            }
+
+            let Some((index, opcode)) = found_opcode else {
+                panic!("could not find another opcode");
+            };
+            found += 1;
+            actual[index] = opcode;
+            for p in possible.iter_mut() {
+                p.remove(&opcode);
+            }
         }
-        crate::output("unsolved")
+
+        let mut m = Machine::new([0, 0, 0, 0]);
+        for cmd in &self.program {
+            m.step(actual[cmd[0] as usize], cmd[1], cmd[2], cmd[3]);
+        }
+        crate::output(m.regs[0])
     }
 }
 
