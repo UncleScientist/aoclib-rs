@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_11 {
@@ -70,7 +70,7 @@ impl Runner for Aoc2022_11 {
         let mut monkey_business = part1.iter().map(|m| m.count).collect::<Vec<usize>>();
         monkey_business.sort_by(|a, b| b.cmp(a));
 
-        crate::output(monkey_business[0] * monkey_business[1])
+        aoclib::output(monkey_business[0] * monkey_business[1])
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -84,7 +84,7 @@ impl Runner for Aoc2022_11 {
         let mut monkey_business = part2.iter().map(|m| m.count).collect::<Vec<usize>>();
         monkey_business.sort_by(|a, b| b.cmp(a));
 
-        crate::output(monkey_business[0] * monkey_business[1])
+        aoclib::output(monkey_business[0] * monkey_business[1])
     }
 }
 

@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_08 {
@@ -71,7 +71,7 @@ impl Runner for Aoc2022_08 {
                 walk.1 += step.1;
             }
         }
-        crate::output(total.len())
+        aoclib::output(total.len())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -104,6 +104,6 @@ impl Runner for Aoc2022_08 {
                 max_score = max_score.max(score);
             }
         }
-        crate::output(max_score)
+        aoclib::output(max_score)
     }
 }

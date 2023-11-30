@@ -1,6 +1,6 @@
 use std::collections::{HashSet, VecDeque};
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_12 {
@@ -43,11 +43,11 @@ impl Runner for Aoc2022_12 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.bfs(self.start, false).unwrap())
+        aoclib::output(self.bfs(self.start, false).unwrap())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.bfs(self.end, true).unwrap())
+        aoclib::output(self.bfs(self.end, true).unwrap())
     }
 }
 

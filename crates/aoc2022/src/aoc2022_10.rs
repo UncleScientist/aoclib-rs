@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_10 {
@@ -59,7 +59,7 @@ impl Runner for Aoc2022_10 {
 
         self.machine.noop();
 
-        crate::output(strength)
+        aoclib::output(strength)
     }
 
     fn part2(&mut self) -> Vec<String> {

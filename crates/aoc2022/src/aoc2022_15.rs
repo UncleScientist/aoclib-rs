@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_15 {
@@ -55,7 +55,7 @@ impl Runner for Aoc2022_15 {
                 .map(|s| s.beacon.0),
         );
 
-        crate::output(coverage.len() - beacons.len())
+        aoclib::output(coverage.len() - beacons.len())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -99,11 +99,11 @@ impl Runner for Aoc2022_15 {
 
             if !rowdata.is_empty() {
                 let x = *rowdata[0].start();
-                return crate::output(x * 4000000 + row);
+                return aoclib::output(x * 4000000 + row);
             }
         }
 
-        crate::output("utter failure")
+        aoclib::output("utter failure")
     }
 }
 

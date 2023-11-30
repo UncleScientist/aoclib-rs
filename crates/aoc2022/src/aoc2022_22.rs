@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_22 {
@@ -92,7 +92,7 @@ impl Runner for Aoc2022_22 {
             }
         }
 
-        crate::output((pos.0 + 1) * 1000 + (pos.1 + 1) * 4 + facing as i64)
+        aoclib::output((pos.0 + 1) * 1000 + (pos.1 + 1) * 4 + facing as i64)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -132,7 +132,7 @@ impl Runner for Aoc2022_22 {
             }
         }
 
-        crate::output((pos.0 + 1) * 1000 + (pos.1 + 1) * 4 + facing as i64)
+        aoclib::output((pos.0 + 1) * 1000 + (pos.1 + 1) * 4 + facing as i64)
     }
 }
 

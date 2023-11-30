@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::Runner;
+use aoclib::Runner;
 
 trait Priority {
     fn priority(&self) -> i32;
@@ -46,7 +46,7 @@ impl Runner for Aoc2022_03 {
             let dup: HashSet<&char> = left.intersection(&right).collect();
             sum += (dup.iter().next().unwrap()).priority();
         }
-        crate::output(sum)
+        aoclib::output(sum)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -61,6 +61,6 @@ impl Runner for Aoc2022_03 {
                 });
             sum += (dup.iter().next().unwrap()).priority();
         }
-        crate::output(sum)
+        aoclib::output(sum)
     }
 }

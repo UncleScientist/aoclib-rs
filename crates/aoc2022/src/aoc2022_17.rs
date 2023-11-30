@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_17 {
@@ -33,7 +33,7 @@ impl Runner for Aoc2022_17 {
             part1.drop_one();
         }
 
-        crate::output(part1.height())
+        aoclib::output(part1.height())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -94,7 +94,7 @@ impl Runner for Aoc2022_17 {
                 let leftover_height = part2.height() - height;
                 // println!("After {leftover_drops} more drops, we added {leftover_height} rows");
 
-                return crate::output(integral_height + leftover_height);
+                return aoclib::output(integral_height + leftover_height);
             } else {
                 cycle_finder.insert((part2.piecenum, part2.jetnum, shape), (height, drops));
             }

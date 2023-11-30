@@ -2,7 +2,7 @@ use std::hash::{Hash, Hasher};
 
 use aoclib::{astar_search, Searcher};
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_24 {
@@ -61,7 +61,7 @@ impl Runner for Aoc2022_24 {
         .unwrap();
         self.first_trip_map_idx = result.map_idx;
         self.first_trip_time = time;
-        crate::output(time)
+        aoclib::output(time)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -83,7 +83,7 @@ impl Runner for Aoc2022_24 {
         .unwrap()
         .1;
 
-        crate::output(self.first_trip_time + return_time + final_time)
+        aoclib::output(self.first_trip_time + return_time + final_time)
     }
 }
 

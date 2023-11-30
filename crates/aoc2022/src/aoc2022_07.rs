@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_07 {
@@ -65,7 +65,7 @@ impl Runner for Aoc2022_07 {
             }
         }
 
-        crate::output(total)
+        aoclib::output(total)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -84,7 +84,7 @@ impl Runner for Aoc2022_07 {
                 best = best.min(size);
             }
         }
-        crate::output(best)
+        aoclib::output(best)
     }
 }
 

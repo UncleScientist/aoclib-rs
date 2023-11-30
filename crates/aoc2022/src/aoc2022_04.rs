@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_04 {
@@ -23,11 +23,11 @@ impl Runner for Aoc2022_04 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.assignment.iter().filter(Assignment::redundant).count())
+        aoclib::output(self.assignment.iter().filter(Assignment::redundant).count())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.assignment.iter().filter(Assignment::overlaps).count())
+        aoclib::output(self.assignment.iter().filter(Assignment::overlaps).count())
     }
 }
 

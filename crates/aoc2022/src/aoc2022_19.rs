@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_19 {
@@ -44,7 +44,7 @@ impl Runner for Aoc2022_19 {
             );
         }
 
-        crate::output(quality)
+        aoclib::output(quality)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -54,7 +54,7 @@ impl Runner for Aoc2022_19 {
             answer *= mine_geodes(bp, 32);
         }
 
-        crate::output(answer)
+        aoclib::output(answer)
     }
 }
 

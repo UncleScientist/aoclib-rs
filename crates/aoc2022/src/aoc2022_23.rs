@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_23 {
@@ -41,7 +41,7 @@ impl Runner for Aoc2022_23 {
         let dim = grove.dimensions();
         let area = (dim.2 - dim.0 + 1) * (dim.3 - dim.1 + 1);
 
-        crate::output(area - grove.elf_count())
+        aoclib::output(area - grove.elf_count())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -51,7 +51,7 @@ impl Runner for Aoc2022_23 {
             count += 1;
             grove = grove.unwrap().round();
             if grove.is_none() {
-                return crate::output(count);
+                return aoclib::output(count);
             }
         }
     }

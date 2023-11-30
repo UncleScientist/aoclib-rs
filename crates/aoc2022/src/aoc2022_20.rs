@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_20 {
@@ -27,11 +27,11 @@ impl Runner for Aoc2022_20 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(decrypt(&self.data, 1, 1))
+        aoclib::output(decrypt(&self.data, 1, 1))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(decrypt(&self.data, 10, 811589153))
+        aoclib::output(decrypt(&self.data, 10, 811589153))
     }
 }
 

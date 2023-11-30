@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_14 {
@@ -39,7 +39,7 @@ impl Runner for Aoc2022_14 {
             count += 1;
         }
 
-        crate::output(count)
+        aoclib::output(count)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -51,7 +51,7 @@ impl Runner for Aoc2022_14 {
             count += 1;
         }
 
-        crate::output(count)
+        aoclib::output(count)
     }
 }
 

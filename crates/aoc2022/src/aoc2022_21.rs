@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_21 {
@@ -42,7 +42,7 @@ impl Runner for Aoc2022_21 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(eval(&"root".to_string(), &self.tree))
+        aoclib::output(eval(&"root".to_string(), &self.tree))
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -61,7 +61,7 @@ impl Runner for Aoc2022_21 {
             eval(left, &self.tree)
         };
 
-        crate::output(find_adjustment(&path, 1, &self.tree, correct_val))
+        aoclib::output(find_adjustment(&path, 1, &self.tree, correct_val))
     }
 }
 

@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::hash::{Hash, Hasher};
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_16 {
@@ -59,8 +59,8 @@ impl Runner for Aoc2022_16 {
             helper: false,
             turned_on: HashSet::new(),
         };
-        crate::output(search.bfs(&walker, &self.tunnels, &self.shortcuts))
-        //crate::output("unsolved")
+        aoclib::output(search.bfs(&walker, &self.tunnels, &self.shortcuts))
+        //aoclib::output("unsolved")
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -71,7 +71,7 @@ impl Runner for Aoc2022_16 {
             helper: true,
             turned_on: HashSet::new(),
         };
-        crate::output(search.bfs(&walker, &self.tunnels, &self.shortcuts))
+        aoclib::output(search.bfs(&walker, &self.tunnels, &self.shortcuts))
     }
 }
 

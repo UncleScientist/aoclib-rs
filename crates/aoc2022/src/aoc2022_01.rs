@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_01 {
@@ -26,10 +26,10 @@ impl Runner for Aoc2022_01 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.records.first().unwrap())
+        aoclib::output(self.records.first().unwrap())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.records.iter().take(3).sum::<i64>())
+        aoclib::output(self.records.iter().take(3).sum::<i64>())
     }
 }

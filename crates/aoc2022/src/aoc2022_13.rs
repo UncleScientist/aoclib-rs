@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::str::Chars;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_13 {
@@ -32,7 +32,7 @@ impl Runner for Aoc2022_13 {
                 sum += index + 1;
             }
         }
-        crate::output(sum)
+        aoclib::output(sum)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -44,7 +44,7 @@ impl Runner for Aoc2022_13 {
 
         list.sort(); // <- does all the work!
 
-        crate::output(
+        aoclib::output(
             list.into_iter()
                 .enumerate()
                 .filter(|(_, p)| *p == d2 || *p == d6)

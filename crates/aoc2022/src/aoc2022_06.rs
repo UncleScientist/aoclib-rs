@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2022_06 {
@@ -24,11 +24,11 @@ impl Runner for Aoc2022_06 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(sliding_window(&self.input, 4).unwrap())
+        aoclib::output(sliding_window(&self.input, 4).unwrap())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(sliding_window(&self.input, 14).unwrap())
+        aoclib::output(sliding_window(&self.input, 14).unwrap())
     }
 }
 
