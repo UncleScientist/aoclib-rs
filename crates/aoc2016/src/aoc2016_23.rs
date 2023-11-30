@@ -1,6 +1,6 @@
-use crate::Runner;
+use aoclib::Runner;
 
-use crate::aoc2016::asm::*;
+use crate::asm::*;
 
 #[derive(Default)]
 pub struct Aoc2016_23 {
@@ -33,10 +33,10 @@ impl Runner for Aoc2016_23 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.vm.run(vec![(Register::A, 7)]))
+        aoclib::output(self.vm.run(vec![(Register::A, 7)]))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.vm.run(vec![(Register::A, 12)]))
+        aoclib::output(self.vm.run(vec![(Register::A, 12)]))
     }
 }

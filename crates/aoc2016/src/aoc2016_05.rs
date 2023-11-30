@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2016_05 {
     prefix: String,
@@ -34,7 +34,7 @@ impl Runner for Aoc2016_05 {
             }
         }
 
-        crate::output(result)
+        aoclib::output(result)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -68,7 +68,7 @@ impl Runner for Aoc2016_05 {
         }
 
         let result: String = ary.iter().collect();
-        crate::output(result)
+        aoclib::output(result)
     }
 }
 

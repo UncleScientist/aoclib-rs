@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2016_14;
 
@@ -18,11 +18,11 @@ impl Runner for Aoc2016_14 {
     fn parse(&mut self) {}
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(find_64th_key("ngcjuoqr".to_string(), 0))
+        aoclib::output(find_64th_key("ngcjuoqr".to_string(), 0))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(find_64th_key("ngcjuoqr".to_string(), 2016))
+        aoclib::output(find_64th_key("ngcjuoqr".to_string(), 2016))
     }
 }
 

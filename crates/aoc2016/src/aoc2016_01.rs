@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2016_01 {
     instr: Vec<Instruction>,
@@ -44,7 +44,7 @@ impl Runner for Aoc2016_01 {
                 Direction::West => x -= dist,
             }
         }
-        crate::output(x.abs() + y.abs())
+        aoclib::output(x.abs() + y.abs())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -76,7 +76,7 @@ impl Runner for Aoc2016_01 {
             }
         }
 
-        crate::output(x.abs() + y.abs())
+        aoclib::output(x.abs() + y.abs())
     }
 }
 

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2016_04 {
     room: Vec<Room>,
@@ -36,16 +36,16 @@ impl Runner for Aoc2016_04 {
                 total += r.sector;
             }
         }
-        crate::output(total)
+        aoclib::output(total)
     }
 
     fn part2(&mut self) -> Vec<String> {
         for r in &self.room {
             if r.is_real() && r.decrypt() == "northpole object storage" {
-                return crate::output(r.sector);
+                return aoclib::output(r.sector);
             }
         }
-        crate::output("No Sector Found")
+        aoclib::output("No Sector Found")
     }
 }
 

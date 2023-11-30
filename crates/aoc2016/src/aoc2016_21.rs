@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 
 use aoclib::Permutations;
 
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2016_21 {
     inst: Vec<Inst>,
@@ -46,7 +46,7 @@ impl Runner for Aoc2016_21 {
         for i in &self.inst {
             result = result.op(i);
         }
-        crate::output(result)
+        aoclib::output(result)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -62,7 +62,7 @@ impl Runner for Aoc2016_21 {
                 break;
             }
         }
-        crate::output(answer.unwrap())
+        aoclib::output(answer.unwrap())
     }
 }
 

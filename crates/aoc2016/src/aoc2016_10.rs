@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 use std::collections::HashMap;
 
 #[derive(Debug)]
@@ -112,13 +112,13 @@ impl Runner for Aoc2016_10 {
             }
         }
 
-        crate::output(comparison_bot)
+        aoclib::output(comparison_bot)
     }
 
     fn part2(&mut self) -> Vec<String> {
         let bin0 = self.bins.get(&0).unwrap().first().unwrap();
         let bin1 = self.bins.get(&1).unwrap().first().unwrap();
         let bin2 = self.bins.get(&2).unwrap().first().unwrap();
-        crate::output(bin0 * bin1 * bin2)
+        aoclib::output(bin0 * bin1 * bin2)
     }
 }

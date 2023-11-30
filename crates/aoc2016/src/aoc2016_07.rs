@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 struct IPAddr {
     addr: Vec<String>,
@@ -29,11 +29,11 @@ impl Runner for Aoc2016_07 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.ip_addr.iter().filter(|ip| ip.supports_tls()).count())
+        aoclib::output(self.ip_addr.iter().filter(|ip| ip.supports_tls()).count())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.ip_addr.iter().filter(|ip| ip.supports_ssl()).count())
+        aoclib::output(self.ip_addr.iter().filter(|ip| ip.supports_ssl()).count())
     }
 }
 

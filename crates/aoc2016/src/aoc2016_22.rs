@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2016_22 {
@@ -63,10 +63,10 @@ impl Runner for Aoc2016_22 {
                     .filter(|b| a.0 != b.0 && a.1.used <= b.1.avail)
                     .count()
             });
-        crate::output(count)
+        aoclib::output(count)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.empty.0 + self.empty.1 + 6 * (self.width - 1) + 1)
+        aoclib::output(self.empty.0 + self.empty.1 + 6 * (self.width - 1) + 1)
     }
 }

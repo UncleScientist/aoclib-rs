@@ -1,5 +1,5 @@
-use crate::aoc2016::asm::*;
-use crate::Runner;
+use crate::asm::*;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2016_25 {
@@ -41,12 +41,12 @@ impl Runner for Aoc2016_25 {
                     break init;
                 }
             };
-            return crate::output(answer);
+            return aoclib::output(answer);
         }
-        crate::output("failed")
+        aoclib::output("failed")
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("unneeded")
+        aoclib::output("unneeded")
     }
 }

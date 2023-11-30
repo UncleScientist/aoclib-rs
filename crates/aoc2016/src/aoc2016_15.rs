@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Debug, Clone)]
 struct Disc {
@@ -53,13 +53,13 @@ impl Runner for Aoc2016_15 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(solution_for_discs(&self.discs))
+        aoclib::output(solution_for_discs(&self.discs))
     }
 
     fn part2(&mut self) -> Vec<String> {
         let mut additional = self.discs.clone();
         additional.push(Disc::new(self.discs.len() + 1, 0, 11));
-        crate::output(solution_for_discs(&additional))
+        aoclib::output(solution_for_discs(&additional))
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2016_20 {
     blacklist: Vec<Range>,
@@ -29,14 +29,14 @@ impl Runner for Aoc2016_20 {
 
     fn part1(&mut self) -> Vec<String> {
         if self.blacklist[0].0 > 0 {
-            crate::output(0)
+            aoclib::output(0)
         } else {
-            crate::output(self.blacklist[0].1 + 1)
+            aoclib::output(self.blacklist[0].1 + 1)
         }
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(count_allowed(&self.blacklist))
+        aoclib::output(count_allowed(&self.blacklist))
     }
 }
 

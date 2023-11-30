@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 use aoclib::*;
 use md5::compute;
 
@@ -26,11 +26,11 @@ impl Runner for Aoc2016_17 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(dijkstra_search(&self.vault).unwrap().0.path)
+        aoclib::output(dijkstra_search(&self.vault).unwrap().0.path)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(longest_path(&self.vault))
+        aoclib::output(longest_path(&self.vault))
     }
 }
 

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2016_13 {
     dist: HashMap<(i32, i32), i32>,
@@ -73,10 +73,10 @@ impl Runner for Aoc2016_13 {
             }
         }
 
-        crate::output(self.dist.get(&(31, 39)).unwrap())
+        aoclib::output(self.dist.get(&(31, 39)).unwrap())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.dist.values().filter(|&x| *x <= 50).count())
+        aoclib::output(self.dist.values().filter(|&x| *x <= 50).count())
     }
 }

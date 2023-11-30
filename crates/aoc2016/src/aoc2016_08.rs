@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2016_08 {
     inst: Vec<Instruction>,
@@ -69,7 +69,7 @@ impl Runner for Aoc2016_08 {
                 }
             }
         }
-        crate::output(self.answer.len())
+        aoclib::output(self.answer.len())
     }
 
     fn part2(&mut self) -> Vec<String> {

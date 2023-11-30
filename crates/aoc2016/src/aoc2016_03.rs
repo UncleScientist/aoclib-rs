@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2016_03 {
     list: Vec<(i32, i32, i32)>,
@@ -30,7 +30,7 @@ impl Runner for Aoc2016_03 {
         for check in &self.list {
             possible += valid_triangle(check.0, check.1, check.2);
         }
-        crate::output(possible)
+        aoclib::output(possible)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -42,7 +42,7 @@ impl Runner for Aoc2016_03 {
             possible += valid_triangle(self.list[i].2, self.list[i + 1].2, self.list[i + 2].2);
         }
 
-        crate::output(possible)
+        aoclib::output(possible)
     }
 }
 

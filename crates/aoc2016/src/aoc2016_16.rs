@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 const PUZZLE_INPUT: &str = "11101000110010100";
 
@@ -24,11 +24,11 @@ impl Runner for Aoc2016_16 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.scram.checksum(272))
+        aoclib::output(self.scram.checksum(272))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.scram.checksum(35_651_584))
+        aoclib::output(self.scram.checksum(35_651_584))
     }
 }
 

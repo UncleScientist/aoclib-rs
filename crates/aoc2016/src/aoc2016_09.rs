@@ -1,5 +1,5 @@
-use crate::Runner;
 use aoclib::read_lines;
+use aoclib::Runner;
 
 pub struct Aoc2016_09 {
     input: String,
@@ -80,11 +80,11 @@ impl Runner for Aoc2016_09 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.input.decompress())
+        aoclib::output(self.input.decompress())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.input.explode())
+        aoclib::output(self.input.explode())
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2016_18 {
     first_line: String,
@@ -22,11 +22,11 @@ impl Runner for Aoc2016_18 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(count_safe(&self.first_line, 40))
+        aoclib::output(count_safe(&self.first_line, 40))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(count_safe(&self.first_line, 400_000))
+        aoclib::output(count_safe(&self.first_line, 400_000))
     }
 }
 

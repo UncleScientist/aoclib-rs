@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 use aoclib::{dijkstra_search, Searcher};
 
 use std::collections::HashSet;
@@ -267,7 +267,7 @@ impl Runner for Aoc2016_11 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(dijkstra_search(&self.building).unwrap().1)
+        aoclib::output(dijkstra_search(&self.building).unwrap().1)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -276,7 +276,7 @@ impl Runner for Aoc2016_11 {
         alt.floor[0].add_microchip("dilithium");
         alt.floor[0].add_generator("elerium");
         alt.floor[0].add_generator("dilithium");
-        crate::output(dijkstra_search(&alt).unwrap().1)
+        aoclib::output(dijkstra_search(&alt).unwrap().1)
     }
 }
 

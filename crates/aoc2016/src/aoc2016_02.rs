@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2016_02 {
     lines: Vec<Vec<char>>,
@@ -53,7 +53,7 @@ impl Runner for Aoc2016_02 {
             answer.push(keypad[y * 3 + x]);
         }
 
-        crate::output(answer)
+        aoclib::output(answer)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -111,6 +111,6 @@ impl Runner for Aoc2016_02 {
             answer.push(keypad[y][x]);
         }
 
-        crate::output(answer)
+        aoclib::output(answer)
     }
 }

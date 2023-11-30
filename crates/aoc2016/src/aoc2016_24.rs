@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 
-use crate::Runner;
+use aoclib::Runner;
 use aoclib::{dijkstra_search, Permutations, Searcher};
 
 #[derive(Default)]
@@ -88,7 +88,7 @@ impl Runner for Aoc2016_24 {
             shortest = shortest.min(total);
         }
 
-        crate::output(shortest)
+        aoclib::output(shortest)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -110,7 +110,7 @@ impl Runner for Aoc2016_24 {
             total += self.dist.get(&(cur_char, '0')).unwrap();
             shortest = shortest.min(total);
         }
-        crate::output(shortest)
+        aoclib::output(shortest)
     }
 }
 
