@@ -1,5 +1,5 @@
-use crate::Runner;
 use aoclib::power_mod;
+use aoclib::Runner;
 
 pub struct Aoc2015_25;
 
@@ -23,7 +23,7 @@ impl Runner for Aoc2015_25 {
     fn part1(&mut self) -> Vec<String> {
         let row = 2978;
         let col = 3083;
-        crate::output(power_mod(
+        aoclib::output(power_mod(
             20151125,
             252533,
             Self::num_at_rc(row, col) - 1,
@@ -32,6 +32,6 @@ impl Runner for Aoc2015_25 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output("ta-da!")
+        aoclib::output("ta-da!")
     }
 }

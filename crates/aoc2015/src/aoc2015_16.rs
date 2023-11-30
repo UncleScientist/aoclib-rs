@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::Runner;
+use aoclib::Runner;
 
 enum Compare {
     LessThan(i32),
@@ -79,7 +79,7 @@ impl Runner for Aoc2015_16 {
             found = which + 1;
             break;
         }
-        crate::output(found)
+        aoclib::output(found)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -110,6 +110,6 @@ impl Runner for Aoc2015_16 {
             found = which + 1;
             break;
         }
-        crate::output(found)
+        aoclib::output(found)
     }
 }

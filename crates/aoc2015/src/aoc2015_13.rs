@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use aoclib::Permutations;
 
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2015_13 {
     data: HashMap<(String, String), i64>,
@@ -41,12 +41,12 @@ impl Runner for Aoc2015_13 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.find_happiest())
+        aoclib::output(self.find_happiest())
     }
 
     fn part2(&mut self) -> Vec<String> {
         self.people.insert("You".to_string());
-        crate::output(self.find_happiest())
+        aoclib::output(self.find_happiest())
     }
 }
 

@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2015_19 {
     molecule: String,
@@ -40,7 +40,7 @@ impl Runner for Aoc2015_19 {
                 hs.insert(format!("{left}{key}{right}"));
             }
         }
-        crate::output(hs.len())
+        aoclib::output(hs.len())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -63,6 +63,6 @@ impl Runner for Aoc2015_19 {
             }
         }
 
-        crate::output(count)
+        aoclib::output(count)
     }
 }

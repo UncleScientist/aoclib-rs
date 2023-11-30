@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2015_11 {
     part_1: String,
@@ -27,7 +27,7 @@ impl Runner for Aoc2015_11 {
 
         self.part_1 = String::from(&passwd);
 
-        crate::output(passwd)
+        aoclib::output(passwd)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -35,7 +35,7 @@ impl Runner for Aoc2015_11 {
         while !valid(&passwd) {
             passwd = incr(&passwd);
         }
-        crate::output(passwd)
+        aoclib::output(passwd)
     }
 }
 

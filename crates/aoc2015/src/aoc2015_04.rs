@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(PartialEq)]
 enum Part {
@@ -33,7 +33,7 @@ impl Aoc2015_04 {
                 continue;
             }
 
-            return crate::output(self.lowest);
+            return aoclib::output(self.lowest);
         }
     }
 }

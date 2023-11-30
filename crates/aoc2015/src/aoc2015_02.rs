@@ -1,5 +1,5 @@
-use crate::Runner;
 use aoclib::numbers;
+use aoclib::Runner;
 
 pub struct Present([u32; 3]);
 
@@ -45,7 +45,7 @@ impl Runner for Aoc2015_02 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(
+        aoclib::output(
             self.prez
                 .iter()
                 .map(|p| p.surface_area() + p.slack())
@@ -54,6 +54,6 @@ impl Runner for Aoc2015_02 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.prez.iter().map(|p| p.ribbon()).sum::<u32>())
+        aoclib::output(self.prez.iter().map(|p| p.ribbon()).sum::<u32>())
     }
 }

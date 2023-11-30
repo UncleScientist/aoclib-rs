@@ -1,5 +1,5 @@
-use crate::Runner;
 use aoclib::read_lines;
+use aoclib::Runner;
 use std::iter::zip;
 
 pub struct Aoc2015_05 {
@@ -59,7 +59,7 @@ impl Runner for Aoc2015_05 {
             nice += 1;
         }
 
-        crate::output(nice)
+        aoclib::output(nice)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -94,7 +94,7 @@ impl Runner for Aoc2015_05 {
             }
         }
 
-        crate::output(nice)
+        aoclib::output(nice)
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2015_14 {
     deer: Vec<Reindeer>,
@@ -51,7 +51,7 @@ impl Runner for Aoc2015_14 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.deer.iter().map(|d| d.distance(2503)).max().unwrap())
+        aoclib::output(self.deer.iter().map(|d| d.distance(2503)).max().unwrap())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -70,7 +70,7 @@ impl Runner for Aoc2015_14 {
             far[furthest] += 1;
         }
 
-        crate::output(far.iter().max().unwrap())
+        aoclib::output(far.iter().max().unwrap())
     }
 }
 

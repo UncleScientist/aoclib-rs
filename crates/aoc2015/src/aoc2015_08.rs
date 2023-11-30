@@ -1,6 +1,6 @@
 use aoclib::read_lines;
 
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2015_08 {
     lines: Vec<String>,
@@ -59,7 +59,7 @@ impl Runner for Aoc2015_08 {
             total += t;
             escaped += e;
         }
-        crate::output(total - escaped)
+        aoclib::output(total - escaped)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -70,7 +70,7 @@ impl Runner for Aoc2015_08 {
             total += t;
             encoded += e;
         }
-        crate::output(encoded - total)
+        aoclib::output(encoded - total)
     }
 }
 

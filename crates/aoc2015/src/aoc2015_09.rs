@@ -1,7 +1,7 @@
 use aoclib::{read_lines, Permutations};
 use std::collections::{HashMap, HashSet};
 
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2015_09 {
     dist: HashMap<(String, String), u64>,
@@ -69,10 +69,10 @@ impl Runner for Aoc2015_09 {
             self.longest = self.longest.max(total);
         }
 
-        crate::output(format!("{shortest}"))
+        aoclib::output(format!("{shortest}"))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.longest)
+        aoclib::output(self.longest)
     }
 }

@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2015_23 {
     program: Vec<Instruction>,
@@ -146,13 +146,13 @@ impl Runner for Aoc2015_23 {
 
     fn part1(&mut self) -> Vec<String> {
         self.run();
-        crate::output(self.machine.b)
+        aoclib::output(self.machine.b)
     }
 
     fn part2(&mut self) -> Vec<String> {
         self.machine.reset();
         self.machine.a = 1;
         self.run();
-        crate::output(self.machine.b)
+        aoclib::output(self.machine.b)
     }
 }

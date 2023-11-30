@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2015_22;
 
@@ -248,14 +248,14 @@ impl Runner for Aoc2015_22 {
         // let starting_state = GameState::new(10, 14, 250, 8);
         let starting_state = GameState::new(50, 58, 500, 9);
         let win = starting_state.cheapest_win(i32::MAX).unwrap();
-        crate::output(format!("{} mana spent in {} turns", win.spent, win.turn))
+        aoclib::output(format!("{} mana spent in {} turns", win.spent, win.turn))
     }
 
     fn part2(&mut self) -> Vec<String> {
         let mut starting_state = GameState::new(50, 58, 500, 9);
         starting_state.difficulty = 1;
         let win = starting_state.cheapest_win(i32::MAX).unwrap();
-        crate::output(format!("{} mana spent in {} turns", win.spent, win.turn))
+        aoclib::output(format!("{} mana spent in {} turns", win.spent, win.turn))
     }
 }
 

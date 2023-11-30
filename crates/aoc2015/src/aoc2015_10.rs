@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2015_10 {
     part_1_result: String,
@@ -24,7 +24,7 @@ impl Runner for Aoc2015_10 {
         for _ in 0..40 {
             self.part_1_result = one_round(&self.part_1_result);
         }
-        crate::output(self.part_1_result.len())
+        aoclib::output(self.part_1_result.len())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -32,7 +32,7 @@ impl Runner for Aoc2015_10 {
         for _ in 0..10 {
             part2 = one_round(&part2);
         }
-        crate::output(part2.len())
+        aoclib::output(part2.len())
     }
 }
 

@@ -1,5 +1,5 @@
-use crate::Runner;
 use aoclib::Combinations;
+use aoclib::Runner;
 
 pub struct Aoc2015_17 {
     cap: Vec<i32>,
@@ -30,7 +30,7 @@ impl Runner for Aoc2015_17 {
                 count += 1;
             }
         }
-        crate::output(count)
+        aoclib::output(count)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -40,6 +40,6 @@ impl Runner for Aoc2015_17 {
                 count[c.len()] += 1;
             }
         }
-        crate::output(count.iter().filter(|&x| *x != 0).min().unwrap())
+        aoclib::output(count.iter().filter(|&x| *x != 0).min().unwrap())
     }
 }

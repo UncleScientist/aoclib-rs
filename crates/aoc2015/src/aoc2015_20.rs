@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 const TARGET: u64 = 34_000_000;
 
@@ -32,10 +32,10 @@ impl Runner for Aoc2015_20 {
         }
         for (idx, house) in houses.iter().enumerate() {
             if *house >= TARGET {
-                return crate::output(idx);
+                return aoclib::output(idx);
             }
         }
-        crate::output("can't find a good home")
+        aoclib::output("can't find a good home")
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -54,9 +54,9 @@ impl Runner for Aoc2015_20 {
         }
         for (idx, house) in houses.iter().enumerate() {
             if *house >= TARGET {
-                return crate::output(idx);
+                return aoclib::output(idx);
             }
         }
-        crate::output("can't find a good home")
+        aoclib::output("can't find a good home")
     }
 }

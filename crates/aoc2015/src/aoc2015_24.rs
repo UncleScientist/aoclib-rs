@@ -1,6 +1,6 @@
 use aoclib::CombinationsOf;
 
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2015_24 {
     gifts: Vec<i64>,
@@ -46,10 +46,10 @@ impl Runner for Aoc2015_24 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.qe_of_division(3).unwrap())
+        aoclib::output(self.qe_of_division(3).unwrap())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.qe_of_division(4).unwrap())
+        aoclib::output(self.qe_of_division(4).unwrap())
     }
 }

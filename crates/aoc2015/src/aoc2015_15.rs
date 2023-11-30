@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 // Frosting:     capacity 4,  durability -2, flavor 0,  texture 0, calories 5
 // Candy:        capacity 0,  durability 5,  flavor -1, texture 0, calories 8
@@ -52,10 +52,10 @@ impl Runner for Aoc2015_15 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.part_1)
+        aoclib::output(self.part_1)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.part_2)
+        aoclib::output(self.part_2)
     }
 }

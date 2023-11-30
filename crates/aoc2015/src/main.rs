@@ -1,4 +1,4 @@
-use crate::{Runner, Selector};
+use aoclib::{Runner, Selector};
 
 mod aoc2015_01;
 mod aoc2015_02;
@@ -52,7 +52,11 @@ use aoc2015_23::*;
 use aoc2015_24::*;
 use aoc2015_25::*;
 
-pub fn run_2015(which: Selector) {
+fn main() {
+    run_2015(Selector::All);
+}
+
+fn run_2015(which: Selector) {
     let mut day01 = Aoc2015_01::new();
     let mut day02 = Aoc2015_02::new();
     let mut day03 = Aoc2015_03::new();
@@ -90,16 +94,16 @@ pub fn run_2015(which: Selector) {
         Selector::Last => {
             let last = days.len() - 1;
             let d = &mut days[last];
-            crate::run_solution(*d);
+            aoclib::run_solution(*d);
         }
         Selector::All => {
             for d in days {
-                crate::run_solution(d);
+                aoclib::run_solution(d);
             }
         }
         Selector::One(num) => {
             let d = &mut days[num - 1];
-            crate::run_solution(*d);
+            aoclib::run_solution(*d);
         }
     }
 }

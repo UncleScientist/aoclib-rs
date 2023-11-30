@@ -10,7 +10,7 @@ impl Aoc2015_01 {
     }
 }
 
-impl crate::Runner for Aoc2015_01 {
+impl aoclib::Runner for Aoc2015_01 {
     fn parse(&mut self) {
         self.data = read_to_chars("input/2015-01.txt");
     }
@@ -20,7 +20,7 @@ impl crate::Runner for Aoc2015_01 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(
+        aoclib::output(
             self.data
                 .iter()
                 .map(|x| match x {
@@ -42,7 +42,7 @@ impl crate::Runner for Aoc2015_01 {
             };
             cur_floor += step;
             if cur_floor < 0 {
-                return crate::output(pos + 1);
+                return aoclib::output(pos + 1);
             }
         }
 

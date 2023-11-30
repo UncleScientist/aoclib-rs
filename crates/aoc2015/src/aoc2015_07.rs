@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use aoclib::read_lines;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Debug, PartialEq)]
 enum Term {
@@ -154,12 +154,12 @@ impl Runner for Aoc2015_07 {
 
     fn part1(&mut self) -> Vec<String> {
         self.part_1_answer = self.get_value(&"a".to_string().into());
-        crate::output(self.part_1_answer)
+        aoclib::output(self.part_1_answer)
     }
 
     fn part2(&mut self) -> Vec<String> {
         self.set_b(self.part_1_answer);
-        crate::output(self.get_value(&"a".to_string().into()))
+        aoclib::output(self.get_value(&"a".to_string().into()))
     }
 }
 

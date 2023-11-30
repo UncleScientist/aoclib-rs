@@ -1,6 +1,6 @@
 use aoclib::{read_lines, Point};
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Debug)]
 enum Command {
@@ -81,7 +81,7 @@ impl Runner for Aoc2015_06 {
             .iter()
             .fold(0, |a, b| a + b.iter().map(|x| *x as u32).sum::<u32>());
 
-        crate::output(count)
+        aoclib::output(count)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -115,6 +115,6 @@ impl Runner for Aoc2015_06 {
 
         let count = grid.iter().fold(0, |a, b| a + b.iter().sum::<u32>());
 
-        crate::output(count)
+        aoclib::output(count)
     }
 }

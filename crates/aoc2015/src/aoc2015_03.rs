@@ -1,7 +1,7 @@
 use aoclib::read_to_chars;
 use std::collections::HashSet;
 
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2015_03 {
     data: Vec<char>,
@@ -36,7 +36,7 @@ impl Runner for Aoc2015_03 {
             }
         }
         grid.insert((x, y));
-        crate::output(grid.len())
+        aoclib::output(grid.len())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -56,6 +56,6 @@ impl Runner for Aoc2015_03 {
             which = 1 - which;
         }
         grid.insert((x[which], y[which]));
-        crate::output(grid.len())
+        aoclib::output(grid.len())
     }
 }

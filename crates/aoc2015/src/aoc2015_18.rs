@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::Runner;
+use aoclib::Runner;
 
 pub struct Aoc2015_18 {
     initial_grid: HashSet<(usize, usize)>,
@@ -117,7 +117,7 @@ impl Runner for Aoc2015_18 {
         for _ in 0..100 {
             self.step();
         }
-        crate::output(self.grid.len())
+        aoclib::output(self.grid.len())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -129,6 +129,6 @@ impl Runner for Aoc2015_18 {
         }
 
         self.corners();
-        crate::output(self.grid.len())
+        aoclib::output(self.grid.len())
     }
 }

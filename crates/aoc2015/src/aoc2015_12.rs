@@ -1,5 +1,5 @@
-use crate::Runner;
 use aoclib::read_lines;
+use aoclib::Runner;
 use serde_json::Value;
 
 pub struct Aoc2015_12 {
@@ -25,11 +25,11 @@ impl Runner for Aoc2015_12 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(sum_json(self.value.as_ref().unwrap()))
+        aoclib::output(sum_json(self.value.as_ref().unwrap()))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(sum_redless(self.value.as_ref().unwrap()).unwrap())
+        aoclib::output(sum_redless(self.value.as_ref().unwrap()).unwrap())
     }
 }
 
