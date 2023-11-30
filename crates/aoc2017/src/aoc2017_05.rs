@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_05 {
@@ -31,7 +31,7 @@ impl Runner for Aoc2017_05 {
             ip += offset;
             count += 1;
         }
-        crate::output(count)
+        aoclib::output(count)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -49,6 +49,6 @@ impl Runner for Aoc2017_05 {
             ip += offset;
             count += 1;
         }
-        crate::output(count)
+        aoclib::output(count)
     }
 }

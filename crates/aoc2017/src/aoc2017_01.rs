@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_01 {
@@ -31,7 +31,7 @@ impl Runner for Aoc2017_01 {
             .filter(|p| p[0] == p[1])
             .map(|p| p[0])
             .sum::<u64>();
-        crate::output(sum)
+        aoclib::output(sum)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -41,6 +41,6 @@ impl Runner for Aoc2017_01 {
                 .filter(|&p| self.nums[p] == self.nums[p + (len / 2)])
                 .map(|p| self.nums[p])
                 .sum::<u64>();
-        crate::output(sum)
+        aoclib::output(sum)
     }
 }

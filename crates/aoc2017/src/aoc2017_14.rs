@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::Runner;
+use aoclib::Runner;
 
 use super::utils::knot_hash;
 
@@ -26,7 +26,7 @@ impl Runner for Aoc2017_14 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(
+        aoclib::output(
             (0..128)
                 .map(|n| knot_hash(&format!("{}-{n}", self.key_string)))
                 .fold(0, |a, b| a + b.count_ones()),
@@ -66,6 +66,6 @@ impl Runner for Aoc2017_14 {
             }
         }
 
-        crate::output(count)
+        aoclib::output(count)
     }
 }

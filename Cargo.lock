@@ -20,6 +20,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "aoc2017"
+version = "0.1.0"
+dependencies = [
+ "aoclib",
+]
+
+[[package]]
 name = "aoc2018"
 version = "0.1.0"
 dependencies = [

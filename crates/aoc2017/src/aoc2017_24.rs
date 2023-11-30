@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_24 {
@@ -25,11 +25,11 @@ impl Runner for Aoc2017_24 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(find_strongest_from(0, &self.components))
+        aoclib::output(find_strongest_from(0, &self.components))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(find_longest_from(0, &self.components).1)
+        aoclib::output(find_longest_from(0, &self.components).1)
     }
 }
 

@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_17 {
@@ -26,7 +26,7 @@ impl Runner for Aoc2017_17 {
         }
 
         let pos = (sl.buffer.iter().position(|&x| x == 2017).unwrap() + 1) % sl.buffer.len();
-        crate::output(sl.buffer[pos])
+        aoclib::output(sl.buffer[pos])
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -39,7 +39,7 @@ impl Runner for Aoc2017_17 {
             }
         }
 
-        crate::output(result)
+        aoclib::output(result)
     }
 }
 

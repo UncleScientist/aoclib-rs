@@ -1,6 +1,6 @@
 use std::{cmp::Ordering, ops::AddAssign};
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_20 {
@@ -44,7 +44,7 @@ impl Runner for Aoc2017_20 {
             .unwrap()
             .0;
 
-        crate::output(slowest_particle)
+        aoclib::output(slowest_particle)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -70,7 +70,7 @@ impl Runner for Aoc2017_20 {
             }
 
             if finished {
-                return crate::output(self.particles.len());
+                return aoclib::output(self.particles.len());
             }
 
             let mut i = 0;
@@ -94,7 +94,7 @@ impl Runner for Aoc2017_20 {
             }
         }
 
-        crate::output("could not find solution after {step} tries")
+        aoclib::output("could not find solution after {step} tries")
     }
 }
 

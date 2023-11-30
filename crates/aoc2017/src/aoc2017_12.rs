@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_12 {
@@ -43,7 +43,7 @@ impl Runner for Aoc2017_12 {
                 stack.extend(to_visit.iter().filter(|n| !visited.contains(n)));
             }
         }
-        crate::output(visited.len())
+        aoclib::output(visited.len())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -71,6 +71,6 @@ impl Runner for Aoc2017_12 {
             }
         }
 
-        crate::output(group_count)
+        aoclib::output(group_count)
     }
 }

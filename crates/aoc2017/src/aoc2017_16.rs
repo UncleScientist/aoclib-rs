@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_16 {
@@ -42,7 +42,7 @@ impl Runner for Aoc2017_16 {
     fn part1(&mut self) -> Vec<String> {
         let mut programs: VecDeque<char> = ('a'..='p').collect();
 
-        crate::output(dance(&mut programs, &self.moves))
+        aoclib::output(dance(&mut programs, &self.moves))
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -63,7 +63,7 @@ impl Runner for Aoc2017_16 {
             result = dance(&mut programs, &self.moves);
         }
 
-        crate::output(result)
+        aoclib::output(result)
     }
 }
 

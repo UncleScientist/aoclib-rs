@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_18 {
@@ -33,7 +33,7 @@ impl Runner for Aoc2017_18 {
             machine.step();
         }
 
-        crate::output(machine.recovered_freq.unwrap())
+        aoclib::output(machine.recovered_freq.unwrap())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -64,7 +64,7 @@ impl Runner for Aoc2017_18 {
             }
         }
 
-        crate::output(m1.send_count)
+        aoclib::output(m1.send_count)
     }
 }
 

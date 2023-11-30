@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_13 {
@@ -27,11 +27,11 @@ impl Runner for Aoc2017_13 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.firewall.severity(0).unwrap())
+        aoclib::output(self.firewall.severity(0).unwrap())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(
+        aoclib::output(
             (0usize..)
                 .find(|&delay| Some(0) == self.firewall.severity(delay))
                 .unwrap(),

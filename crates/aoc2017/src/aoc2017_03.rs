@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 use std::collections::HashMap;
 
@@ -48,7 +48,7 @@ impl Runner for Aoc2017_03 {
             }
         }
 
-        crate::output(x.abs() + y.abs())
+        aoclib::output(x.abs() + y.abs())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -86,13 +86,13 @@ impl Runner for Aoc2017_03 {
                 .sum();
             hm.insert((x, y), sum);
             if sum > PUZZLE_INPUT {
-                return crate::output(sum);
+                return aoclib::output(sum);
             }
             let left_dir = left.get(&dir).unwrap();
             if !hm.contains_key(&(x + left_dir.0, y + left_dir.1)) {
                 dir = *left_dir;
             }
         }
-        crate::output("FAILED")
+        aoclib::output("FAILED")
     }
 }

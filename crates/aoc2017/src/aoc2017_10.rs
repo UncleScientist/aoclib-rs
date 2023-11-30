@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_10 {
@@ -30,7 +30,7 @@ impl Runner for Aoc2017_10 {
     fn part1(&mut self) -> Vec<String> {
         let mut list = (0..=255).collect::<Vec<i32>>();
         rounds(&mut list, 1, &self.list);
-        crate::output(list[0] * list[1])
+        aoclib::output(list[0] * list[1])
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -42,7 +42,7 @@ impl Runner for Aoc2017_10 {
         for chunk in list.chunks(16) {
             answer.push_str(&format!("{:02x}", chunk.iter().fold(0, |a, b| a ^ *b)));
         }
-        crate::output(answer)
+        aoclib::output(answer)
     }
 }
 

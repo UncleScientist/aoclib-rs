@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_19 {
@@ -36,11 +36,11 @@ impl Runner for Aoc2017_19 {
     fn part1(&mut self) -> Vec<String> {
         self.grid.go_to_start();
         while self.grid.step() {}
-        crate::output(self.grid.seen.iter().collect::<String>())
+        aoclib::output(self.grid.seen.iter().collect::<String>())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.grid.steps)
+        aoclib::output(self.grid.steps)
     }
 }
 

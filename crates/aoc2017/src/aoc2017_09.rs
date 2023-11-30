@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_09 {
@@ -58,11 +58,11 @@ impl Runner for Aoc2017_09 {
                 }
             }
         }
-        crate::output(score)
+        aoclib::output(score)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.garbage_count)
+        aoclib::output(self.garbage_count)
     }
 }
 

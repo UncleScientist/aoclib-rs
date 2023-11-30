@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_15 {
@@ -28,7 +28,7 @@ impl Runner for Aoc2017_15 {
         let mut gen_a = Generator::new(GeneratorType::A, self.gen_a_start);
         let mut gen_b = Generator::new(GeneratorType::B, self.gen_b_start);
 
-        crate::output(
+        aoclib::output(
             (0..40_000_000)
                 .map(|_| (gen_a.next().unwrap(), gen_b.next().unwrap()))
                 .filter(|(a, b)| (*a & 0xffff) == (*b & 0xffff))
@@ -40,7 +40,7 @@ impl Runner for Aoc2017_15 {
         let mut gen_a = Generator::new(GeneratorType::SlowA, self.gen_a_start);
         let mut gen_b = Generator::new(GeneratorType::SlowB, self.gen_b_start);
 
-        crate::output(
+        aoclib::output(
             (0..5_000_000)
                 .map(|_| (gen_a.next().unwrap(), gen_b.next().unwrap()))
                 .filter(|(a, b)| (*a & 0xffff) == (*b & 0xffff))

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_08 {
@@ -55,11 +55,11 @@ impl Runner for Aoc2017_08 {
                 self.high_water_mark = self.high_water_mark.max(*val);
             }
         }
-        crate::output(reg.values().max().unwrap())
+        aoclib::output(reg.values().max().unwrap())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.high_water_mark)
+        aoclib::output(self.high_water_mark)
     }
 }
 

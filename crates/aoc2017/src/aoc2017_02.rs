@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_02 {
@@ -21,11 +21,11 @@ impl Runner for Aoc2017_02 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.nums.iter().map(|v| minmax_diff(v)).sum::<u64>())
+        aoclib::output(self.nums.iter().map(|v| minmax_diff(v)).sum::<u64>())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.nums.iter().map(|v| divisible(v)).sum::<u64>())
+        aoclib::output(self.nums.iter().map(|v| divisible(v)).sum::<u64>())
     }
 }
 

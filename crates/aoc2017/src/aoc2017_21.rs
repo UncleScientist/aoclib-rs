@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_21 {
@@ -28,11 +28,11 @@ impl Runner for Aoc2017_21 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        crate::output(self.iterate_grid(5).pixels.len())
+        aoclib::output(self.iterate_grid(5).pixels.len())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.iterate_grid(18).pixels.len())
+        aoclib::output(self.iterate_grid(18).pixels.len())
     }
 }
 

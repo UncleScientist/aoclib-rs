@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_23 {
@@ -27,7 +27,7 @@ impl Runner for Aoc2017_23 {
     fn part1(&mut self) -> Vec<String> {
         let mut m = Machine::new(&self.prog);
         while m.step() {}
-        crate::output(m.mul_count)
+        aoclib::output(m.mul_count)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -53,7 +53,7 @@ impl Runner for Aoc2017_23 {
                 }
             }
         }
-        crate::output(total)
+        aoclib::output(total)
     }
 }
 

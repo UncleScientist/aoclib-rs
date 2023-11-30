@@ -1,4 +1,4 @@
-use crate::Runner;
+use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2017_11 {
@@ -43,11 +43,11 @@ impl Runner for Aoc2017_11 {
             }
             self.max = self.max.max(y.abs().max(x.abs()));
         }
-        crate::output(y.abs().max(x.abs()))
+        aoclib::output(y.abs().max(x.abs()))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        crate::output(self.max)
+        aoclib::output(self.max)
     }
 }
 
