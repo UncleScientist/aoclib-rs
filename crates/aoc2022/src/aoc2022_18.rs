@@ -19,7 +19,6 @@ impl Runner for Aoc2022_18 {
     }
 
     fn parse(&mut self) {
-        let _lines: Vec<Vec<i32>> = aoclib::numbers("test-input.txt", ',');
         let lines: Vec<Vec<i32>> = aoclib::numbers("input/2022-18.txt", ',');
 
         for line in lines {
