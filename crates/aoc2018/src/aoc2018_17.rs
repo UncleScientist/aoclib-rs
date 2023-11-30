@@ -212,7 +212,8 @@ impl Runner for Aoc2018_17 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let still_count = self.grid.values().filter(|v| **v == Scan::Still).count();
+        aoclib::output(still_count)
     }
 }
 
