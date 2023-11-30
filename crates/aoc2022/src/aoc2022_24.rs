@@ -23,7 +23,6 @@ impl Runner for Aoc2022_24 {
     }
 
     fn parse(&mut self) {
-        let _lines = aoclib::read_lines("test-input.txt");
         let lines = aoclib::read_lines("input/2022-24.txt");
 
         let width = lines[0].len() as i32;

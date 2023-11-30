@@ -20,7 +20,6 @@ impl Runner for Aoc2022_22 {
     }
 
     fn parse(&mut self) {
-        let _lines = aoclib::read_lines("test-input.txt");
         let lines = aoclib::read_lines("input/2022-22.txt");
 
         for (row, line) in lines.iter().enumerate() {

@@ -17,7 +17,6 @@ impl Runner for Aoc2022_25 {
     }
 
     fn parse(&mut self) {
-        let _lines = aoclib::read_lines("test-input.txt");
         self.nums = aoclib::read_lines("input/2022-25.txt");
     }
 
