@@ -1,3 +1,4 @@
+use aho_corasick::AhoCorasick;
 use aoclib::Runner;
 
 #[derive(Default)]
@@ -45,38 +46,12 @@ impl Runner for Aoc2023_01 {
         ];
         let mut total = 0;
 
-        for line in &self.lines {
-            let mut first = None;
-            'out: for i in 0..line.len() {
-                for (index, num) in nums.iter().enumerate() {
-                    if i + num.len() > line.len() {
-                        continue;
-                    }
-                    if line[i..i + num.len()] == **num {
-                        first = Some(1 + index / 2);
-                        break 'out;
-                    }
-                }
-            }
-            let Some(first) = first else {
-                panic!("invalid input");
-            };
+        let ac = AhoCorasick::new(nums).unwrap();
 
-            let mut last = None;
-            'out: for i in (0..line.len()).rev() {
-                for (index, num) in nums.iter().enumerate() {
-                    if i + num.len() > line.len() {
-                        continue;
-                    }
-                    if line[i..i + num.len()] == **num {
-                        last = Some(1 + index / 2);
-                        break 'out;
-                    }
-                }
-            }
-            let Some(last) = last else {
-                panic!("invalid input");
-            };
+        for line in &self.lines {
+            let matches = ac.find_overlapping_iter(line).collect::<Vec<_>>();
+            let first = matches.iter().nth(0).unwrap().pattern().as_usize() / 2 + 1;
+            let last = matches.iter().last().unwrap().pattern().as_usize() / 2 + 1;
 
             total += 10 * first as i32 + last as i32;
         }
