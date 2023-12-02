@@ -30,8 +30,8 @@ impl Runner for Aoc2023_01 {
                 .filter(|ch| ch.is_ascii_digit())
                 .map(|ch| ch as u8 - b'0')
                 .collect::<Vec<_>>();
-            let first = *nums.iter().nth(0).unwrap();
-            let last = *nums.iter().last().unwrap();
+            let first = *nums.first().unwrap();
+            let last = *nums.last().unwrap();
 
             total += (first as i32) * 10 + last as i32;
         }
@@ -50,10 +50,10 @@ impl Runner for Aoc2023_01 {
 
         for line in &self.lines {
             let matches = ac.find_overlapping_iter(line).collect::<Vec<_>>();
-            let first = matches.iter().nth(0).unwrap().pattern().as_usize() / 2 + 1;
-            let last = matches.iter().last().unwrap().pattern().as_usize() / 2 + 1;
+            let first = matches.first().unwrap().pattern().as_i32() / 2 + 1;
+            let last = matches.last().unwrap().pattern().as_i32() / 2 + 1;
 
-            total += 10 * first as i32 + last as i32;
+            total += 10 * first + last;
         }
 
         aoclib::output(total)
