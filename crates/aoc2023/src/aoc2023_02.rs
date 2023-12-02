@@ -57,7 +57,21 @@ impl Runner for Aoc2023_02 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut power_sum = 0;
+
+        for game in &self.games {
+            let mut red = 0;
+            let mut green = 0;
+            let mut blue = 0;
+            for turn in game {
+                red = red.max(turn.red);
+                green = green.max(turn.green);
+                blue = blue.max(turn.blue);
+            }
+            power_sum += red * green * blue;
+        }
+
+        aoclib::output(power_sum)
     }
 }
 
