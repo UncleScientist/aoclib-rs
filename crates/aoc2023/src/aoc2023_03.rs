@@ -44,13 +44,12 @@ impl Runner for Aoc2023_03 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut total = 0;
-
-        for num in &self.nums {
-            if num.points.intersection(&self.syms).next().is_some() {
-                total += num.value;
-            }
-        }
+        let total = self
+            .nums
+            .iter()
+            .filter(|num| num.points.intersection(&self.syms).next().is_some())
+            .map(|num| num.value)
+            .sum::<i64>();
 
         aoclib::output(total)
     }
