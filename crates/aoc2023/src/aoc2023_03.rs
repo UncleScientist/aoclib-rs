@@ -6,6 +6,7 @@ use aoclib::Runner;
 pub struct Aoc2023_03 {
     nums: Vec<PartNumber>,
     syms: HashSet<(i64, i64)>,
+    gears: HashSet<(i64, i64)>,
 }
 
 impl Aoc2023_03 {
@@ -37,6 +38,9 @@ impl Runner for Aoc2023_03 {
                     }
                     if ch != '.' {
                         self.syms.insert((row as i64, col as i64));
+                        if ch == '*' {
+                            self.gears.insert((row as i64, col as i64));
+                        }
                     }
                 }
             }
@@ -55,7 +59,23 @@ impl Runner for Aoc2023_03 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut total = 0;
+
+        'next_gear: for gear in &self.gears {
+            let mut matches = Vec::new();
+            for num in &self.nums {
+                if num.points.contains(gear) {
+                    if matches.len() == 2 {
+                        continue 'next_gear;
+                    }
+                    matches.push(num.value);
+                }
+            }
+            if matches.len() == 2 {
+                total += matches[0] * matches[1];
+            }
+        }
+        aoclib::output(total)
     }
 }
 
