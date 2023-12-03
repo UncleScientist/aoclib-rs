@@ -47,8 +47,8 @@ impl Runner for Aoc2023_03 {
         let total = self
             .nums
             .iter()
-            .filter(|num| num.points.intersection(&self.syms).next().is_some())
-            .map(|num| num.value)
+            .filter(|num| num.next_to_symbol(&self.syms))
+            .map(PartNumber::extract_value)
             .sum::<i64>();
 
         aoclib::output(total)
@@ -87,5 +87,13 @@ impl PartNumber {
         self.value = self.value * 10 + (ch as u8 - b'0') as i64;
         self.points
             .extend([(row - 1, col + 1), (row, col + 1), (row + 1, col + 1)]);
+    }
+
+    fn extract_value(&self) -> i64 {
+        self.value
+    }
+
+    fn next_to_symbol(&self, syms: &HashSet<(i64, i64)>) -> bool {
+        self.points.intersection(&syms).next().is_some()
     }
 }
