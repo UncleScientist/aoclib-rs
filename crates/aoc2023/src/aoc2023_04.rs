@@ -45,7 +45,16 @@ impl Runner for Aoc2023_04 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut multiplier = vec![1usize; self.cards.len()];
+
+        for (index, card) in self.cards.iter().enumerate() {
+            let count = card.count();
+            for i in index + 1..index + 1 + count {
+                multiplier[i] += multiplier[index];
+            }
+        }
+
+        aoclib::output(multiplier.iter().sum::<usize>())
     }
 }
 
@@ -55,11 +64,14 @@ struct Card {
 }
 
 impl Card {
-    fn score(&self) -> i64 {
-        let count = self
-            .winning_numbers
+    fn count(&self) -> usize {
+        self.winning_numbers
             .intersection(&self.chosen_numbers)
-            .count();
+            .count()
+    }
+
+    fn score(&self) -> i64 {
+        let count = self.count();
         if count > 0 {
             1 << (count - 1)
         } else {
