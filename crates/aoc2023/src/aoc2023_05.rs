@@ -54,19 +54,28 @@ impl Runner for Aoc2023_05 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        let mut min = i64::MAX;
+        let seed_ranges = self
+            .seeds
+            .chunks(2)
+            .map(|vec| Range {
+                start: vec[0],
+                end: vec[0] + vec[1],
+            })
+            .collect::<Vec<_>>();
 
-        for seed_range in self.seeds.chunks(2) {
-            for seed in seed_range[0]..seed_range[0] + seed_range[1] {
-                let mut cur = seed;
-                for map in &self.mapping {
-                    cur = map.apply_map(cur);
-                }
-                min = min.min(cur);
+        let mut location = 1_i64;
+        loop {
+            let mut cur = location;
+            for map in self.mapping.iter().rev() {
+                cur = map.reverse_lookup(cur);
             }
+            for sr in &seed_ranges {
+                if sr.contains(&cur) {
+                    return aoclib::output(location);
+                }
+            }
+            location += 1;
         }
-
-        aoclib::output(min)
     }
 }
 
@@ -90,6 +99,17 @@ impl Mapping {
             },
             delta: dest - src,
         });
+    }
+
+    fn reverse_lookup(&self, val: i64) -> i64 {
+        for map in &self.map {
+            let rev = val - map.delta;
+            if map.range.contains(&rev) {
+                return rev;
+            }
+        }
+
+        val
     }
 
     fn apply_map(&self, val: i64) -> i64 {
