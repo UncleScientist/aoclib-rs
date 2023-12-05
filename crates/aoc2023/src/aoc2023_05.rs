@@ -21,7 +21,7 @@ impl Runner for Aoc2023_05 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2023-05.txt");
-        //let lines = aoclib::read_lines("test-input");
+        // let lines = aoclib::read_lines("test-input");
         let seeds = lines[0].split_once(": ").unwrap().1;
         self.seeds = seeds.split(' ').map(|seed| seed.parse().unwrap()).collect();
 
@@ -76,10 +76,36 @@ impl Runner for Aoc2023_05 {
             }
             location += 1;
         }
+
+        /*
+        let mut flattened_ranges = self
+            .seeds
+            .chunks(2)
+            .map(|vec| SingleMap {
+                range: Range {
+                    start: vec[0],
+                    end: vec[0] + vec[1],
+                },
+                delta: 0,
+            })
+            .collect::<Vec<_>>();
+
+        flattened_ranges.sort_by_key(|r| r.range.start);
+
+        for map in &self.mapping {
+            flattened_ranges = map.flatten_with(&flattened_ranges);
+        }
+
+        let mut min = i64::MAX;
+        for range in &flattened_ranges {
+            min = min.min(range.range.start + range.delta);
+        }
+        aoclib::output(min)
+        */
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 struct SingleMap {
     range: Range<i64>,
     delta: i64,
@@ -99,6 +125,7 @@ impl Mapping {
             },
             delta: dest - src,
         });
+        self.map.sort_by_key(|r| r.range.start);
     }
 
     fn reverse_lookup(&self, val: i64) -> i64 {
@@ -119,5 +146,115 @@ impl Mapping {
             }
         }
         val
+    }
+
+    // 10...20
+    //            50...80
+    //
+    //  10..............50              delta: -5
+    //         20.............99        delta: 10
+    //  10.=19|20...=49|50....99
+    //     -5     +5       10
+
+    //  10..............50              delta: -5
+    //      20......40                  delta: 10
+    //    -5    5      -5
+
+    // 10.............................100
+    //     20....40           60..80
+    fn _flatten_with(&self, cur: &[SingleMap]) -> Vec<SingleMap> {
+        let mut ci = 0;
+        let mut mi = 0;
+
+        let mut result = Vec::new();
+
+        while ci < cur.len() && mi < self.map.len() {
+            println!("> {result:?}");
+            println!("Merging {:?} with\n        {:?}", cur[ci], self.map[mi]);
+
+            let ci_is_left = cur[ci].range.start < self.map[mi].range.start;
+
+            let (left, right) = if ci_is_left {
+                (&cur[ci], &self.map[mi])
+            } else {
+                (&self.map[mi], &cur[ci])
+            };
+
+            if left.range.end < right.range.start {
+                println!("<appending left>");
+                result.push(left.clone());
+                if ci_is_left {
+                    ci += 1;
+                } else {
+                    mi += 1;
+                }
+                continue;
+            }
+
+            if left.range.end < right.range.end {
+                println!("<left end < right end>");
+                result.push(SingleMap {
+                    range: Range {
+                        start: left.range.start,
+                        end: right.range.start,
+                    },
+                    delta: left.delta,
+                });
+                result.push(SingleMap {
+                    range: Range {
+                        start: right.range.start,
+                        end: left.range.end,
+                    },
+                    delta: left.delta + right.delta,
+                });
+                result.push(SingleMap {
+                    range: Range {
+                        start: left.range.end,
+                        end: right.range.end,
+                    },
+                    delta: right.delta,
+                });
+                ci += 1;
+                mi += 1;
+            } else {
+                println!("<right end <= left end>");
+                result.push(SingleMap {
+                    range: Range {
+                        start: left.range.start,
+                        end: right.range.start,
+                    },
+                    delta: left.delta,
+                });
+                result.push(SingleMap {
+                    range: Range {
+                        start: right.range.start,
+                        end: right.range.end,
+                    },
+                    delta: left.delta + right.delta,
+                });
+                result.push(SingleMap {
+                    range: Range {
+                        start: right.range.end,
+                        end: left.range.end,
+                    },
+                    delta: left.delta,
+                });
+                mi += 1;
+                ci += 1;
+            }
+        }
+
+        while ci < cur.len() {
+            result.push(cur[ci].clone());
+            ci += 1;
+        }
+
+        while mi < self.map.len() {
+            result.push(self.map[mi].clone());
+            mi += 1;
+        }
+
+        println!(">> {result:?}");
+        result
     }
 }
