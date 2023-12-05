@@ -27,7 +27,7 @@ impl Runner for Aoc2023_05 {
 
         let mut curmap = Mapping::default();
         for line in lines[2..].iter() {
-            if line.contains(":") {
+            if line.contains(':') {
                 self.mapping.push(curmap);
                 curmap = Mapping::default();
                 continue;
@@ -54,7 +54,19 @@ impl Runner for Aoc2023_05 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut min = i64::MAX;
+
+        for seed_range in self.seeds.chunks(2) {
+            for seed in seed_range[0]..seed_range[0] + seed_range[1] {
+                let mut cur = seed;
+                for map in &self.mapping {
+                    cur = map.apply_map(cur);
+                }
+                min = min.min(cur);
+            }
+        }
+
+        aoclib::output(min)
     }
 }
 
