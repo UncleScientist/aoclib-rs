@@ -3,6 +3,7 @@ use aoclib::Runner;
 #[derive(Default)]
 pub struct Aoc2023_06 {
     races: Vec<RaceInfo>,
+    part2data: RaceInfo,
 }
 
 impl Aoc2023_06 {
@@ -24,14 +25,14 @@ impl Runner for Aoc2023_06 {
         ];
 
         let times = lines[0]
-            .split_once(":")
+            .split_once(':')
             .unwrap()
             .1
             .split_whitespace()
             .map(|val| val.parse().unwrap())
             .collect::<Vec<i64>>();
         let records = lines[1]
-            .split_once(":")
+            .split_once(':')
             .unwrap()
             .1
             .split_whitespace()
@@ -41,6 +42,30 @@ impl Runner for Aoc2023_06 {
         for (&time, &record) in times.iter().zip(records.iter()) {
             self.races.push(RaceInfo { time, record });
         }
+
+        let part2time = lines[0]
+            .split_once(':')
+            .unwrap()
+            .1
+            .chars()
+            .filter(|ch| !ch.is_whitespace())
+            .collect::<String>()
+            .parse::<i64>()
+            .unwrap();
+
+        let part2record = lines[1]
+            .split_once(':')
+            .unwrap()
+            .1
+            .chars()
+            .filter(|ch| !ch.is_whitespace())
+            .collect::<String>()
+            .parse::<i64>()
+            .unwrap();
+        self.part2data = RaceInfo {
+            time: part2time,
+            record: part2record,
+        };
     }
 
     fn part1(&mut self) -> Vec<String> {
@@ -48,10 +73,10 @@ impl Runner for Aoc2023_06 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        aoclib::output(self.part2data.wins())
     }
 }
-#[derive(Debug)]
+#[derive(Default, Debug)]
 struct RaceInfo {
     time: i64,
     record: i64,
