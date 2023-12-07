@@ -9,6 +9,13 @@ impl Aoc2023_07 {
     pub fn new() -> Self {
         Self::default()
     }
+
+    pub fn score_hands(&self) -> usize {
+        self.hands
+            .iter()
+            .enumerate()
+            .fold(0, |acc, (index, hand)| acc + (index + 1) * hand.bet)
+    }
 }
 
 impl Runner for Aoc2023_07 {
@@ -32,28 +39,19 @@ impl Runner for Aoc2023_07 {
 
             let hand = hand.chars().map(Card::from_char).collect::<Vec<_>>();
             let hand = Hand::new(&hand, bet);
-            // println!("{:?} score = {:x}", hand.hand, hand.score);
+
             self.hands.push(hand);
         }
     }
 
     fn part1(&mut self) -> Vec<String> {
         self.hands.sort_by(|h1, h2| h1.score.cmp(&h2.score));
-        /*
-        for (idx, hand) in self.hands.iter().enumerate() {
-            println!("{:}: {hand:?} -> {}", (idx + 1), (idx + 1) * hand.bet);
-        }
-        */
-        aoclib::output(
-            self.hands
-                .iter()
-                .enumerate()
-                .fold(0, |acc, (index, hand)| acc + (index + 1) * hand.bet),
-        )
+        aoclib::output(self.score_hands())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        self.hands.sort_by(|h1, h2| h1.wc_score.cmp(&h2.wc_score));
+        aoclib::output(self.score_hands())
     }
 }
 
@@ -61,14 +59,17 @@ impl Runner for Aoc2023_07 {
 struct Hand {
     _hand: Vec<Card>,
     score: usize,
+    wc_score: usize,
     bet: usize,
 }
 
 impl Hand {
     fn new(hand: &[Card], bet: usize) -> Self {
         let score = Self::score(hand);
+        let wc_score = Self::wc_score(hand);
         Self {
             _hand: hand.to_vec(),
+            wc_score,
             score,
             bet,
         }
@@ -78,26 +79,64 @@ impl Hand {
         let mut dup: Vec<Card> = hand.into();
 
         dup.sort();
+        let jcount = dup.iter().filter(|card| **card == Card::Joker).count();
 
-        let ht = if dup[0] == dup[4] {
+        let ht = if dup[0].is(dup[4]) {
             HandType::FiveOfAKind
-        } else if dup[0] == dup[3] || dup[1] == dup[4] {
-            HandType::FourOfAKind
-        } else if (dup[0] == dup[1] && dup[2] == dup[4]) || (dup[0] == dup[2] && dup[3] == dup[4]) {
+        } else if dup[0].is(dup[3]) || dup[1].is(dup[4]) {
+            if jcount == 1 {
+                HandType::FiveOfAKind
+            } else {
+                assert!(jcount == 0);
+                HandType::FourOfAKind
+            }
+        } else if (dup[0].is(dup[1]) && dup[2].is(dup[4]))
+            || (dup[0].is(dup[2]) && dup[3].is(dup[4]))
+        {
             HandType::FullHouse
-        } else if dup[0] == dup[2] || dup[1] == dup[3] || dup[2] == dup[4] {
-            HandType::ThreeOfAKind
+        } else if dup[0].is(dup[2]) || dup[1].is(dup[3]) || dup[2].is(dup[4]) {
+            if jcount == 0 {
+                HandType::ThreeOfAKind
+            } else if jcount == 1 {
+                HandType::FourOfAKind
+            } else if jcount == 2 {
+                HandType::FiveOfAKind
+            } else {
+                panic!("code bug");
+            }
         } else {
             let pair_count = dup
                 .as_slice()
                 .windows(2)
-                .filter(|pair| pair[0] == pair[1])
+                .filter(|pair| pair[0].is(pair[1]))
                 .count();
-            match pair_count {
-                0 => HandType::HighCard,
-                1 => HandType::OnePair,
-                2 => HandType::TwoPair,
-                _ => panic!("code bug"),
+
+            if jcount == 0 {
+                match pair_count {
+                    0 => HandType::HighCard,
+                    1 => HandType::OnePair,
+                    2 => HandType::TwoPair,
+                    _ => panic!("code bug"),
+                }
+            } else if jcount == 1 {
+                match pair_count {
+                    0 => HandType::OnePair,
+                    1 => HandType::ThreeOfAKind,
+                    2 => HandType::FullHouse,
+                    _ => panic!("code bug"),
+                }
+            } else if jcount == 2 {
+                match pair_count {
+                    0 => HandType::ThreeOfAKind,
+                    1 => HandType::FourOfAKind,
+                    _ => panic!("code bug: {pair_count}: {hand:?}"),
+                }
+            } else if jcount == 3 && pair_count == 1 || jcount >= 4 {
+                HandType::FiveOfAKind
+            } else if jcount == 3 {
+                HandType::FourOfAKind
+            } else {
+                HandType::HighCard
             }
         };
 
@@ -107,6 +146,21 @@ impl Hand {
         }
 
         score
+    }
+
+    fn wc_score(hand: &[Card]) -> usize {
+        let wc_hand: Vec<Card> = hand
+            .iter()
+            .map(|card| {
+                if *card == Card::Jack {
+                    Card::Joker
+                } else {
+                    *card
+                }
+            })
+            .collect();
+
+        Self::score(&wc_hand)
     }
 }
 
@@ -125,7 +179,8 @@ enum HandType {
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Eq, Ord)]
 enum Card {
-    Two, // 0x0
+    Joker,
+    Two,
     Three,
     Four,
     Five,
@@ -137,10 +192,18 @@ enum Card {
     Jack,
     Queen,
     King,
-    Ace, // 0xc
+    Ace, // 0xd
 }
 
 impl Card {
+    fn is(self, other: Card) -> bool {
+        if self == Self::Joker || other == Self::Joker {
+            false
+        } else {
+            self == other
+        }
+    }
+
     fn from_char(ch: char) -> Self {
         match ch {
             '2' => Self::Two, // 0x0
