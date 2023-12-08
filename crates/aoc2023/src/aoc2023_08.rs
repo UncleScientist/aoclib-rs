@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use aoclib::Runner;
+use aoclib::{lcm_of, Runner};
 
 #[derive(Default)]
 pub struct Aoc2023_08 {
@@ -74,42 +74,4 @@ impl Runner for Aoc2023_08 {
         }
         aoclib::output(lcm_of(&ans))
     }
-}
-
-fn gcd(x: usize, y: usize) -> usize {
-    if y == 0 {
-        x
-    } else {
-        gcd(y, x % y)
-    }
-}
-
-fn _gcd_of(list: &[usize]) -> usize {
-    let mut iter = list.iter();
-    let first = *iter.next().unwrap();
-    let second = *iter.next().unwrap();
-
-    let mut ans = gcd(first, second);
-    for next in iter {
-        ans = gcd(ans, *next)
-    }
-
-    ans
-}
-
-fn lcm(x: usize, y: usize) -> usize {
-    x * y / gcd(x, y)
-}
-
-fn lcm_of(list: &[usize]) -> usize {
-    let mut iter = list.iter();
-    let first = *iter.next().unwrap();
-    let second = *iter.next().unwrap();
-
-    let mut ans = lcm(first, second);
-    for next in iter {
-        ans = lcm(ans, *next)
-    }
-
-    ans
 }

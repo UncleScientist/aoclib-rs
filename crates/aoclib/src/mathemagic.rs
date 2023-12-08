@@ -27,3 +27,56 @@ where
 
     result
 }
+
+pub fn gcd<T>(x: T, y: T) -> T
+where
+    T: Copy
+        + std::convert::From<u8>
+        + std::cmp::PartialOrd
+        + std::ops::Rem<Output = T>
+        + std::ops::Mul<Output = T>
+        + std::convert::From<u8>,
+{
+    let zero: T = 0_u8.try_into().unwrap();
+    if y == zero {
+        x
+    } else {
+        gcd(y, x % y)
+    }
+}
+
+pub fn gcd_of<T>(list: &[T]) -> T
+where
+    T: Copy
+        + std::convert::From<u8>
+        + std::cmp::PartialEq<u8>
+        + std::cmp::PartialOrd
+        + std::ops::Rem<Output = T>
+        + std::ops::Mul<Output = T>,
+{
+    list.iter().copied().reduce(gcd).unwrap()
+}
+
+pub fn lcm<T>(x: T, y: T) -> T
+where
+    T: Copy
+        + std::convert::From<u8>
+        + std::cmp::PartialOrd
+        + std::ops::Rem<Output = T>
+        + std::ops::Mul<Output = T>
+        + std::ops::Div<Output = T>,
+{
+    x * y / gcd(x, y)
+}
+
+pub fn lcm_of<T>(list: &[T]) -> T
+where
+    T: Copy
+        + std::convert::From<u8>
+        + std::cmp::PartialOrd
+        + std::ops::Rem<Output = T>
+        + std::ops::Mul<Output = T>
+        + std::ops::Div<Output = T>,
+{
+    list.iter().copied().reduce(lcm).unwrap()
+}
