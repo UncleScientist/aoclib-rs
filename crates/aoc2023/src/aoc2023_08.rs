@@ -12,6 +12,10 @@ impl Aoc2023_08 {
     pub fn new() -> Self {
         Self::default()
     }
+
+    pub fn get(&self, current: &String, count: usize) -> String {
+        self.map.get(current).unwrap()[self.dirs[count % self.dirs.len()]].clone()
+    }
 }
 
 impl Runner for Aoc2023_08 {
@@ -42,7 +46,7 @@ impl Runner for Aoc2023_08 {
         let mut count = 0;
 
         while current != "ZZZ" {
-            current = self.map.get(&current).unwrap()[self.dirs[count % self.dirs.len()]].clone();
+            current = self.get(&current, count);
             count += 1;
         }
 
@@ -50,6 +54,62 @@ impl Runner for Aoc2023_08 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let queue = self
+            .map
+            .keys()
+            .filter(|key| key.ends_with('A'))
+            .collect::<Vec<_>>();
+
+        let mut ans = Vec::new();
+        for entry in queue {
+            let mut current = entry.clone();
+            let mut count = 0;
+
+            while !current.ends_with('Z') {
+                current = self.get(&current, count);
+                count += 1;
+            }
+
+            ans.push(count)
+        }
+        aoclib::output(lcm_of(&ans))
     }
+}
+
+fn gcd(x: usize, y: usize) -> usize {
+    if y == 0 {
+        x
+    } else {
+        gcd(y, x % y)
+    }
+}
+
+fn _gcd_of(list: &[usize]) -> usize {
+    let mut iter = list.iter();
+    let first = *iter.next().unwrap();
+    let second = *iter.next().unwrap();
+
+    let mut ans = gcd(first, second);
+    for next in iter {
+        ans = gcd(ans, *next)
+    }
+
+    ans
+}
+
+fn lcm(x: usize, y: usize) -> usize {
+    x * y / gcd(x, y)
+}
+
+fn lcm_of(list: &[usize]) -> usize {
+    let mut iter = list.iter();
+    let first = *iter.next().unwrap();
+    let second = *iter.next().unwrap();
+
+    let mut ans = lcm(first, second);
+    for next in iter {
+        ans = lcm(ans, *next)
+    }
+
+    ans
 }
