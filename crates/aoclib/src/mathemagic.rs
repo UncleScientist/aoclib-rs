@@ -28,55 +28,56 @@ where
     result
 }
 
-pub fn gcd<T>(x: T, y: T) -> T
+pub trait Mathemagic<T> {
+    type Output;
+    fn gcd(self) -> Option<Self::Output>;
+    fn lcm(self) -> Option<Self::Output>;
+}
+
+impl<T> Mathemagic<T> for &[T]
 where
     T: Copy
-        + std::convert::From<u8>
+        + std::default::Default
         + std::cmp::PartialOrd
         + std::ops::Rem<Output = T>
         + std::ops::Mul<Output = T>
-        + std::convert::From<u8>,
+        + std::ops::Div<Output = T>,
 {
-    let zero: T = 0_u8.try_into().unwrap();
-    if y == zero {
+    type Output = T;
+
+    fn gcd(self) -> Option<Self::Output> {
+        self.iter().copied().reduce(gcd)
+    }
+
+    fn lcm(self) -> Option<Self::Output> {
+        self.iter().copied().reduce(lcm)
+    }
+}
+
+pub fn gcd<T>(x: T, y: T) -> T
+where
+    T: Copy
+        + std::default::Default
+        + std::cmp::PartialOrd
+        + std::ops::Rem<Output = T>
+        + std::ops::Mul<Output = T>,
+{
+    // let zero: T = 0_u8.try_into().unwrap();
+    if y == T::default() {
         x
     } else {
         gcd(y, x % y)
     }
 }
 
-pub fn gcd_of<T>(list: &[T]) -> T
-where
-    T: Copy
-        + std::convert::From<u8>
-        + std::cmp::PartialEq<u8>
-        + std::cmp::PartialOrd
-        + std::ops::Rem<Output = T>
-        + std::ops::Mul<Output = T>,
-{
-    list.iter().copied().reduce(gcd).unwrap()
-}
-
 pub fn lcm<T>(x: T, y: T) -> T
 where
     T: Copy
-        + std::convert::From<u8>
+        + std::default::Default
         + std::cmp::PartialOrd
         + std::ops::Rem<Output = T>
         + std::ops::Mul<Output = T>
         + std::ops::Div<Output = T>,
 {
     x * y / gcd(x, y)
-}
-
-pub fn lcm_of<T>(list: &[T]) -> T
-where
-    T: Copy
-        + std::convert::From<u8>
-        + std::cmp::PartialOrd
-        + std::ops::Rem<Output = T>
-        + std::ops::Mul<Output = T>
-        + std::ops::Div<Output = T>,
-{
-    list.iter().copied().reduce(lcm).unwrap()
 }

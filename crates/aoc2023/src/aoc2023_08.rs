@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use aoclib::{lcm_of, Runner};
+use aoclib::{Mathemagic, Runner};
 
 #[derive(Default)]
 pub struct Aoc2023_08 {
@@ -72,6 +72,6 @@ impl Runner for Aoc2023_08 {
 
             ans.push(count)
         }
-        aoclib::output(lcm_of(&ans))
+        aoclib::output(ans.lcm().unwrap())
     }
 }
