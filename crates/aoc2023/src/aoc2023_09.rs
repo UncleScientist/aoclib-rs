@@ -24,7 +24,10 @@ impl Runner for Aoc2023_09 {
             [1, 3, 6, 10, 15, 21],
             [10, 13, 16, 21, 30, 45],
         ] {
-            println!("{}", solve(&testdata));
+            println!(
+                "{}",
+                solve(&testdata.iter().rev().copied().collect::<Vec<_>>())
+            );
         }
         */
     }
@@ -34,7 +37,12 @@ impl Runner for Aoc2023_09 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        aoclib::output(
+            self.nums
+                .iter()
+                .map(|nums| solve(&nums.iter().rev().copied().collect::<Vec<_>>()))
+                .sum::<i64>(),
+        )
     }
 }
 
