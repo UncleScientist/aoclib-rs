@@ -1,4 +1,7 @@
-use std::collections::HashMap;
+use std::{
+    collections::{HashMap, HashSet},
+    fmt::Display,
+};
 
 use aoclib::Runner;
 
@@ -6,6 +9,8 @@ use aoclib::Runner;
 pub struct Aoc2023_10 {
     grid: HashMap<(i64, i64), Tile>,
     start_pos: (i64, i64),
+    visited: HashSet<(i64, i64)>,
+    size: (i64, i64),
 }
 
 impl Aoc2023_10 {
@@ -25,7 +30,9 @@ impl Runner for Aoc2023_10 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2023-10.txt");
-        let _lines = aoclib::read_lines("test-input.1");
+        // let lines = aoclib::read_lines("test-input.3");
+
+        self.size = (lines.len() as i64, lines[0].len() as i64);
 
         let mut startpos = None;
         for (row, line) in lines.iter().enumerate() {
@@ -80,6 +87,7 @@ impl Runner for Aoc2023_10 {
 
     fn part1(&mut self) -> Vec<String> {
         let mut curpos = self.start_pos;
+
         let mut curtile = self.get(curpos.0, curpos.1);
         let mut curdir = Direction::West;
         for dir in &DIRS {
@@ -89,25 +97,60 @@ impl Runner for Aoc2023_10 {
             }
         }
 
-        let delta = DELTA[curdir as usize];
-        curpos = (curpos.0 + delta.0, curpos.1 + delta.1);
-        curtile = self.get(curpos.0, curpos.1);
-        curdir = curtile.next(curdir);
-
-        let mut steps = 1;
-        while curpos != self.start_pos {
-            steps += 1;
+        while self.visited.insert(curpos) {
             let delta = DELTA[curdir as usize];
             curpos = (curpos.0 + delta.0, curpos.1 + delta.1);
             curtile = self.get(curpos.0, curpos.1);
             curdir = curtile.next(curdir);
         }
 
-        aoclib::output(steps / 2)
+        aoclib::output(self.visited.len() / 2)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        for row in 0..self.size.0 {
+            for col in 0..self.size.1 {
+                if self.visited.contains(&(row, col)) {
+                    print!("{}", self.get(row, col));
+                } else {
+                    print!(".");
+                }
+            }
+            println!();
+        }
+
+        let mut inside = false;
+        let mut count = 0;
+
+        for row in 0..self.size.0 {
+            let mut tile = Tile::Nothing;
+            for col in 0..self.size.1 {
+                if self.visited.contains(&(row, col)) {
+                    let ch = self.get(row, col);
+                    match ch {
+                        Tile::NorthSouth => inside = !inside,
+                        Tile::EastWest => {}
+                        Tile::NorthEast => tile = ch,
+                        Tile::SouthEast => tile = ch,
+                        Tile::SouthWest => {
+                            if tile == Tile::NorthEast {
+                                inside = !inside;
+                            }
+                        }
+                        Tile::NorthWest => {
+                            if tile == Tile::SouthEast {
+                                inside = !inside;
+                            }
+                        }
+                        Tile::Nothing => panic!("visited a nothing tile"),
+                    }
+                } else if inside {
+                    count += 1;
+                }
+            }
+        }
+
+        aoclib::output(count)
     }
 }
 
@@ -164,6 +207,24 @@ impl Tile {
 impl Default for &Tile {
     fn default() -> &'static Tile {
         &Tile::Nothing
+    }
+}
+
+impl Display for Tile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Tile::NorthSouth => "|",
+                Tile::EastWest => "-",
+                Tile::NorthEast => "L",
+                Tile::NorthWest => "J",
+                Tile::SouthWest => "7",
+                Tile::SouthEast => "F",
+                Tile::Nothing => ".",
+            }
+        )
     }
 }
 
