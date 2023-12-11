@@ -108,6 +108,7 @@ impl Runner for Aoc2023_10 {
     }
 
     fn part2(&mut self) -> Vec<String> {
+        /*
         for row in 0..self.size.0 {
             for col in 0..self.size.1 {
                 if self.visited.contains(&(row, col)) {
@@ -118,6 +119,7 @@ impl Runner for Aoc2023_10 {
             }
             println!();
         }
+        */
 
         let mut inside = false;
         let mut count = 0;
