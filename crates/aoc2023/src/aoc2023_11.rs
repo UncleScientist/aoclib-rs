@@ -55,16 +55,16 @@ impl Runner for Aoc2023_11 {
         let galaxies = self.galaxies.iter().collect::<Vec<_>>();
 
         let mut total_distance = 0;
-        for i in 0..galaxies.len() - 1 {
+        for (i, first) in galaxies.iter().enumerate() {
             let (irow, icol) = (
-                galaxies[i].0 + self.row_offsets[galaxies[i].0 as usize],
-                galaxies[i].1 + self.col_offsets[galaxies[i].1 as usize],
+                first.0 + self.row_offsets[first.0 as usize],
+                first.1 + self.col_offsets[first.1 as usize],
             );
 
-            for j in i + 1..galaxies.len() {
+            for second in galaxies.iter().skip(i) {
                 let (jrow, jcol) = (
-                    galaxies[j].0 + self.row_offsets[galaxies[j].0 as usize],
-                    galaxies[j].1 + self.col_offsets[galaxies[j].1 as usize],
+                    second.0 + self.row_offsets[second.0 as usize],
+                    second.1 + self.col_offsets[second.1 as usize],
                 );
                 total_distance += (irow - jrow).abs() + (icol - jcol).abs();
             }
