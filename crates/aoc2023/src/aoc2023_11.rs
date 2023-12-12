@@ -17,18 +17,28 @@ impl Aoc2023_11 {
     fn calculate_distances(&self, scale: i64) -> i64 {
         let galaxies = self.galaxies.iter().collect::<Vec<_>>();
         let scale = scale - 1;
+        let rows = self
+            .row_offsets
+            .iter()
+            .map(|row| row * scale)
+            .collect::<Vec<_>>();
+        let cols = self
+            .col_offsets
+            .iter()
+            .map(|row| row * scale)
+            .collect::<Vec<_>>();
 
         let mut total_distance = 0;
         for (i, first) in galaxies.iter().enumerate() {
             let (irow, icol) = (
-                first.0 + self.row_offsets[first.0 as usize] * scale,
-                first.1 + self.col_offsets[first.1 as usize] * scale,
+                first.0 + rows[first.0 as usize],
+                first.1 + cols[first.1 as usize],
             );
 
             for second in galaxies.iter().skip(i) {
                 let (jrow, jcol) = (
-                    second.0 + self.row_offsets[second.0 as usize] * scale,
-                    second.1 + self.col_offsets[second.1 as usize] * scale,
+                    second.0 + rows[second.0 as usize],
+                    second.1 + cols[second.1 as usize],
                 );
                 total_distance += (irow - jrow).abs() + (icol - jcol).abs();
             }
