@@ -55,18 +55,47 @@ impl Runner for Aoc2023_13 {
         }
 
         for p in self.patterns.iter_mut() {
-            p.score();
+            p.score = p.score().iter().sum::<usize>();
         }
 
         aoclib::output(self.patterns.iter().map(|p| p.score).sum::<usize>())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut total = 0;
+
+        'next_pattern: for pattern in &self.patterns {
+            let mut pat = pattern.clone();
+            for row in 0..pat.pattern.len() {
+                for col in 0..pat.width {
+                    let bit = 1 << col;
+                    pat.pattern[row] ^= bit;
+
+                    let scores = pat.score();
+                    if scores.iter().any(|x| *x != 0) {
+                        for score in scores {
+                            if score != pat.score {
+                                total += score;
+                                continue 'next_pattern;
+                            }
+                        }
+                    }
+
+                    pat.pattern[row] ^= bit;
+                }
+            }
+            println!("Could not find a smudge");
+            let w = pat.width;
+            for row in pat.pattern.iter() {
+                println!("{:0w$b}", row);
+            }
+        }
+
+        aoclib::output(total)
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Pattern {
     pattern: Vec<usize>,
     score: usize,
@@ -79,32 +108,20 @@ impl Pattern {
             .fold(0, |acc, ch| (acc << 1) | ((ch == '#') as usize))
     }
 
-    fn score(&mut self) {
-        let horizontal = if let Some(horizontal) = self.find_horizontal() {
-            horizontal
-        } else {
-            0
-        };
-        let vertical = if let Some(vertical) = self.find_vertical() {
-            vertical
-        } else {
-            0
-        };
-
-        self.score = horizontal * 100 + vertical;
-        println!("{}", self.score);
-
-        if horizontal == 0 && vertical == 0 {
-            println!("Could not find score for a pattern");
-            let w = self.width;
-            for row in self.pattern.iter() {
-                println!("{:0w$b}", row);
-            }
+    fn score(&self) -> Vec<usize> {
+        let h = self.find_horizontal();
+        let v = self.find_vertical();
+        /*
+        if h.is_empty() && v.is_empty() {
+            println!("could not find a score");
         }
+        */
+        h.iter().chain(v.iter()).copied().collect()
     }
 
-    fn find_horizontal(&self) -> Option<usize> {
-        let len = self.pattern.len() as usize;
+    fn find_horizontal(&self) -> Vec<usize> {
+        let mut answer = Vec::new();
+        let len = self.pattern.len();
 
         'next_try: for i in 0..len - 1 {
             if self.pattern[i] == self.pattern[i + 1] {
@@ -112,7 +129,8 @@ impl Pattern {
                 println!("found match at {i}");
                 for j in 1..=i {
                     if j + i + 1 >= len {
-                        return Some(i + 1);
+                        answer.push((i + 1) * 100);
+                        continue 'next_try;
                     }
                     #[cfg(test)]
                     println!(
@@ -126,11 +144,11 @@ impl Pattern {
                         continue 'next_try;
                     }
                 }
-                return Some(i + 1);
+                answer.push((i + 1) * 100);
             }
         }
 
-        None
+        answer
     }
 
     // 1010101
@@ -138,7 +156,9 @@ impl Pattern {
     //     101010 | 0001
     //     010101 | 0010
     //     001010 | 0101
-    fn find_vertical(&self) -> Option<usize> {
+    fn find_vertical(&self) -> Vec<usize> {
+        let mut answer = Vec::new();
+
         let mut pat_bits = 0;
         let mut reflect_bits = (1 << self.width) - 1;
         let mut pat = self.pattern.clone();
@@ -153,7 +173,7 @@ impl Pattern {
             }
             for row in 0..self.pattern.len() {
                 let mask = pat_bits & reflect_bits;
-                if cfg!(test) || false {
+                if cfg!(test) {
                     let w = self.width;
                     println!(
                         "{row:2}: ({:0w$b} & {:0w$b}) <-> ({:0w$b} & {:0w$b})",
@@ -164,10 +184,10 @@ impl Pattern {
                     continue 'next_bit;
                 }
             }
-            return Some(self.width - i - 1);
+            answer.push(self.width - i - 1);
         }
 
-        None
+        answer
     }
 }
 
