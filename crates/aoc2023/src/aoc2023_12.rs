@@ -2,7 +2,7 @@ use std::{collections::HashMap, str::FromStr};
 
 use aoclib::Runner;
 
-type Cache = HashMap<(Vec<char>, Vec<usize>), usize>;
+type Cache = HashMap<(usize, usize), usize>;
 
 #[derive(Default)]
 pub struct Aoc2023_12 {
@@ -75,7 +75,7 @@ impl Spring {
     }
 
     fn do_score(pat: &[char], sizes: &[usize], cache: &mut Cache) -> usize {
-        if let Some(result) = cache.get(&(pat.to_vec(), sizes.to_vec())) {
+        if let Some(result) = cache.get(&(pat.len(), sizes.len())) {
             return *result;
         }
 
@@ -95,7 +95,7 @@ impl Spring {
             '?' => Self::do_score(&pat[1..], sizes, cache) + Self::do_hash(pat, sizes, cache),
             _ => panic!("invalid char in input"),
         };
-        cache.insert((pat.to_vec(), sizes.to_vec()), result);
+        cache.insert((pat.len(), sizes.len()), result);
         result
     }
 
