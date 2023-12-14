@@ -46,35 +46,8 @@ impl Runner for Aoc2023_14 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut platform = Platform::default();
-        platform.width = self.platform.width;
-        platform.height = self.platform.height;
-
-        // println!("before:");
-        // self.platform._dump();
-
-        for row in 0..self.platform.height {
-            for col in 0..self.platform.width {
-                match self.platform.rocks.get(&(row, col)) {
-                    Some(Rock::Cube) => {
-                        platform.rocks.insert((row, col), Rock::Cube);
-                    }
-                    Some(Rock::Rounded) => {
-                        let mut y = row;
-                        while y > 0 && !platform.rocks.contains_key(&(y - 1, col)) {
-                            y -= 1;
-                        }
-                        platform.rocks.insert((y, col), Rock::Rounded);
-                    }
-                    None => {}
-                }
-            }
-        }
-
-        // println!("after:");
-        // platform._dump();
-
-        aoclib::output(platform.load())
+        let north_tilted_platform = self.platform.tilt(Direction::North);
+        aoclib::output(north_tilted_platform.load())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -109,6 +82,51 @@ impl Platform {
             .sum::<i64>()
     }
 
+    fn tilt(&self, dir: Direction) -> Platform {
+        let mut platform = Platform::default();
+        platform.width = self.width;
+        platform.height = self.height;
+
+        let down = (0..self.height).collect::<Vec<_>>();
+        let up = (0..self.height).rev().collect::<Vec<_>>();
+        let right = (0..self.width).rev().collect::<Vec<_>>();
+        let left = (0..self.width).collect::<Vec<_>>();
+
+        let (rows, cols, dr, dc) = match dir {
+            Direction::North => (down, right, -1, 0),
+            Direction::West => (down, left, 0, -1),
+            Direction::South => (up, right, 1, 0),
+            Direction::East => (up, left, 0, 1),
+        };
+
+        for row in &rows {
+            for col in &cols {
+                match self.rocks.get(&(*row, *col)) {
+                    Some(Rock::Cube) => {
+                        platform.rocks.insert((*row, *col), Rock::Cube);
+                    }
+                    Some(Rock::Rounded) => {
+                        let mut r = *row;
+                        let mut c = *col;
+                        while r + dr >= 0
+                            && c + dc >= 0
+                            && r + dr < self.height
+                            && c + dc < self.height
+                            && !platform.rocks.contains_key(&(r + dr, c + dc))
+                        {
+                            r += dr;
+                            c += dc;
+                        }
+                        platform.rocks.insert((r, c), Rock::Rounded);
+                    }
+                    None => {}
+                }
+            }
+        }
+
+        platform
+    }
+
     fn _dump(&self) {
         for row in 0..self.height {
             for col in 0..self.width {
@@ -124,4 +142,13 @@ impl Platform {
             println!();
         }
     }
+}
+
+#[derive(Debug)]
+#[allow(dead_code)]
+enum Direction {
+    North,
+    West,
+    South,
+    East,
 }
