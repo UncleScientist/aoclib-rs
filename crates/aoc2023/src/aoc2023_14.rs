@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
 use aoclib::Runner;
 
@@ -20,7 +20,6 @@ impl Runner for Aoc2023_14 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2023-14.txt");
-        // let lines = aoclib::read_lines("test-input");
 
         self.platform.width = lines[0].len() as i64;
         self.platform.height = lines.len() as i64;
@@ -51,7 +50,35 @@ impl Runner for Aoc2023_14 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut tiltify = self.platform.clone();
+        let mut loop_detector = HashMap::new();
+
+        let keyvec = tiltify.rocks.keys().copied().collect::<BTreeSet<_>>();
+        loop_detector.insert(keyvec, 0);
+
+        let mut i = 0;
+        let (start, end) = loop {
+            i += 1;
+            for dir in &DIRS {
+                tiltify = tiltify.tilt(*dir);
+            }
+            let keyvec = tiltify.rocks.keys().copied().collect::<BTreeSet<_>>();
+            if let Some(val) = loop_detector.insert(keyvec, i) {
+                break (val, i);
+            }
+        };
+
+        let diff = end - start;
+        let remaining_loops = 1000000000 - start;
+        let phase = remaining_loops % diff;
+
+        for _ in 0..phase {
+            for dir in &DIRS {
+                tiltify = tiltify.tilt(*dir);
+            }
+        }
+
+        aoclib::output(tiltify.load())
     }
 }
 
@@ -69,6 +96,14 @@ struct Platform {
 }
 
 impl Platform {
+    fn prep(&self) -> Platform {
+        Platform {
+            rocks: HashMap::new(),
+            width: self.width,
+            height: self.height,
+        }
+    }
+
     fn load(&self) -> i64 {
         self.rocks
             .iter()
@@ -83,9 +118,7 @@ impl Platform {
     }
 
     fn tilt(&self, dir: Direction) -> Platform {
-        let mut platform = Platform::default();
-        platform.width = self.width;
-        platform.height = self.height;
+        let mut platform = self.prep();
 
         let down = (0..self.height).collect::<Vec<_>>();
         let up = (0..self.height).rev().collect::<Vec<_>>();
@@ -96,7 +129,7 @@ impl Platform {
             Direction::North => (down, right, -1, 0),
             Direction::West => (down, left, 0, -1),
             Direction::South => (up, right, 1, 0),
-            Direction::East => (up, left, 0, 1),
+            Direction::East => (up, right, 0, 1),
         };
 
         for row in &rows {
@@ -144,8 +177,14 @@ impl Platform {
     }
 }
 
-#[derive(Debug)]
-#[allow(dead_code)]
+const DIRS: [Direction; 4] = [
+    Direction::North,
+    Direction::West,
+    Direction::South,
+    Direction::East,
+];
+
+#[derive(Debug, Copy, Clone, PartialEq)]
 enum Direction {
     North,
     West,
