@@ -1,6 +1,8 @@
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
 use aoclib::Runner;
+
+type Cache = HashMap<(Vec<char>, Vec<usize>), usize>;
 
 #[derive(Default)]
 pub struct Aoc2023_12 {
@@ -31,7 +33,7 @@ impl Runner for Aoc2023_12 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        aoclib::output(self.springs.iter().map(Spring::score_part_2).sum::<usize>())
     }
 }
 
@@ -53,10 +55,30 @@ impl FromStr for Spring {
 
 impl Spring {
     fn score(&self) -> usize {
-        Self::do_score(&self.pattern, &self.sizes)
+        let mut cache = HashMap::new();
+        Self::do_score(&self.pattern, &self.sizes, &mut cache)
     }
 
-    fn do_score(pat: &[char], sizes: &[usize]) -> usize {
+    fn score_part_2(&self) -> usize {
+        let mut pattern = Vec::new();
+        for _ in 0..4 {
+            pattern.extend(self.pattern.iter().chain([&'?']));
+        }
+        let mut sizes = Vec::new();
+        pattern.extend(self.pattern.iter());
+        for _ in 0..5 {
+            sizes.extend(self.sizes.iter());
+        }
+        println!("{}", self.pattern.iter().collect::<String>());
+        let mut cache = HashMap::new();
+        Self::do_score(&pattern, &sizes, &mut cache)
+    }
+
+    fn do_score(pat: &[char], sizes: &[usize], cache: &mut Cache) -> usize {
+        if let Some(result) = cache.get(&(pat.to_vec(), sizes.to_vec())) {
+            return *result;
+        }
+
         if sizes.is_empty() {
             return (!pat.contains(&'#')) as usize;
         }
@@ -67,15 +89,17 @@ impl Spring {
             return 0;
         }
 
-        match pat[0] {
-            '.' => Self::do_score(&pat[1..], sizes),
-            '#' => Self::do_hash(pat, sizes),
-            '?' => Self::do_score(&pat[1..], sizes) + Self::do_hash(pat, sizes),
+        let result = match pat[0] {
+            '.' => Self::do_score(&pat[1..], sizes, cache),
+            '#' => Self::do_hash(pat, sizes, cache),
+            '?' => Self::do_score(&pat[1..], sizes, cache) + Self::do_hash(pat, sizes, cache),
             _ => panic!("invalid char in input"),
-        }
+        };
+        cache.insert((pat.to_vec(), sizes.to_vec()), result);
+        result
     }
 
-    fn do_hash(pat: &[char], sizes: &[usize]) -> usize {
+    fn do_hash(pat: &[char], sizes: &[usize], cache: &mut Cache) -> usize {
         if pat.len() < sizes[0] || pat[0..sizes[0]].contains(&'.') {
             return 0;
         }
@@ -88,7 +112,7 @@ impl Spring {
             return 0;
         }
 
-        Self::do_score(&pat[sizes[0] + 1..], &sizes[1..])
+        Self::do_score(&pat[sizes[0] + 1..], &sizes[1..], cache)
     }
 }
 
