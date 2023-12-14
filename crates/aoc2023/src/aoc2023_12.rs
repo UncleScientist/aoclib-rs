@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use aoclib::Runner;
 
 #[derive(Default)]
@@ -20,18 +22,12 @@ impl Runner for Aoc2023_12 {
         let lines = aoclib::read_lines("input/2023-12.txt");
 
         for line in lines.iter() {
-            let (pattern, nums) = line.split_once(' ').unwrap();
-            let pattern = pattern.chars().collect();
-            let sizes = nums.split(',').map(|val| val.parse().unwrap()).collect();
-            self.springs.push(Spring {
-                _pattern: pattern,
-                _sizes: sizes,
-            });
+            self.springs.push(line.parse().unwrap());
         }
     }
 
     fn part1(&mut self) -> Vec<String> {
-        aoclib::output(self.springs.len())
+        aoclib::output(self.springs.iter().map(Spring::score).sum::<usize>())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -40,172 +36,99 @@ impl Runner for Aoc2023_12 {
 }
 
 struct Spring {
-    _pattern: Vec<char>,
-    _sizes: Vec<usize>,
+    pattern: Vec<char>,
+    sizes: Vec<usize>,
+}
+
+impl FromStr for Spring {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let (pattern, nums) = s.split_once(' ').unwrap();
+        let pattern = pattern.chars().collect();
+        let sizes = nums.split(',').map(|val| val.parse().unwrap()).collect();
+        Ok(Spring { pattern, sizes })
+    }
 }
 
 impl Spring {
-    fn _arr3(&self) -> usize {
-        let mut starts = Vec::new();
-        for (idx, size) in self._sizes.iter().enumerate() {
-            starts.push(idx + size);
-        }
-
-        for (idx, s) in starts.iter().enumerate() {
-            for i in *s..self._sizes[idx] {
-                if self._pattern[i] == '.' {
-                    // no match here
-                }
-            }
-        }
-
-        println!("{starts:?}");
-        0
+    fn score(&self) -> usize {
+        Self::do_score(&self.pattern, &self.sizes)
     }
 
-    fn _arr2(&self) -> usize {
-        Self::_search(&self._pattern, &self._sizes)
-    }
-
-    fn _search(pattern: &[char], sizes: &[usize]) -> usize {
-        #[cfg(test)]
-        println!("> starting with {pattern:?}, {sizes:?}");
+    fn do_score(pat: &[char], sizes: &[usize]) -> usize {
         if sizes.is_empty() {
-            #[cfg(test)]
-            println!("   -> no sizes left");
+            return (!pat.contains(&'#')) as usize;
+        }
+
+        let min_remaining = sizes.iter().sum::<usize>() + sizes.len() - 1;
+
+        if pat.len() < min_remaining {
             return 0;
         }
-        if pattern.is_empty() {
-            #[cfg(test)]
-            println!("   -> no patterns left");
-            return 1;
-        }
 
-        for i in 0..sizes[0] {
-            if pattern[i] == '.' {
-                #[cfg(test)]
-                println!(
-                    "   -> found . when searching {} in pattern {:?}",
-                    sizes[0], pattern
-                );
-                return Self::_search(&pattern[1..], sizes);
-            }
+        match pat[0] {
+            '.' => Self::do_score(&pat[1..], sizes),
+            '#' => Self::do_hash(pat, sizes),
+            '?' => Self::do_score(&pat[1..], sizes) + Self::do_hash(pat, sizes),
+            _ => panic!("invalid char in input"),
         }
-
-        if pattern.len() == sizes[0] {
-            #[cfg(test)]
-            println!("   -> end of pattern - 1 match");
-            return Self::_search(&pattern[1..], &sizes[1..]);
-        }
-
-        if pattern[sizes[0]] == '#' {
-            #[cfg(test)]
-            println!(
-                "   -> found # when check pos + 1, {} pattern {:?}",
-                sizes[0], pattern
-            );
-            return Self::_search(&pattern[1..], sizes);
-        }
-
-        #[cfg(test)]
-        println!("   -> pattern {:?} matches size {}", pattern, sizes[0]);
-        1 + Self::_search(&pattern[1..], &sizes[1..])
     }
 
-    fn _arrangements(&self) -> usize {
-        let max = self._sizes.iter().sum::<usize>() + self._sizes.len() - 1;
-        let mut matches = Vec::new();
-
-        let mut count = 0;
-        let restart = self._sizes.len() - 2;
-        #[cfg(test)]
-        println!("matching on {:?}", self._pattern);
-
-        let mut ptr = 0;
-        let mut which = 0;
-        'start: while ptr < max {
-            let mut matchpoints = Vec::new();
-
-            'next: while which < self._sizes.len() {
-                if ptr + self._sizes[which] > self._pattern.len() {
-                    #[cfg(test)]
-                    println!("   {ptr} + {} > len", self._sizes[which]);
-                    if restart > 0 && self._pattern[matchpoints[restart]] == '?' {
-                        ptr = matchpoints[restart] + 1;
-                        #[cfg(test)]
-                        println!("   >> backing up to {ptr} @ {restart}");
-                    }
-                    continue 'start;
-                }
-
-                for i in 0..self._sizes[which] {
-                    if self._pattern[ptr + i] == '.' {
-                        #[cfg(test)]
-                        println!("   does not match {which} at {}", ptr + i);
-                        ptr += 1;
-                        continue 'next;
-                    }
-                }
-
-                matchpoints.push(ptr);
-                ptr += self._sizes[which];
-                if ptr < self._pattern.len() && self._pattern[ptr] == '#' {
-                    #[cfg(test)]
-                    println!("   has # after pattern at {ptr}");
-                    continue 'next;
-                }
-                ptr += 1;
-                which += 1;
-            }
-
-            for i in ptr..self._pattern.len() {
-                if self._pattern[i] == '#' {
-                    #[cfg(test)]
-                    println!("   extra # at end, {i}");
-                    if restart > 0 && self._pattern[matchpoints[restart]] == '?' {
-                        // ptr = matchpoints[restart] + 1;
-                        #[cfg(test)]
-                        println!("   >> backing up to {ptr} @ {restart}");
-                    }
-                    continue 'start;
-                }
-            }
-            #[cfg(test)]
-            println!("- found match - {matchpoints:?}");
-            matches.push(matchpoints.clone());
-            count += 1;
-            if self._pattern[matchpoints[restart]] == '?' {
-                ptr = matchpoints[restart] + 1;
-                #[cfg(test)]
-                println!("   >> backing up to {ptr} @ {restart}");
-            }
+    fn do_hash(pat: &[char], sizes: &[usize]) -> usize {
+        if pat.len() < sizes[0] || pat[0..sizes[0]].contains(&'.') {
+            return 0;
         }
 
-        count
+        if pat.len() == sizes[0] {
+            return (sizes.len() == 1) as usize;
+        }
+
+        if pat[sizes[0]] == '#' {
+            return 0;
+        }
+
+        Self::do_score(&pat[sizes[0] + 1..], &sizes[1..])
     }
 }
 
-/*
 #[cfg(test)]
 mod test {
     use super::*;
 
     #[test]
     fn test1() {
-        let spring = Spring {
-            _pattern: "???.###".chars().collect(),
-            _sizes: vec![1, 1, 3],
-        };
-        assert_eq!(1, spring._arr3());
+        let spring: Spring = "???.### 1,1,3".parse().unwrap();
+        assert_eq!(1, spring.score());
     }
 
     #[test]
     fn test2() {
-        let spring = Spring {
-            _pattern: ".??..??...?##.".chars().collect(),
-            _sizes: vec![1, 1, 3],
-        };
-        assert_eq!(4, spring._arr3());
+        let spring: Spring = ".??..??...?##. 1,1,3".parse().unwrap();
+        assert_eq!(4, spring.score());
+    }
+
+    #[test]
+    fn test3() {
+        let spring: Spring = "?#?#?#?#?#?#?#? 1,3,1,6".parse().unwrap();
+        assert_eq!(1, spring.score());
+    }
+
+    #[test]
+    fn test4() {
+        let spring: Spring = "????.#...#... 4,1,1".parse().unwrap();
+        assert_eq!(1, spring.score());
+    }
+
+    #[test]
+    fn test5() {
+        let spring: Spring = "????.######..#####. 1,6,5".parse().unwrap();
+        assert_eq!(4, spring.score());
+    }
+
+    #[test]
+    fn test6() {
+        let spring: Spring = "?###???????? 3,2,1".parse().unwrap();
+        assert_eq!(10, spring.score());
     }
 }
-*/

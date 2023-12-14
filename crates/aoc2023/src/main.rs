@@ -52,7 +52,7 @@ fn run_2023(which: Selector) {
 
     let mut days: Vec<&mut dyn Runner> = vec![
         &mut day01, &mut day02, &mut day03, &mut day04, &mut day05, &mut day06, &mut day07,
-        &mut day08, &mut day09, &mut day10, &mut day11, &mut day12, &mut day13, &mut day14,
+        &mut day08, &mut day09, &mut day10, &mut day11, &mut day14, &mut day13, &mut day12,
     ];
 
     match which {
