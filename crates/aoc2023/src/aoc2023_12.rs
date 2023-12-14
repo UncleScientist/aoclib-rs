@@ -69,7 +69,7 @@ impl Spring {
         for _ in 0..5 {
             sizes.extend(self.sizes.iter());
         }
-        println!("{}", self.pattern.iter().collect::<String>());
+
         let mut cache = HashMap::new();
         Self::do_score(&pattern, &sizes, &mut cache)
     }
