@@ -1,6 +1,6 @@
 use std::hash::{Hash, Hasher};
 
-use aoclib::{astar_search, Searcher};
+use aoclib::{astar_search, Nodes, Searcher};
 
 use aoclib::Runner;
 
@@ -14,6 +14,12 @@ pub struct Aoc2022_24 {
 impl Aoc2022_24 {
     pub fn new() -> Self {
         Self::default()
+    }
+}
+
+impl Nodes for Aoc2022_24 {
+    fn get_value(&self) -> usize {
+        1
     }
 }
 
@@ -53,10 +59,14 @@ impl Runner for Aoc2022_24 {
     fn part1(&mut self) -> Vec<String> {
         let state = State::new(&self.valley);
 
-        let (result, time) = astar_search(&state, |s| {
-            ((s.player_pos.0 - (s.bliz.height - 1)).abs()
-                + (s.player_pos.1 - (s.bliz.width - 2)).abs()) as usize
-        })
+        let (result, time) = astar_search(
+            &state,
+            |s| {
+                ((s.player_pos.0 - (s.bliz.height - 1)).abs()
+                    + (s.player_pos.1 - (s.bliz.width - 2)).abs()) as usize
+            },
+            self,
+        )
         .unwrap();
         self.first_trip_map_idx = result.map_idx;
         self.first_trip_time = time;
@@ -69,16 +79,22 @@ impl Runner for Aoc2022_24 {
         return_trip.map_idx = self.first_trip_map_idx;
         return_trip.find_start = true;
 
-        let (mut back_to_end, return_time) = astar_search(&return_trip, |s| {
-            ((s.player_pos.0 - 1).abs() + (s.player_pos.1).abs()) as usize
-        })
+        let (mut back_to_end, return_time) = astar_search(
+            &return_trip,
+            |s| ((s.player_pos.0 - 1).abs() + (s.player_pos.1).abs()) as usize,
+            self,
+        )
         .unwrap();
         back_to_end.find_start = false;
 
-        let final_time = astar_search(&back_to_end, |s| {
-            ((s.player_pos.0 - (s.bliz.height - 1)).abs()
-                + (s.player_pos.1 - (s.bliz.width - 2)).abs()) as usize
-        })
+        let final_time = astar_search(
+            &back_to_end,
+            |s| {
+                ((s.player_pos.0 - (s.bliz.height - 1)).abs()
+                    + (s.player_pos.1 - (s.bliz.width - 2)).abs()) as usize
+            },
+            self,
+        )
         .unwrap()
         .1;
 
@@ -248,6 +264,10 @@ impl Blizzard {
 }
 
 impl<'a> Searcher for State<'a> {
+    fn cost<N: Nodes>(&self, _nodes: &N) -> usize {
+        1
+    }
+
     fn moves(&self) -> Vec<Self> {
         let mut moves = Vec::new();
 

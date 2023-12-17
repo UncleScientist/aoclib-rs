@@ -1,8 +1,8 @@
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 
-use aoclib::Runner;
 use aoclib::{dijkstra_search, Permutations, Searcher};
+use aoclib::{Nodes, Runner};
 
 #[derive(Default)]
 pub struct Aoc2016_24 {
@@ -138,6 +138,10 @@ impl std::cmp::PartialEq for MazeRunner {
 }
 
 impl Searcher for MazeRunner {
+    fn cost<N: Nodes>(&self, _nodes: &N) -> usize {
+        1
+    }
+
     fn moves(&self) -> Vec<Self> {
         let mut result = Vec::new();
         let directions = vec![

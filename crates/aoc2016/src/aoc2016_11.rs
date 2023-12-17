@@ -1,5 +1,5 @@
-use aoclib::Runner;
 use aoclib::{dijkstra_search, Searcher};
+use aoclib::{Nodes, Runner};
 
 use std::collections::HashSet;
 use std::hash::{Hash, Hasher};
@@ -21,6 +21,10 @@ struct Building {
 }
 
 impl Searcher for Building {
+    fn cost<N: Nodes>(&self, _nodes: &N) -> usize {
+        1
+    }
+
     fn moves(&self) -> Vec<Building> {
         let mut answer = Vec::new();
 

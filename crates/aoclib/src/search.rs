@@ -1,11 +1,16 @@
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 
+pub trait Nodes {
+    fn get_value(&self) -> usize;
+}
+
 pub trait Searcher {
     fn moves(&self) -> Vec<Self>
     where
         Self: Sized;
     fn is_win_state(&self) -> bool;
+    fn cost<N: Nodes>(&self, nodes: &N) -> usize;
 }
 
 pub fn dijkstra_search<T: Searcher + Clone + Eq + Hash>(start: &T) -> Option<(T, usize)> {
@@ -61,9 +66,10 @@ pub fn dijkstra_search<T: Searcher + Clone + Eq + Hash>(start: &T) -> Option<(T,
     Some((target.clone(), *dist.get(&target)?))
 }
 
-pub fn astar_search<T: Searcher + Clone + Eq + Hash, H: Fn(&T) -> usize>(
+pub fn astar_search<N: Nodes, T: Searcher + Clone + Eq + Hash, H: Fn(&T) -> usize>(
     start: &T,
     heuristic: H,
+    nodes: &N,
 ) -> Option<(T, usize)> {
     let mut open_set = HashSet::new();
     open_set.insert(start.clone());
@@ -88,7 +94,7 @@ pub fn astar_search<T: Searcher + Clone + Eq + Hash, H: Fn(&T) -> usize>(
         open_set.remove(&current);
 
         for neighbor in current.moves() {
-            let tentative_gscore = gscore.get(&current).unwrap() + 1;
+            let tentative_gscore = gscore.get(&current).unwrap() + neighbor.cost(nodes);
             if tentative_gscore < *gscore.entry(neighbor.clone()).or_insert(usize::MAX) {
                 gscore.insert(neighbor.clone(), tentative_gscore);
                 fscore.insert(neighbor.clone(), tentative_gscore + heuristic(&neighbor));

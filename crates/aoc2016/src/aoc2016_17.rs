@@ -52,6 +52,9 @@ impl Vault {
 }
 
 impl Searcher for Vault {
+    fn cost<N: Nodes>(&self, _nodes: &N) -> usize {
+        1
+    }
     fn moves(&self) -> Vec<Vault> {
         let mut result = Vec::new();
         // println!("Considering: {self:?}");
