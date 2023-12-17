@@ -26,11 +26,25 @@ impl Runner for Aoc2016_17 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        aoclib::output(dijkstra_search(&self.vault).unwrap().0.path)
+        aoclib::output(dijkstra_search(&self.vault, self).unwrap().0.path)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output(longest_path(&self.vault))
+        aoclib::output(longest_path(&self.vault, self))
+    }
+}
+
+impl Nodes for Aoc2016_17 {
+    fn get_value(&self, row: usize, col: usize) -> usize {
+        todo!()
+    }
+
+    fn get_width(&self) -> usize {
+        todo!()
+    }
+
+    fn get_height(&self) -> usize {
+        todo!()
     }
 }
 
@@ -99,18 +113,18 @@ impl Searcher for Vault {
         result
     }
 
-    fn is_win_state(&self) -> bool {
+    fn is_win_state<N: Nodes>(&self, _nodes: &N) -> bool {
         self.loc == (3, 3)
     }
 }
 
-fn longest_path(v: &Vault) -> usize {
+fn longest_path(v: &Vault, nodes: &Aoc2016_17) -> usize {
     let mut longest = 0;
     let mut stack = vec![v.clone()];
 
     while let Some(state) = stack.pop() {
         for m in state.moves() {
-            if m.is_win_state() {
+            if m.is_win_state(nodes) {
                 longest = longest.max(m.path.len());
             } else {
                 stack.push(m.clone());

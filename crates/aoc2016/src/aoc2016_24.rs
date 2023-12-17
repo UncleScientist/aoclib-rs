@@ -56,7 +56,7 @@ impl Runner for Aoc2016_24 {
                     loc: *pointlist[i].1,
                     end: *pointlist[j].1,
                 };
-                if let Some((_, distance)) = dijkstra_search(&mr) {
+                if let Some((_, distance)) = dijkstra_search(&mr, self) {
                     self.dist
                         .insert((*pointlist[i].0, *pointlist[j].0), distance as i32);
                     self.dist
@@ -114,6 +114,20 @@ impl Runner for Aoc2016_24 {
     }
 }
 
+impl Nodes for Aoc2016_24 {
+    fn get_value(&self, _row: usize, _col: usize) -> usize {
+        todo!()
+    }
+
+    fn get_width(&self) -> usize {
+        todo!()
+    }
+
+    fn get_height(&self) -> usize {
+        todo!()
+    }
+}
+
 #[derive(Clone, Eq)]
 struct MazeRunner {
     map: Rc<HashSet<(i32, i32)>>,
@@ -164,7 +178,7 @@ impl Searcher for MazeRunner {
         result
     }
 
-    fn is_win_state(&self) -> bool {
+    fn is_win_state<N: Nodes>(&self, _nodes: &N) -> bool {
         self.loc == self.end
     }
 }

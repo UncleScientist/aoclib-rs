@@ -93,7 +93,7 @@ impl Searcher for Building {
         answer
     }
 
-    fn is_win_state(&self) -> bool {
+    fn is_win_state<N: Nodes>(&self, _nodes: &N) -> bool {
         for i in 0..self.floor.len() - 1 {
             if !self.floor[i].is_empty() {
                 return false;
@@ -271,7 +271,7 @@ impl Runner for Aoc2016_11 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        aoclib::output(dijkstra_search(&self.building).unwrap().1)
+        aoclib::output(dijkstra_search(&self.building, self).unwrap().1)
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -280,7 +280,21 @@ impl Runner for Aoc2016_11 {
         alt.floor[0].add_microchip("dilithium");
         alt.floor[0].add_generator("elerium");
         alt.floor[0].add_generator("dilithium");
-        aoclib::output(dijkstra_search(&alt).unwrap().1)
+        aoclib::output(dijkstra_search(&alt, self).unwrap().1)
+    }
+}
+
+impl Nodes for Aoc2016_11 {
+    fn get_value(&self, row: usize, col: usize) -> usize {
+        todo!()
+    }
+
+    fn get_width(&self) -> usize {
+        todo!()
+    }
+
+    fn get_height(&self) -> usize {
+        todo!()
     }
 }
 

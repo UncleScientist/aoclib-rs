@@ -3,17 +3,22 @@ use std::hash::Hash;
 
 pub trait Nodes {
     fn get_value(&self, row: usize, col: usize) -> usize;
+    fn get_width(&self) -> usize;
+    fn get_height(&self) -> usize;
 }
 
 pub trait Searcher {
     fn moves(&self) -> Vec<Self>
     where
         Self: Sized;
-    fn is_win_state(&self) -> bool;
+    fn is_win_state<N: Nodes>(&self, nodes: &N) -> bool;
     fn cost<N: Nodes>(&self, nodes: &N) -> usize;
 }
 
-pub fn dijkstra_search<T: Searcher + Clone + Eq + Hash>(start: &T) -> Option<(T, usize)> {
+pub fn dijkstra_search<N: Nodes, T: Searcher + Clone + Eq + Hash>(
+    start: &T,
+    nodes: &N,
+) -> Option<(T, usize)> {
     let mut q: HashSet<T> = HashSet::new();
 
     let mut dist: HashMap<T, usize> = HashMap::new();
@@ -34,7 +39,7 @@ pub fn dijkstra_search<T: Searcher + Clone + Eq + Hash>(start: &T) -> Option<(T,
             .0
             .clone();
 
-        if u.is_win_state() {
+        if u.is_win_state(nodes) {
             target = Some(u);
             break;
         }
@@ -86,7 +91,7 @@ pub fn astar_search<N: Nodes, T: Searcher + Clone + Eq + Hash, H: Fn(&T) -> usiz
             .min_by(|a, b| fscore.get(a).unwrap().cmp(fscore.get(b).unwrap()))
             .unwrap()
             .clone();
-        if current.is_win_state() {
+        if current.is_win_state(nodes) {
             let dist = *gscore.get(&current).unwrap();
             return Some((current, dist));
         }

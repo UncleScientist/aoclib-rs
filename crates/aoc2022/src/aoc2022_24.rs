@@ -21,6 +21,12 @@ impl Nodes for Aoc2022_24 {
     fn get_value(&self, _row: usize, _col: usize) -> usize {
         1
     }
+    fn get_width(&self) -> usize {
+        0
+    }
+    fn get_height(&self) -> usize {
+        0
+    }
 }
 
 impl Runner for Aoc2022_24 {
@@ -289,7 +295,7 @@ impl<'a> Searcher for State<'a> {
         moves
     }
 
-    fn is_win_state(&self) -> bool {
+    fn is_win_state<N: Nodes>(&self, _nodes: &N) -> bool {
         if self.find_start {
             self.player_pos == (0, 1)
         } else {
