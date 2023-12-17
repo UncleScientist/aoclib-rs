@@ -24,37 +24,9 @@ impl Aoc2023_16 {
             Some(new_pos)
         }
     }
-}
 
-impl Runner for Aoc2023_16 {
-    fn name(&self) -> (usize, usize) {
-        (2023, 16)
-    }
-
-    fn parse(&mut self) {
-        let lines = aoclib::read_lines("input/2023-16.txt");
-
-        for line in lines {
-            let mut row = Vec::new();
-            for ch in line.chars() {
-                row.push(match ch {
-                    '/' => Mirror::SlashMirror,
-                    '\\' => Mirror::BackslashMirror,
-                    '-' => Mirror::HorizSplitter,
-                    '|' => Mirror::VertSplitter,
-                    '.' => Mirror::EmptySpace,
-                    _ => panic!("invalid char {ch}"),
-                });
-            }
-            self.contraption.push(row);
-        }
-
-        self.height = self.contraption.len() as isize;
-        self.width = self.contraption[0].len() as isize;
-    }
-
-    fn part1(&mut self) -> Vec<String> {
-        let mut stack = vec![(Pos(0, 0), 3usize)];
+    fn count_energized(&self, pos: Pos, dir: usize) -> usize {
+        let mut stack = vec![(pos, dir)];
         let mut visited = HashSet::new();
 
         while let Some((pos, dir)) = stack.pop() {
@@ -108,15 +80,56 @@ impl Runner for Aoc2023_16 {
             }
         }
 
-        let energized = visited
+        visited
             .iter()
             .map(|(pos, _dir)| pos)
-            .collect::<HashSet<_>>();
-        aoclib::output(energized.len())
+            .collect::<HashSet<_>>()
+            .len()
+    }
+}
+
+impl Runner for Aoc2023_16 {
+    fn name(&self) -> (usize, usize) {
+        (2023, 16)
+    }
+
+    fn parse(&mut self) {
+        let lines = aoclib::read_lines("input/2023-16.txt");
+
+        for line in lines {
+            let mut row = Vec::new();
+            for ch in line.chars() {
+                row.push(match ch {
+                    '/' => Mirror::SlashMirror,
+                    '\\' => Mirror::BackslashMirror,
+                    '-' => Mirror::HorizSplitter,
+                    '|' => Mirror::VertSplitter,
+                    '.' => Mirror::EmptySpace,
+                    _ => panic!("invalid char {ch}"),
+                });
+            }
+            self.contraption.push(row);
+        }
+
+        self.height = self.contraption.len() as isize;
+        self.width = self.contraption[0].len() as isize;
+    }
+
+    fn part1(&mut self) -> Vec<String> {
+        aoclib::output(self.count_energized(Pos(0, 0), 3))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut max = 0;
+        for col in 0..self.width {
+            max = max.max(self.count_energized(Pos(0, col), 1));
+            max = max.max(self.count_energized(Pos(self.height - 1, col), 0));
+        }
+        for row in 0..self.height {
+            max = max.max(self.count_energized(Pos(row, 0), 3));
+            max = max.max(self.count_energized(Pos(row, self.width - 1), 2));
+        }
+        aoclib::output(max)
     }
 }
 
