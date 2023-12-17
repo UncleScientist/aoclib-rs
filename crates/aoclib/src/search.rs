@@ -8,7 +8,7 @@ pub trait Nodes {
 }
 
 pub trait Searcher {
-    fn moves(&self) -> Vec<Self>
+    fn moves<N: Nodes>(&self, nodes: &N) -> Vec<Self>
     where
         Self: Sized;
     fn is_win_state<N: Nodes>(&self, nodes: &N) -> bool;
@@ -48,7 +48,7 @@ pub fn dijkstra_search<N: Nodes, T: Searcher + Clone + Eq + Hash>(
             panic!("tried to remove u from q but failed");
         }
 
-        for m in u.moves() {
+        for m in u.moves(nodes) {
             let v = if q.contains(&m) {
                 m
             } else if index.insert(m.clone()) {
@@ -98,7 +98,7 @@ pub fn astar_search<N: Nodes, T: Searcher + Clone + Eq + Hash, H: Fn(&T) -> usiz
 
         open_set.remove(&current);
 
-        for neighbor in current.moves() {
+        for neighbor in current.moves(nodes) {
             let tentative_gscore = gscore.get(&current).unwrap() + neighbor.cost(nodes);
             if tentative_gscore < *gscore.entry(neighbor.clone()).or_insert(usize::MAX) {
                 gscore.insert(neighbor.clone(), tentative_gscore);

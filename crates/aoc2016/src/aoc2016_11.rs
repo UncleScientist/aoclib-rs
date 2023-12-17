@@ -25,7 +25,7 @@ impl Searcher for Building {
         1
     }
 
-    fn moves(&self) -> Vec<Building> {
+    fn moves<N: Nodes>(&self, _nodes: &N) -> Vec<Building> {
         let mut answer = Vec::new();
 
         let items = self.floor[self.elevator]

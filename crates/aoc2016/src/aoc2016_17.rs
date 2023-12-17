@@ -69,7 +69,7 @@ impl Searcher for Vault {
     fn cost<N: Nodes>(&self, _nodes: &N) -> usize {
         1
     }
-    fn moves(&self) -> Vec<Vault> {
+    fn moves<N: Nodes>(&self, _nodes: &N) -> Vec<Vault> {
         let mut result = Vec::new();
         // println!("Considering: {self:?}");
 
@@ -123,7 +123,7 @@ fn longest_path(v: &Vault, nodes: &Aoc2016_17) -> usize {
     let mut stack = vec![v.clone()];
 
     while let Some(state) = stack.pop() {
-        for m in state.moves() {
+        for m in state.moves(nodes) {
             if m.is_win_state(nodes) {
                 longest = longest.max(m.path.len());
             } else {

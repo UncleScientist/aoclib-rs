@@ -274,7 +274,7 @@ impl<'a> Searcher for State<'a> {
         1
     }
 
-    fn moves(&self) -> Vec<Self> {
+    fn moves<N: Nodes>(&self, _nodes: &N) -> Vec<Self> {
         let mut moves = Vec::new();
 
         let new_state = self.tick();

@@ -20,7 +20,7 @@ impl Runner for Aoc2023_17 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2023-17.txt");
-        // let lines = aoclib::read_lines("test-input");
+        // let lines = aoclib::read_lines("test-input-2");
 
         for line in lines {
             self.city
@@ -36,8 +36,9 @@ impl Runner for Aoc2023_17 {
             astar_search(
                 &State {
                     pos: (0, 0),
-                    dir: (0, 1),
+                    dir: (0, 0),
                     count: 0,
+                    is_part_2: false,
                 },
                 |state| ((self.height - state.pos.0) + (self.width - state.pos.1)) as usize,
                 self,
@@ -48,7 +49,20 @@ impl Runner for Aoc2023_17 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        aoclib::output(
+            astar_search(
+                &State {
+                    pos: (0, 0),
+                    dir: (0, 0),
+                    count: 0,
+                    is_part_2: true,
+                },
+                |state| ((self.height - state.pos.0) + (self.width - state.pos.1)) as usize,
+                self,
+            )
+            .unwrap()
+            .1,
+        )
     }
 }
 
@@ -71,6 +85,7 @@ struct State {
     pos: (isize, isize),
     dir: (isize, isize),
     count: usize,
+    is_part_2: bool,
 }
 
 impl Searcher for State {
@@ -83,6 +98,7 @@ impl Searcher for State {
         let height = nodes.get_height() as isize;
 
         let dirs = [(-1, 0), (0, 1), (1, 0), (0, -1)];
+        let (min, max) = if self.is_part_2 { (4, 10) } else { (0, 3) };
 
         for dir in dirs {
             // mustn't go backwards
@@ -96,14 +112,20 @@ impl Searcher for State {
                 continue;
             }
 
-            if self.dir == dir && self.count < 3 {
+            if self.dir == dir && self.count < max {
                 succ.push(State {
                     pos,
                     dir,
                     count: self.count + 1,
+                    is_part_2: self.is_part_2,
                 });
-            } else if self.dir != dir {
-                succ.push(State { pos, dir, count: 1 });
+            } else if self.count == 0 || (self.dir != dir && self.count >= min) {
+                succ.push(State {
+                    pos,
+                    dir,
+                    count: 1,
+                    is_part_2: self.is_part_2,
+                });
             }
         }
 
@@ -117,7 +139,8 @@ impl Searcher for State {
             nodes.get_height() as isize - 1,
             nodes.get_width() as isize - 1,
         );
-        self.pos == end
+        (!self.is_part_2 && self.pos == end)
+            || (self.is_part_2 && self.count >= 4 && self.pos == end)
     }
 
     fn cost<N: Nodes>(&self, nodes: &N) -> usize {

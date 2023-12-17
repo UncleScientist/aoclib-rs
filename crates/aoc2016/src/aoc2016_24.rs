@@ -156,7 +156,7 @@ impl Searcher for MazeRunner {
         1
     }
 
-    fn moves(&self) -> Vec<Self> {
+    fn moves<N: Nodes>(&self, _nodes: &N) -> Vec<Self> {
         let mut result = Vec::new();
         let directions = vec![
             (self.loc.0 - 1, self.loc.1),
