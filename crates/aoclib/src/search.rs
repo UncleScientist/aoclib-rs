@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 
 pub trait Nodes {
-    fn get_value(&self) -> usize;
+    fn get_value(&self, row: usize, col: usize) -> usize;
 }
 
 pub trait Searcher {

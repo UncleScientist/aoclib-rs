@@ -18,7 +18,7 @@ impl Aoc2022_24 {
 }
 
 impl Nodes for Aoc2022_24 {
-    fn get_value(&self) -> usize {
+    fn get_value(&self, _row: usize, _col: usize) -> usize {
         1
     }
 }
