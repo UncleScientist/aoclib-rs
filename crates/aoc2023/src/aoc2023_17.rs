@@ -139,8 +139,7 @@ impl Searcher for State {
             nodes.get_height() as isize - 1,
             nodes.get_width() as isize - 1,
         );
-        (!self.is_part_2 && self.pos == end)
-            || (self.is_part_2 && self.count >= 4 && self.pos == end)
+        self.pos == end && (!self.is_part_2 || self.count >= 4)
     }
 
     fn cost<N: Nodes>(&self, nodes: &N) -> usize {
