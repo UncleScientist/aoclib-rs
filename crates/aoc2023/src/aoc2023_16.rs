@@ -4,7 +4,7 @@ use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2023_16 {
-    contraption: Vec<Vec<Mirror>>,
+    contraption: Vec<Vec<Element>>,
     width: isize,
     height: isize,
 }
@@ -30,49 +30,45 @@ impl Aoc2023_16 {
         let mut visited = HashSet::new();
 
         while let Some((pos, dir)) = stack.pop() {
-            if !visited.insert((pos.clone(), dir)) {
+            if !visited.insert((pos, dir)) {
                 continue;
             }
             match self.contraption[pos.0 as usize][pos.1 as usize] {
-                Mirror::SlashMirror => {
+                Element::SlashMirror => {
                     let new_dir = 3 - dir;
                     if let Some(new_pos) = self.next_pos(pos, new_dir) {
                         stack.push((new_pos, new_dir));
                     }
                 }
-                Mirror::BackslashMirror => {
+                Element::BackslashMirror => {
                     let new_dir = (dir + 2) % 4;
                     if let Some(new_pos) = self.next_pos(pos, new_dir) {
                         stack.push((new_pos, new_dir));
                     }
                 }
-                Mirror::HorizSplitter => {
+                Element::HorizSplitter => {
                     if dir == 0 || dir == 1 {
                         for dir in 2..=3 {
-                            if let Some(new_pos) = self.next_pos(pos.clone(), dir) {
+                            if let Some(new_pos) = self.next_pos(pos, dir) {
                                 stack.push((new_pos, dir));
                             }
                         }
-                    } else {
-                        if let Some(new_pos) = self.next_pos(pos, dir) {
-                            stack.push((new_pos, dir));
-                        }
+                    } else if let Some(new_pos) = self.next_pos(pos, dir) {
+                        stack.push((new_pos, dir));
                     }
                 }
-                Mirror::VertSplitter => {
+                Element::VertSplitter => {
                     if dir == 2 || dir == 3 {
                         for dir in 0..=1 {
                             if let Some(new_pos) = self.next_pos(pos, dir) {
                                 stack.push((new_pos, dir));
                             }
                         }
-                    } else {
-                        if let Some(new_pos) = self.next_pos(pos, dir) {
-                            stack.push((new_pos, dir));
-                        }
+                    } else if let Some(new_pos) = self.next_pos(pos, dir) {
+                        stack.push((new_pos, dir));
                     }
                 }
-                Mirror::EmptySpace => {
+                Element::EmptySpace => {
                     if let Some(new_pos) = self.next_pos(pos, dir) {
                         stack.push((new_pos, dir));
                     }
@@ -100,11 +96,11 @@ impl Runner for Aoc2023_16 {
             let mut row = Vec::new();
             for ch in line.chars() {
                 row.push(match ch {
-                    '/' => Mirror::SlashMirror,
-                    '\\' => Mirror::BackslashMirror,
-                    '-' => Mirror::HorizSplitter,
-                    '|' => Mirror::VertSplitter,
-                    '.' => Mirror::EmptySpace,
+                    '/' => Element::SlashMirror,
+                    '\\' => Element::BackslashMirror,
+                    '-' => Element::HorizSplitter,
+                    '|' => Element::VertSplitter,
+                    '.' => Element::EmptySpace,
                     _ => panic!("invalid char {ch}"),
                 });
             }
@@ -134,7 +130,7 @@ impl Runner for Aoc2023_16 {
 }
 
 #[derive(Debug)]
-enum Mirror {
+enum Element {
     SlashMirror,
     BackslashMirror,
     HorizSplitter,
