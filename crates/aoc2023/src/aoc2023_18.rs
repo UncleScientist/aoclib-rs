@@ -93,7 +93,37 @@ impl Runner for Aoc2023_18 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut real_commands = Vec::new();
+        for cmd in &self.cmds {
+            let dir = match cmd.color.0 & 0xf {
+                0 => Direction::Right,
+                1 => Direction::Down,
+                2 => Direction::Left,
+                3 => Direction::Up,
+                _ => panic!("Invalid direction in {cmd:?}"),
+            };
+            let dist = cmd.color.0 >> 4;
+            real_commands.push(DigCommand {
+                dir,
+                dist,
+                color: Color(0),
+            });
+        }
+
+        let mut prev = (0, 0);
+
+        let mut total = 0;
+        let mut perimeter = 0;
+        for DigCommand { dir, dist, .. } in real_commands {
+            let dir = dir.get_dir();
+            let dist = dist as isize;
+            perimeter += dist;
+            let next = (prev.0 + dir.0 * dist, prev.1 + dir.1 * dist);
+            total += (prev.1 * next.0) - (prev.0 * next.1);
+            prev = next;
+        }
+
+        aoclib::output(total / 2 + perimeter / 2 + 1)
     }
 }
 
@@ -101,7 +131,19 @@ impl Runner for Aoc2023_18 {
 struct DigCommand {
     dir: Direction,
     dist: usize,
-    _color: Color,
+    color: Color,
+}
+
+impl FromStr for DigCommand {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let words = s.split(' ').collect::<Vec<_>>();
+        let dir: Direction = words[0].parse().unwrap();
+        let dist: usize = words[1].parse().unwrap();
+        let color: Color = words[2].parse().unwrap();
+        Ok(DigCommand { dir, dist, color })
+    }
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -123,21 +165,6 @@ impl Direction {
     }
 }
 
-#[derive(Debug)]
-struct Color(usize);
-
-impl FromStr for DigCommand {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let words = s.split(' ').collect::<Vec<_>>();
-        let dir: Direction = words[0].parse().unwrap();
-        let dist: usize = words[1].parse().unwrap();
-        let _color: Color = words[2].parse().unwrap();
-        Ok(DigCommand { dir, dist, _color })
-    }
-}
-
 impl FromStr for Direction {
     type Err = String;
 
@@ -151,6 +178,9 @@ impl FromStr for Direction {
         }
     }
 }
+
+#[derive(Debug)]
+struct Color(usize);
 
 impl FromStr for Color {
     type Err = String;
