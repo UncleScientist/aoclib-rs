@@ -20,7 +20,7 @@ impl Runner for Aoc2023_19 {
     }
 
     fn parse(&mut self) {
-        let lines = aoclib::read_lines("test-input");
+        let lines = aoclib::read_lines("input/2023-19.txt");
 
         for line in lines {
             if line.starts_with('{') {
@@ -50,11 +50,36 @@ impl Runner for Aoc2023_19 {
                 self.workflows.insert(name.to_string(), rules);
             }
         }
-        println!("{:?}", self.workflows);
     }
 
     fn part1(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut total = 0;
+
+        'next_part: for part in &self.parts {
+            let mut cur_wf = "in".to_string();
+            'next_workflow: loop {
+                for rule in self.workflows.get(&cur_wf).unwrap().iter() {
+                    let pass = match rule.condition {
+                        Condition::LessThan(var, val) => part[var] < val,
+                        Condition::GreaterThan(var, val) => part[var] > val,
+                        Condition::True => true,
+                    };
+                    if pass {
+                        match &rule.action {
+                            Action::Accept => total += part.iter().sum::<usize>(),
+                            Action::Reject => {}
+                            Action::GoTo(wf) => {
+                                cur_wf = wf.clone();
+                                continue 'next_workflow;
+                            }
+                        }
+                        continue 'next_part;
+                    }
+                }
+            }
+        }
+
+        aoclib::output(total)
     }
 
     fn part2(&mut self) -> Vec<String> {
