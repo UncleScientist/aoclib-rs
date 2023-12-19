@@ -1,4 +1,4 @@
-use std::{collections::HashMap, str::FromStr};
+use std::{collections::HashMap, ops::Range, str::FromStr};
 
 use aoclib::Runner;
 
@@ -12,6 +12,35 @@ impl Aoc2023_19 {
     pub fn new() -> Self {
         Self::default()
     }
+
+    fn poss(&self, rules: &[Rule], mut ranges: [Range<usize>; 4]) -> usize {
+        let mut total = 0;
+
+        for rule in rules {
+            let mut deeper = ranges.clone();
+            match rule.condition {
+                Condition::LessThan(var, val) => {
+                    deeper[var].end = val - 1;
+                    ranges[var].start = val;
+                }
+                Condition::GreaterThan(var, val) => {
+                    deeper[var].start = val + 1;
+                    ranges[var].end = val
+                }
+                Condition::True => {}
+            }
+
+            match &rule.action {
+                Action::Accept => total += deeper.iter().map(|r| r.len() + 1).product::<usize>(),
+                Action::Reject => {}
+                Action::GoTo(workflow) => {
+                    let wf = self.workflows.get(workflow).unwrap();
+                    total += self.poss(wf, deeper);
+                }
+            }
+        }
+        total
+    }
 }
 
 impl Runner for Aoc2023_19 {
@@ -21,6 +50,7 @@ impl Runner for Aoc2023_19 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2023-19.txt");
+        //  let lines = aoclib::read_lines("test-input");
 
         for line in lines {
             if line.starts_with('{') {
@@ -83,7 +113,10 @@ impl Runner for Aoc2023_19 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let cur_wf = self.workflows.get("in").unwrap();
+        let ranges = [1..4000usize, 1..4000usize, 1..4000usize, 1..4000usize];
+
+        aoclib::output(self.poss(cur_wf, ranges))
     }
 }
 
