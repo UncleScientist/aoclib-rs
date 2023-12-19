@@ -27,6 +27,7 @@ impl Aoc2018_17 {
         }
     }
 
+    #[allow(clippy::type_complexity)]
     fn look(
         &self,
         pos: (i64, i64),
@@ -103,7 +104,7 @@ impl Runner for Aoc2018_17 {
             let (_, range) = right.split_once('=').unwrap();
             let (min, max) = range.split_once("..").unwrap();
             let (min, max) = (min.parse().unwrap(), max.parse().unwrap());
-            if left.starts_with("x") {
+            if left.starts_with('x') {
                 self.min_x = self.min_x.min(base);
                 self.max_x = self.max_x.max(base);
                 self.min_y = self.min_y.min(min);

@@ -285,7 +285,7 @@ impl Runner for Aoc2016_11 {
 }
 
 impl Nodes for Aoc2016_11 {
-    fn get_value(&self, row: usize, col: usize) -> usize {
+    fn get_value(&self, _row: usize, _col: usize) -> usize {
         todo!()
     }
 
