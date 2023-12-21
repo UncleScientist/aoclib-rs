@@ -90,6 +90,38 @@ impl Runner for Aoc2023_21 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let lim = if self.height == 131 { 26501365 } else { 100 };
+        let mut visited = HashSet::new();
+        let mut next_visited = HashSet::new();
+        let mut prev_start = 0;
+        let mut start = 0;
+
+        visited.insert(self.start);
+
+        for loop_count in 0..lim {
+            next_visited.clear();
+            for v in &visited {
+                for dir in [(-1, 0), (1, 0), (0, 1), (0, -1)] {
+                    let pos = (v.0 + dir.0, v.1 + dir.1);
+                    let lookup = (
+                        (v.0 + dir.0).rem_euclid(self.height),
+                        (v.1 + dir.1).rem_euclid(self.width),
+                    );
+                    if !self.garden.contains(&lookup) {
+                        next_visited.insert(pos);
+                    }
+                }
+            }
+            if loop_count % 131 == 0 {
+                let delta = next_visited.len() - start;
+                println!("{}: {}, {}", next_visited.len(), delta, delta - prev_start);
+                start = next_visited.len();
+                prev_start = delta;
+            }
+
+            std::mem::swap(&mut visited, &mut next_visited);
+        }
+
+        aoclib::output(visited.len())
     }
 }
