@@ -9,11 +9,26 @@ use aoclib::Runner;
 pub struct Aoc2023_22 {
     bricks: Vec<Brick>,
     removable: HashSet<usize>,
+    ground: BTreeSet<(i64, usize)>,
 }
 
 impl Aoc2023_22 {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    fn will_fall(&self, removing: usize, index: usize) -> bool {
+        if removing == index {
+            return true;
+        }
+
+        for i in self.bricks[index].supported_by.iter() {
+            if !self.will_fall(removing, *i) {
+                return false;
+            }
+        }
+
+        !self.bricks[index].supported_by.is_empty()
     }
 }
 
@@ -41,12 +56,12 @@ impl Runner for Aoc2023_22 {
 
         self.removable = (0..self.bricks.len()).collect::<HashSet<_>>();
 
-        let mut ground = BTreeSet::<(i64, usize)>::new();
+        self.ground = BTreeSet::<(i64, usize)>::new();
         while let Some((_, fb_index)) = by_height.pop_first() {
             let mut saved_height = 0;
             let mut current_bottom = 0;
             let mut supporter = Vec::new();
-            for (gb_top, gb_index) in ground.iter().rev() {
+            for (gb_top, gb_index) in self.ground.iter().rev() {
                 if saved_height > 0 && *gb_top < current_bottom {
                     break;
                 }
@@ -55,32 +70,55 @@ impl Runner for Aoc2023_22 {
                     saved_height = gb_top + 1 + height;
                     current_bottom = *gb_top;
                     supporter.push(*gb_index);
+                    self.bricks[fb_index].supported_by.insert(*gb_index);
                 }
             }
             if saved_height == 0 {
                 let height = self.bricks[fb_index].hi.2 - self.bricks[fb_index].lo.2 + 1;
-                #[cfg(test)]
-                println!("brick {fb_index} is on the ground, with a top of {height}");
-                ground.insert((height, fb_index));
+                // println!("brick {fb_index} is on the ground, with a top of {height}");
+                self.ground.insert((height, fb_index));
             } else {
-                ground.insert((saved_height, fb_index));
-                #[cfg(test)]
-                println!(
-                    "brick {fb_index} is supported by {supporter:?}, at height {saved_height}"
-                );
+                self.ground.insert((saved_height, fb_index));
+                // println!(
+                // "brick {fb_index} is supported by {supporter:?}, at height {saved_height}"
+                // );
             }
             if supporter.len() == 1 {
                 self.removable.remove(&supporter[0]);
             }
         }
 
+        /*
+        for b in &self.bricks {
+            println!("{b:?}");
+        }
+        */
+
         aoclib::output(self.removable.len())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut total = 0;
+        for (index, _) in self.bricks.iter().enumerate() {
+            if self.removable.contains(&index) {
+                continue;
+            }
+            for brick_id in 0..self.bricks.len() {
+                if index != brick_id && self.will_fall(index, brick_id) {
+                    // println!("if {index} is removed, {brick_id} will fall");
+                    total += 1;
+                }
+            }
+        }
+
+        aoclib::output(total)
     }
 }
+
+//  A ---> B H
+//          X
+//  G -- > C I
+//     \ > D
 
 // A --> B -> D \
 // \        X    > F -> G
@@ -90,6 +128,7 @@ impl Runner for Aoc2023_22 {
 struct Brick {
     lo: (i64, i64, i64),
     hi: (i64, i64, i64),
+    supported_by: HashSet<usize>,
 }
 
 impl Brick {
@@ -120,6 +159,7 @@ impl FromStr for Brick {
         Ok(Brick {
             lo: (left[0], left[1], left[2]),
             hi: (right[0], right[1], right[2]),
+            supported_by: HashSet::new(),
         })
     }
 }
@@ -133,10 +173,12 @@ mod test {
         let b1 = Brick {
             lo: (0, 0, 0),
             hi: (4, 4, 4),
+            supported_by: HashSet::new(),
         };
         let b2 = Brick {
             lo: (3, 4, 0),
             hi: (8, 9, 0),
+            supported_by: HashSet::new(),
         };
         assert!(b1.collides_xy(&b2))
     }
@@ -146,10 +188,12 @@ mod test {
         let b1 = Brick {
             lo: (0, 0, 0),
             hi: (4, 4, 4),
+            supported_by: HashSet::new(),
         };
         let b2 = Brick {
             lo: (5, 6, 0),
             hi: (8, 9, 0),
+            supported_by: HashSet::new(),
         };
         assert!(!b1.collides_xy(&b2))
     }
@@ -159,30 +203,37 @@ mod test {
         let ba = Brick {
             lo: (1, 0, 1),
             hi: (1, 2, 1),
+            supported_by: HashSet::new(),
         };
         let bb = Brick {
             lo: (0, 0, 2),
             hi: (2, 0, 2),
+            supported_by: HashSet::new(),
         };
         let bc = Brick {
             lo: (0, 2, 3),
             hi: (2, 2, 3),
+            supported_by: HashSet::new(),
         };
         let bd = Brick {
             lo: (0, 0, 4),
             hi: (0, 2, 4),
+            supported_by: HashSet::new(),
         };
         let be = Brick {
             lo: (2, 0, 5),
             hi: (2, 2, 5),
+            supported_by: HashSet::new(),
         };
         let bf = Brick {
             lo: (0, 1, 6),
             hi: (2, 1, 6),
+            supported_by: HashSet::new(),
         };
         let bg = Brick {
             lo: (1, 1, 8),
             hi: (1, 1, 9),
+            supported_by: HashSet::new(),
         };
         assert!(ba.collides_xy(&bb));
         assert!(ba.collides_xy(&bc));
