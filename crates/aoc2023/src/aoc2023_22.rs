@@ -8,6 +8,7 @@ use aoclib::Runner;
 #[derive(Default)]
 pub struct Aoc2023_22 {
     bricks: Vec<Brick>,
+    removable: HashSet<usize>,
 }
 
 impl Aoc2023_22 {
@@ -38,7 +39,7 @@ impl Runner for Aoc2023_22 {
             .map(|(index, b)| (b.lo.2, index))
             .collect::<BTreeSet<_>>();
 
-        let mut removable = (0..self.bricks.len()).collect::<HashSet<_>>();
+        self.removable = (0..self.bricks.len()).collect::<HashSet<_>>();
 
         let mut ground = BTreeSet::<(i64, usize)>::new();
         while let Some((_, fb_index)) = by_height.pop_first() {
@@ -69,11 +70,11 @@ impl Runner for Aoc2023_22 {
                 );
             }
             if supporter.len() == 1 {
-                removable.remove(&supporter[0]);
+                self.removable.remove(&supporter[0]);
             }
         }
 
-        aoclib::output(removable.len())
+        aoclib::output(self.removable.len())
     }
 
     fn part2(&mut self) -> Vec<String> {
