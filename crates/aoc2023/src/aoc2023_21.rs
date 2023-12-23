@@ -61,8 +61,6 @@ impl Runner for Aoc2023_21 {
                 }
             }
         }
-
-        // println!("{self:?}");
     }
 
     fn part1(&mut self) -> Vec<String> {
@@ -90,15 +88,21 @@ impl Runner for Aoc2023_21 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        let lim = if self.height == 131 { 26501365 } else { 100 };
+        const LOOPS: i64 = 26501365;
         let mut visited = HashSet::new();
         let mut next_visited = HashSet::new();
         let mut prev_start = 0;
         let mut start = 0;
 
-        visited.insert(self.start);
+        let remainder = LOOPS % self.height; // we know this is 65
 
-        for loop_count in 0..lim {
+        visited.insert(self.start);
+        let mut values = Vec::new();
+
+        let mut loop_count = 0;
+        while values.len() < 3 {
+            loop_count += 1;
+
             next_visited.clear();
             for v in &visited {
                 for dir in [(-1, 0), (1, 0), (0, 1), (0, -1)] {
@@ -112,16 +116,24 @@ impl Runner for Aoc2023_21 {
                     }
                 }
             }
-            if loop_count % 131 == 0 {
-                let delta = next_visited.len() - start;
-                println!("{}: {}, {}", next_visited.len(), delta, delta - prev_start);
-                start = next_visited.len();
+            if loop_count >= remainder && (loop_count - remainder) % self.height == 0 {
+                let delta = next_visited.len() as i64 - start;
+                let step = [next_visited.len() as i64, delta, delta - prev_start];
+
+                values.push(step[values.len()]);
+
+                start = next_visited.len() as i64;
                 prev_start = delta;
             }
 
             std::mem::swap(&mut visited, &mut next_visited);
         }
+        let a = values[2] / 2;
+        let b = values[1] - 3 * a;
+        let c = values[0] - a - b;
 
-        aoclib::output(visited.len())
+        let n = 1 + LOOPS / self.height;
+
+        aoclib::output(a * n * n + b * n + c)
     }
 }
