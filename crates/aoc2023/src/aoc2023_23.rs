@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use aoclib::Runner;
 
@@ -9,6 +9,7 @@ pub struct Aoc2023_23 {
     height: i64,
     start: (i64, i64),
     end: (i64, i64),
+    verticies: HashMap<(i64, i64), HashSet<((i64, i64), i64)>>, // (row, col), dist
 }
 
 impl Aoc2023_23 {
@@ -57,13 +58,23 @@ impl Runner for Aoc2023_23 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut stack = vec![(self.start, (1, 0), 0)];
+        // last intersection, overall distance to last intersection, curpos, curdir, curdist
+        let mut stack = vec![(self.start, 0, self.start, (1, 0), 0)];
         let mut max_dist = 0;
-        while let Some((curpos, curdir, dist)) = stack.pop() {
+
+        while let Some((lastpos, lastdist, curpos, curdir, dist)) = stack.pop() {
             if curpos == self.end {
                 max_dist = max_dist.max(dist);
+                self.verticies
+                    .entry(lastpos)
+                    .or_default()
+                    .insert((self.end, dist - lastdist));
                 continue;
             }
+
+            let mut slopecount = 0;
+            let mut nextstack = Vec::new();
+
             for dir in &DIRS {
                 if (-dir.0, -dir.1) == curdir {
                     continue;
@@ -72,22 +83,68 @@ impl Runner for Aoc2023_23 {
                 if let Some(tile) = self.maze.get(&nextpos) {
                     match tile {
                         Tile::Space => {
-                            stack.push((nextpos, *dir, dist + 1));
+                            nextstack.push((nextpos, *dir, dist + 1));
                         }
                         Tile::Slope(slope) => {
+                            slopecount += 1;
                             if slope == dir {
-                                stack.push((nextpos, *dir, dist + 1));
+                                nextstack.push((nextpos, *dir, dist + 1));
                             }
                         }
                     }
                 }
             }
+
+            let mut origin = lastpos;
+            let mut odist = lastdist;
+            if slopecount > 1 {
+                // how we got here
+                self.verticies
+                    .entry(curpos)
+                    .or_default()
+                    .insert((lastpos, dist - lastdist));
+
+                // how we get back
+                self.verticies
+                    .entry(lastpos)
+                    .or_default()
+                    .insert((curpos, dist - lastdist));
+
+                origin = curpos;
+                odist = dist;
+            }
+
+            for n in nextstack {
+                stack.push((origin, odist, n.0, n.1, n.2));
+            }
         }
+
         aoclib::output(max_dist)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        // test input: start -> first = 15
+        //             first -> lower one = 22
+        //             first -> righter one = 22
+
+        let mut stack = vec![(self.start, 0, HashSet::new())];
+        let mut max_dist = 0;
+
+        while let Some((curpos, dist, mut visited)) = stack.pop() {
+            if self.end == curpos {
+                max_dist = max_dist.max(dist);
+                continue;
+            }
+            if !visited.insert(curpos) {
+                continue;
+            }
+            for (nextpos, nextdist) in self.verticies.get(&curpos).unwrap().iter() {
+                let v = visited.clone();
+                stack.push((*nextpos, nextdist + dist, v));
+            }
+        }
+
+        aoclib::output(max_dist)
     }
 }
 
