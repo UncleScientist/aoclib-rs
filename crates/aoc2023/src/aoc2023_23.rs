@@ -2,14 +2,17 @@ use std::collections::{HashMap, HashSet};
 
 use aoclib::Runner;
 
+#[derive(Debug, Default, Copy, Clone, PartialEq, Eq, Hash)]
+struct Pos(i64, i64);
+
 #[derive(Default)]
 pub struct Aoc2023_23 {
-    maze: HashMap<(i64, i64), Tile>,
+    maze: HashMap<Pos, Tile>,
     width: i64,
     height: i64,
-    start: (i64, i64),
-    end: (i64, i64),
-    verticies: HashMap<(i64, i64), HashSet<((i64, i64), i64)>>, // (row, col), dist
+    start: Pos,
+    end: Pos,
+    verticies: HashMap<Pos, HashSet<(Pos, i64)>>, // (row, col), dist
 }
 
 impl Aoc2023_23 {
@@ -35,13 +38,13 @@ impl Runner for Aoc2023_23 {
                 match ch {
                     '#' => {}
                     '.' => {
-                        self.maze.insert((row, col), Tile::Space);
+                        self.maze.insert(Pos(row, col), Tile::Space);
                     }
                     '>' => {
-                        self.maze.insert((row, col), Tile::Slope((0, 1)));
+                        self.maze.insert(Pos(row, col), Tile::Slope(Pos(0, 1)));
                     }
                     'v' => {
-                        self.maze.insert((row, col), Tile::Slope((1, 0)));
+                        self.maze.insert(Pos(row, col), Tile::Slope(Pos(1, 0)));
                     }
                     _ => panic!("invalid character"),
                 }
@@ -49,17 +52,17 @@ impl Runner for Aoc2023_23 {
         }
 
         for col in 0..self.width {
-            if self.maze.contains_key(&(0, col)) {
-                self.start = (0, col);
-            } else if self.maze.contains_key(&(self.height - 1, col)) {
-                self.end = (self.height - 1, col);
+            if self.maze.contains_key(&Pos(0, col)) {
+                self.start = Pos(0, col);
+            } else if self.maze.contains_key(&Pos(self.height - 1, col)) {
+                self.end = Pos(self.height - 1, col);
             }
         }
     }
 
     fn part1(&mut self) -> Vec<String> {
         // last intersection, overall distance to last intersection, curpos, curdir, curdist
-        let mut stack = vec![(self.start, 0, self.start, (1, 0), 0)];
+        let mut stack = vec![(self.start, 0, self.start, Pos(1, 0), 0)];
         let mut max_dist = 0;
 
         while let Some((lastpos, lastdist, curpos, curdir, dist)) = stack.pop() {
@@ -76,10 +79,10 @@ impl Runner for Aoc2023_23 {
             let mut nextstack = Vec::new();
 
             for dir in &DIRS {
-                if (-dir.0, -dir.1) == curdir {
+                if Pos(-dir.0, -dir.1) == curdir {
                     continue;
                 }
-                let nextpos = (curpos.0 + dir.0, curpos.1 + dir.1);
+                let nextpos = Pos(curpos.0 + dir.0, curpos.1 + dir.1);
                 if let Some(tile) = self.maze.get(&nextpos) {
                     match tile {
                         Tile::Space => {
@@ -148,10 +151,10 @@ impl Runner for Aoc2023_23 {
     }
 }
 
-const DIRS: [(i64, i64); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
+const DIRS: [Pos; 4] = [Pos(-1, 0), Pos(1, 0), Pos(0, -1), Pos(0, 1)];
 
 #[derive(Debug)]
 enum Tile {
     Space,
-    Slope((i64, i64)),
+    Slope(Pos),
 }
