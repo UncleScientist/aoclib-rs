@@ -15,14 +15,14 @@ pub struct PermutationIterator<T> {
 }
 
 impl<T: Clone> PermutationIterator<T> {
-    pub fn new(vec: &Vec<T>) -> Self {
+    pub fn new(vec: &[T]) -> Self {
         let mut c: Vec<usize> = Vec::with_capacity(vec.len());
         (0..vec.len()).for_each(|_| c.push(0));
 
         Self {
             c,
             i: 0,
-            a: vec.clone(),
+            a: vec.into(),
         }
     }
 }

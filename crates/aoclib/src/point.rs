@@ -2,9 +2,6 @@ use std::fmt::Debug;
 use std::ops::{Add, AddAssign, Sub};
 use std::str::FromStr;
 
-#[derive(Debug)]
-enum ParsePointError {}
-
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 pub struct Point<T: Ord> {
     pub x: T,
