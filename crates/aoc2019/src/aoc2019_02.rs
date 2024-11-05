@@ -21,7 +21,7 @@ impl Runner for Aoc2019_02 {
     fn parse(&mut self) {
         let input = std::fs::read_to_string("input/day02.txt").expect("file not found");
         let (intdata, _) = input.split_once('\n').expect("missing newline");
-        self.computer = Intcode::new(&intdata);
+        self.computer = Intcode::new(intdata);
     }
 
     fn part1(&mut self) -> Vec<String> {
