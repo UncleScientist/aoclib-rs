@@ -21,7 +21,7 @@ impl Runner for Aoc2019_02 {
     fn parse(&mut self) {
         let input = std::fs::read_to_string("input/day02.txt").expect("file not found");
         let (intdata, _) = input.split_once('\n').expect("missing newline");
-        self.computer = Intcode::new_from_string(&intdata);
+        self.computer = Intcode::new(&intdata);
     }
 
     fn part1(&mut self) -> Vec<String> {
@@ -32,6 +32,17 @@ impl Runner for Aoc2019_02 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        for noun in 0..=99 {
+            for verb in 0..=99 {
+                self.computer.reset();
+                self.computer.poke(1, noun);
+                self.computer.poke(2, verb);
+                self.computer.run();
+                if self.computer.peek(0) == 19690720 {
+                    return aoclib::output(100 * noun + verb);
+                }
+            }
+        }
+        panic!("value not found");
     }
 }
