@@ -24,18 +24,38 @@ impl Runner for Aoc2019_01 {
         aoclib::output(
             self.module_mass
                 .iter()
-                .map(|mass| calc_fuel(*mass))
+                .map(|mass| calc_fuel(*mass).unwrap_or(0))
                 .sum::<usize>(),
         )
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        aoclib::output(
+            self.module_mass
+                .iter()
+                .map(|mass| calc_fuel_for_fuel(*mass))
+                .sum::<usize>(),
+        )
     }
 }
 
-fn calc_fuel(mass: usize) -> usize {
-    mass / 3 - 2
+fn calc_fuel(mass: usize) -> Option<usize> {
+    if mass / 3 < 2 {
+        None
+    } else {
+        Some(mass / 3 - 2)
+    }
+}
+
+fn calc_fuel_for_fuel(mut mass: usize) -> usize {
+    let mut total = 0;
+
+    while let Some(fuel) = calc_fuel(mass) {
+        total += fuel;
+        mass = fuel;
+    }
+
+    total
 }
 
 #[cfg(test)]
@@ -43,10 +63,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_calculation() {
-        assert_eq!(2, calc_fuel(12));
-        assert_eq!(2, calc_fuel(14));
-        assert_eq!(654, calc_fuel(1969));
-        assert_eq!(33583, calc_fuel(100756));
+    fn test_part_1() {
+        assert_eq!(Some(2), calc_fuel(12));
+        assert_eq!(Some(2), calc_fuel(14));
+        assert_eq!(Some(654), calc_fuel(1969));
+        assert_eq!(Some(33583), calc_fuel(100756));
+    }
+
+    #[test]
+    fn test_part_2() {
+        assert_eq!(2, calc_fuel_for_fuel(14));
+        assert_eq!(966, calc_fuel_for_fuel(1969));
+        assert_eq!(50346, calc_fuel_for_fuel(100756));
     }
 }
