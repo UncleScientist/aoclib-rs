@@ -1,11 +1,12 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2019_03 {
-    wire1: HashSet<(i64, i64)>,
-    wire2: HashSet<(i64, i64)>,
+    wire1: HashMap<(i64, i64), usize>,
+    wire2: HashMap<(i64, i64), usize>,
+    intersections: Vec<(i64, i64)>,
 }
 
 impl Aoc2019_03 {
@@ -26,8 +27,11 @@ impl Runner for Aoc2019_03 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let intersection: Vec<_> = self.wire1.intersection(&self.wire2).collect();
-        let min_dist = intersection
+        let w1: HashSet<(i64, i64)> = self.wire1.keys().copied().collect();
+        let w2: HashSet<(i64, i64)> = self.wire2.keys().copied().collect();
+        self.intersections = w1.intersection(&w2).copied().collect();
+        let min_dist = self
+            .intersections
             .iter()
             .map(|(x, y)| x.abs() + y.abs())
             .min()
@@ -36,12 +40,13 @@ impl Runner for Aoc2019_03 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output(self.wire2.len())
+        aoclib::output("unsolved")
     }
 }
 
-fn parse_line(lines: &str, wire: &mut HashSet<(i64, i64)>) {
+fn parse_line(lines: &str, wire: &mut HashMap<(i64, i64), usize>) {
     let (mut x, mut y) = (0, 0);
+    let mut steps = 0;
 
     for inst in lines.split(',') {
         let dir = &inst[0..1];
@@ -57,7 +62,8 @@ fn parse_line(lines: &str, wire: &mut HashSet<(i64, i64)>) {
         for _ in 0..amt {
             x += dx;
             y += dy;
-            wire.insert((x, y));
+            wire.entry((x, y)).or_insert(steps);
+            steps += 1;
         }
     }
 }
