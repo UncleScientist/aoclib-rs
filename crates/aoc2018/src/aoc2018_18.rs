@@ -2,11 +2,14 @@ use std::{collections::HashMap, fmt::Display};
 
 use aoclib::Runner;
 
+type Area = HashMap<(usize, usize), Contents>;
+
 #[derive(Default)]
 pub struct Aoc2018_18 {
-    area: HashMap<(usize, usize), Contents>,
+    area: Area,
     rows: usize,
     cols: usize,
+    entries: Vec<Area>,
 }
 
 impl Aoc2018_18 {
@@ -23,17 +26,37 @@ impl Runner for Aoc2018_18 {
     fn parse(&mut self) {
         let data = aoclib::read_lines("input/2018-18.txt");
         self.extract(&data);
+        self.entries.push(self.area.clone());
     }
 
     fn part1(&mut self) -> Vec<String> {
         for _ in 0..10 {
             self.step();
+            self.entries.push(self.area.clone());
         }
         aoclib::output(self.resource_value())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let loop_start = loop {
+            self.step();
+            if let Some(end) = self.entries.iter().position(|entry| *entry == self.area) {
+                break end;
+            }
+            self.entries.push(self.area.clone());
+        };
+
+        let loop_end = self.entries.len();
+        let loop_length = loop_end - loop_start;
+
+        let total_minutes = 1_000_000_000;
+        let remaining_steps = (total_minutes - loop_start) % loop_length;
+
+        for _ in 0..remaining_steps {
+            self.step();
+        }
+
+        aoclib::output(self.resource_value())
     }
 }
 
@@ -105,7 +128,7 @@ impl Aoc2018_18 {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, PartialEq)]
 enum Contents {
     Open,
     Wooded,
@@ -118,7 +141,7 @@ impl Display for Aoc2018_18 {
             for col in 0..self.cols {
                 write!(f, "{}", self.area.get(&(row, col)).unwrap())?;
             }
-            write!(f, "\n")?;
+            writeln!(f)?;
         }
         Ok(())
     }
