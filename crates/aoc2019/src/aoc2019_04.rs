@@ -61,7 +61,7 @@ fn validate_single_double(num: usize) -> Option<()> {
     let mut iter = digits.iter();
     let mut prev = iter.next().unwrap();
     let mut count = 1;
-    while let Some(digit) = iter.next() {
+    for digit in iter {
         if prev == digit {
             count += 1;
         } else {
