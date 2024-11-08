@@ -28,7 +28,7 @@ impl Intcode {
 
         while self.running {
             let offset = self.step();
-            self.ip += offset;
+            self.ip = self.ip.wrapping_add(offset as usize);
         }
     }
 
@@ -37,7 +37,7 @@ impl Intcode {
 
         while self.running {
             let offset = self.step();
-            self.ip += offset;
+            self.ip = self.ip.wrapping_add(offset as usize);
             if let Some(output) = self.outputq.pop_front() {
                 return Some(output);
             }
@@ -56,7 +56,7 @@ impl Intcode {
         }
     }
 
-    fn step(&mut self) -> usize {
+    fn step(&mut self) -> i64 {
         let inst = self.memory[self.ip];
 
         let modea: AddressingMode = ((inst / 100) % 10).into();
@@ -93,9 +93,43 @@ impl Intcode {
                 self.outputq.push_back(a);
                 2
             }
+            5 => {
+                let a = self.read(self.ip + 1, modea);
+                let b = self.read(self.ip + 2, modeb);
+                if a != 0 {
+                    b - self.ip as i64
+                } else {
+                    3
+                }
+            }
+            6 => {
+                let a = self.read(self.ip + 1, modea);
+                let b = self.read(self.ip + 2, modeb);
+                if a == 0 {
+                    b - self.ip as i64
+                } else {
+                    3
+                }
+            }
+            7 => {
+                let a = self.read(self.ip + 1, modea);
+                let b = self.read(self.ip + 2, modeb);
+                assert_eq!(AddressingMode::Position, modec);
+                let dest = self.memory[self.ip + 3] as usize;
+                self.memory[dest] = (a < b) as i64;
+                4
+            }
+            8 => {
+                let a = self.read(self.ip + 1, modea);
+                let b = self.read(self.ip + 2, modeb);
+                assert_eq!(AddressingMode::Position, modec);
+                let dest = self.memory[self.ip + 3] as usize;
+                self.memory[dest] = (a == b) as i64;
+                4
+            }
             99 => {
                 self.running = false;
-                1
+                0
             }
             _ => panic!(
                 "instruction {inst} at ip {} unimplemented: {:?}",
@@ -119,6 +153,22 @@ impl Intcode {
 
     pub(crate) fn push(&mut self, value: i64) {
         self.inputq.push_back(value);
+    }
+}
+
+#[derive(Copy, Clone, PartialEq, Debug)]
+enum AddressingMode {
+    Position = 0,
+    Immediate = 1,
+}
+
+impl From<i64> for AddressingMode {
+    fn from(value: i64) -> Self {
+        match value {
+            0 => Self::Position,
+            1 => Self::Immediate,
+            _ => panic!("invalid addressing mode {value}"),
+        }
     }
 }
 
@@ -215,20 +265,59 @@ mod tests {
         computer.run();
         assert_eq!(99, computer.memory[4]);
     }
-}
 
-#[derive(Copy, Clone, PartialEq, Debug)]
-enum AddressingMode {
-    Position = 0,
-    Immediate = 1,
-}
+    #[test]
+    fn test_equals_eight() {
+        let mut computer = Intcode::new("3,9,8,9,10,9,4,9,99,-1,8");
 
-impl From<i64> for AddressingMode {
-    fn from(value: i64) -> Self {
-        match value {
-            0 => Self::Position,
-            1 => Self::Immediate,
-            _ => panic!("invalid addressing mode {value}"),
-        }
+        computer.push(8);
+        assert_eq!(Some(1), computer.run_until_output());
+        computer.reset();
+        computer.push(9);
+        assert_eq!(Some(0), computer.run_until_output());
+    }
+
+    #[test]
+    fn test_less_than_eight() {
+        let mut computer = Intcode::new("3,9,7,9,10,9,4,9,99,-1,8");
+
+        computer.push(7);
+        assert_eq!(Some(1), computer.run_until_output());
+
+        computer.reset();
+        computer.push(8);
+        assert_eq!(Some(0), computer.run_until_output());
+
+        computer.reset();
+        computer.push(9);
+        assert_eq!(Some(0), computer.run_until_output());
+    }
+
+    #[test]
+    fn test_jump_mode() {
+        let mut computer = Intcode::new("3,3,1105,-1,9,1101,0,0,12,4,12,99,1");
+
+        computer.push(0);
+        assert_eq!(Some(0), computer.run_until_output());
+
+        computer.reset();
+        computer.push(123);
+        assert_eq!(Some(1), computer.run_until_output());
+    }
+
+    #[test]
+    fn test_three_way_for_eight() {
+        let mut computer = Intcode::new("3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99");
+
+        computer.push(3);
+        assert_eq!(Some(999), computer.run_until_output());
+
+        computer.reset();
+        computer.push(8);
+        assert_eq!(Some(1000), computer.run_until_output());
+
+        computer.reset();
+        computer.push(123);
+        assert_eq!(Some(1001), computer.run_until_output());
     }
 }
