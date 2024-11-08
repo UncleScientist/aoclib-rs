@@ -1,9 +1,13 @@
+use std::collections::VecDeque;
+
 #[derive(Debug, Default)]
 pub struct Intcode {
     reset: Vec<i64>,
     memory: Vec<i64>,
     ip: usize,
     running: bool,
+    inputq: VecDeque<i64>,
+    outputq: VecDeque<i64>,
 }
 
 impl Intcode {
@@ -23,30 +27,66 @@ impl Intcode {
         self.running = true;
 
         while self.running {
-            self.step();
-            self.ip += 4;
+            let offset = self.step();
+            self.ip += offset;
         }
     }
 
-    fn step(&mut self) {
+    fn read(&self, address: usize, mode: AddressingMode) -> i64 {
+        match mode {
+            AddressingMode::Position => {
+                let location = self.memory[address] as usize;
+                self.memory[location]
+            }
+            AddressingMode::Immediate => self.memory[address],
+        }
+    }
+
+    fn step(&mut self) -> usize {
         let inst = self.memory[self.ip];
+
+        let modea: AddressingMode = ((inst / 100) % 10).into();
+        let modeb: AddressingMode = ((inst / 1000) % 10).into();
+        let modec: AddressingMode = ((inst / 10000) % 10).into();
+        let inst = inst % 100;
+
         match inst {
             1 => {
-                let a = self.memory[self.ip + 1] as usize;
-                let b = self.memory[self.ip + 2] as usize;
+                let a = self.read(self.ip + 1, modea);
+                let b = self.read(self.ip + 2, modeb);
+                assert_eq!(AddressingMode::Position, modec);
                 let dest = self.memory[self.ip + 3] as usize;
-                self.memory[dest] = self.memory[a] + self.memory[b];
+                self.memory[dest] = a + b;
+                4
             }
             2 => {
-                let a = self.memory[self.ip + 1] as usize;
-                let b = self.memory[self.ip + 2] as usize;
+                let a = self.read(self.ip + 1, modea);
+                let b = self.read(self.ip + 2, modeb);
+                assert_eq!(AddressingMode::Position, modec);
                 let dest = self.memory[self.ip + 3] as usize;
-                self.memory[dest] = self.memory[a] * self.memory[b];
+                self.memory[dest] = a * b;
+                4
+            }
+            3 => {
+                assert_eq!(AddressingMode::Position, modea);
+                let a = self.memory[self.ip + 1];
+                let val = self.inputq.pop_front().unwrap();
+                self.memory[a as usize] = val;
+                2
+            }
+            4 => {
+                let a = self.read(self.ip + 1, modea);
+                self.outputq.push_back(a);
+                2
             }
             99 => {
                 self.running = false;
+                1
             }
-            _ => panic!("instruction {inst} at ip {} unimplemented", self.ip),
+            _ => panic!(
+                "instruction {inst} at ip {} unimplemented: {:?}",
+                self.ip, self.memory
+            ),
         }
     }
 
@@ -61,6 +101,14 @@ impl Intcode {
     pub(crate) fn reset(&mut self) {
         self.memory = self.reset.clone();
         self.ip = 0;
+    }
+
+    fn push(&mut self, value: i64) {
+        self.inputq.push_back(value);
+    }
+
+    fn pop(&mut self) -> i64 {
+        self.outputq.pop_front().unwrap()
     }
 }
 
@@ -139,5 +187,37 @@ mod tests {
             computer.memory,
         );
         assert_eq!(0, computer.ip);
+    }
+
+    #[test]
+    fn copies_input_to_output() {
+        let mut computer = Intcode::new("3,0,4,0,99");
+
+        computer.push(123);
+        computer.run();
+        assert_eq!(123, computer.pop());
+    }
+
+    #[test]
+    fn test_addressing_mode() {
+        let mut computer = Intcode::new("1002,4,3,4,33");
+        computer.run();
+        assert_eq!(99, computer.memory[4]);
+    }
+}
+
+#[derive(Copy, Clone, PartialEq, Debug)]
+enum AddressingMode {
+    Position = 0,
+    Immediate = 1,
+}
+
+impl From<i64> for AddressingMode {
+    fn from(value: i64) -> Self {
+        match value {
+            0 => Self::Position,
+            1 => Self::Immediate,
+            _ => panic!("invalid addressing mode {value}"),
+        }
     }
 }
