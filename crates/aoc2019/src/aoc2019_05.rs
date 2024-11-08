@@ -24,17 +24,24 @@ impl Runner for Aoc2019_05 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        self.computer.push(1);
-        while let Some(val) = self.computer.run_until_output() {
-            if val != 0 {
-                assert!(self.computer.run_until_output().is_none());
-                return aoclib::output(val);
-            }
-        }
-        panic!("no solution found");
+        aoclib::output(self.run_computer_with(1))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        self.computer.reset();
+        aoclib::output(self.run_computer_with(5))
+    }
+}
+
+impl Aoc2019_05 {
+    fn run_computer_with(&mut self, val: i64) -> i64 {
+        self.computer.push(val);
+        while let Some(val) = self.computer.run_until_output() {
+            if val != 0 {
+                assert!(self.computer.run_until_output().is_none());
+                return val;
+            }
+        }
+        panic!("no solution found");
     }
 }
