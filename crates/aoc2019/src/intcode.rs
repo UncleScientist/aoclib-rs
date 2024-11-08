@@ -32,6 +32,20 @@ impl Intcode {
         }
     }
 
+    pub fn run_until_output(&mut self) -> Option<i64> {
+        self.running = true;
+
+        while self.running {
+            let offset = self.step();
+            self.ip += offset;
+            if let Some(output) = self.outputq.pop_front() {
+                return Some(output);
+            }
+        }
+
+        None
+    }
+
     fn read(&self, address: usize, mode: AddressingMode) -> i64 {
         match mode {
             AddressingMode::Position => {
@@ -103,12 +117,8 @@ impl Intcode {
         self.ip = 0;
     }
 
-    fn push(&mut self, value: i64) {
+    pub(crate) fn push(&mut self, value: i64) {
         self.inputq.push_back(value);
-    }
-
-    fn pop(&mut self) -> i64 {
-        self.outputq.pop_front().unwrap()
     }
 }
 
@@ -194,8 +204,9 @@ mod tests {
         let mut computer = Intcode::new("3,0,4,0,99");
 
         computer.push(123);
-        computer.run();
-        assert_eq!(123, computer.pop());
+        assert_eq!(Some(123), computer.run_until_output());
+        assert_eq!(None, computer.run_until_output());
+        assert!(!computer.running);
     }
 
     #[test]
