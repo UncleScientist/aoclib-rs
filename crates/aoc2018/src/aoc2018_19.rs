@@ -153,7 +153,7 @@ impl Machine {
                     .filter(|div| self.regs[4] % div == 0)
                     .sum();
             }
-            let reg0 = self.regs[0];
+
             if ip >= self.program.len() {
                 return self.regs[0];
             }
