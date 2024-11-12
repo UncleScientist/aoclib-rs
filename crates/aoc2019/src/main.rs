@@ -8,6 +8,7 @@ mod aoc2019_03;
 mod aoc2019_04;
 mod aoc2019_05;
 mod aoc2019_06;
+mod aoc2019_07;
 
 use aoc2019_01::*;
 use aoc2019_02::*;
@@ -15,6 +16,7 @@ use aoc2019_03::*;
 use aoc2019_04::*;
 use aoc2019_05::*;
 use aoc2019_06::*;
+use aoc2019_07::*;
 
 pub fn main() {
     run_2019(Selector::Last);
@@ -27,9 +29,10 @@ pub fn run_2019(which: Selector) {
     let mut day04 = Aoc2019_04::new();
     let mut day05 = Aoc2019_05::new();
     let mut day06 = Aoc2019_06::new();
+    let mut day07 = Aoc2019_07::new();
 
     let mut days: Vec<&mut dyn Runner> = vec![
-        &mut day01, &mut day02, &mut day03, &mut day04, &mut day05, &mut day06,
+        &mut day01, &mut day02, &mut day03, &mut day04, &mut day05, &mut day06, &mut day07,
     ];
 
     match which {
