@@ -1,6 +1,7 @@
-use std::str::Chars;
+use std::{collections::HashMap, str::Chars};
 
 use aoclib::Runner;
+type Grid = HashMap<(i64, i64), Vec<(i64, i64)>>;
 
 #[derive(Default)]
 pub struct Aoc2018_20 {
@@ -12,14 +13,14 @@ impl Aoc2018_20 {
         Self::default()
     }
 
-    fn longest(&self, iter: &mut Chars) -> usize {
+    fn longest(iter: &mut Chars) -> usize {
         let mut length = 0;
         let mut max_so_far = 0;
 
         while let Some(ch) = iter.next() {
             match ch {
                 'N' | 'S' | 'E' | 'W' => length += 1,
-                '(' => length += self.longest(iter),
+                '(' => length += Self::longest(iter),
                 '$' | ')' if length > 0 => return length.max(max_so_far),
                 '$' | ')' => return 0,
                 '|' => {
@@ -32,6 +33,44 @@ impl Aoc2018_20 {
         }
 
         length.max(max_so_far)
+    }
+
+    fn build_grid(grid: &mut Grid, iter: &mut Chars, mut x: i64, mut y: i64) {
+        let start_x = x;
+        let start_y = y;
+
+        while let Some(ch) = iter.next() {
+            match ch {
+                '^' => {}
+                'N' => {
+                    let entry = grid.entry((x, y)).or_default();
+                    y -= 1;
+                    entry.push((x, y));
+                }
+                'S' => {
+                    let entry = grid.entry((x, y)).or_default();
+                    y += 1;
+                    entry.push((x, y));
+                }
+                'E' => {
+                    let entry = grid.entry((x, y)).or_default();
+                    x += 1;
+                    entry.push((x, y));
+                }
+                'W' => {
+                    let entry = grid.entry((x, y)).or_default();
+                    x -= 1;
+                    entry.push((x, y));
+                }
+                '(' => Self::build_grid(grid, iter, x, y),
+                '$' | ')' => return,
+                '|' => {
+                    x = start_x;
+                    y = start_y;
+                }
+                _ => panic!("invalid {ch} in input"),
+            }
+        }
     }
 }
 
@@ -46,11 +85,37 @@ impl Runner for Aoc2018_20 {
 
     fn part1(&mut self) -> Vec<String> {
         let mut iter = self.regex.chars();
-        aoclib::output(self.longest(&mut iter))
+        aoclib::output(Self::longest(&mut iter))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut grid = HashMap::new();
+        let mut iter = self.regex.chars();
+        Self::build_grid(&mut grid, &mut iter, 0, 0);
+
+        let mut stepstore = HashMap::<(i64, i64), Option<usize>>::new();
+
+        let mut stack = Vec::new();
+        stack.push(((0, 0), 0));
+
+        while let Some((pos, steps)) = stack.pop() {
+            let entry = stepstore.entry(pos).or_default();
+            if entry.is_none() {
+                *entry = Some(steps);
+                if let Some(dirs) = grid.get(&pos) {
+                    for dir in dirs {
+                        stack.push((*dir, steps + 1))
+                    }
+                }
+            }
+        }
+
+        aoclib::output(
+            stepstore
+                .values()
+                .filter(|val| val.is_some() && val.unwrap() >= 1000)
+                .count(),
+        )
     }
 }
 
@@ -60,29 +125,25 @@ mod tests {
 
     #[test]
     fn twenty_three_doors() {
-        let aoc = Aoc2018_20::default();
         let mut iter = "^ESSWWN(E|NNENN(EESS(WNSE|)SSS|WWWSSSSE(SW|NNNE)))$".chars();
-        assert_eq!(23, aoc.longest(&mut iter));
+        assert_eq!(23, Aoc2018_20::longest(&mut iter));
     }
 
     #[test]
     fn thirty_one_doors() {
-        let aoc = Aoc2018_20::default();
         let mut iter = "^WSSEESWWWNW(S|NENNEEEENN(ESSSSW(NWSW|SSEN)|WSWWN(E|WWS(E|SS))))$".chars();
-        assert_eq!(31, aoc.longest(&mut iter));
+        assert_eq!(31, Aoc2018_20::longest(&mut iter));
     }
 
     #[test]
     fn eighteen_doors() {
-        let aoc = Aoc2018_20::default();
         let mut iter = "^ENNWSWW(NEWS|)SSSEEN(WNSE|)EE(SWEN|)NNN$".chars();
-        assert_eq!(18, aoc.longest(&mut iter));
+        assert_eq!(18, Aoc2018_20::longest(&mut iter));
     }
 
     #[test]
     fn ten_doors() {
-        let aoc = Aoc2018_20::default();
         let mut iter = "^ENWWW(NEEE|SSE(EE|N))$".chars();
-        assert_eq!(10, aoc.longest(&mut iter));
+        assert_eq!(10, Aoc2018_20::longest(&mut iter));
     }
 }
