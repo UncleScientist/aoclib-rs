@@ -23,6 +23,34 @@ impl Aoc2019_07 {
 
         data
     }
+
+    fn run_feedback(&mut self, seq: &[i64]) -> i64 {
+        self.computer.reset();
+        let mut amps = [
+            self.computer.clone(),
+            self.computer.clone(),
+            self.computer.clone(),
+            self.computer.clone(),
+            self.computer.clone(),
+        ];
+
+        for (amp, val) in amps.iter_mut().zip(seq) {
+            amp.push(*val);
+        }
+
+        let mut cur_val = 0;
+
+        'outer: loop {
+            for amp in &mut amps {
+                amp.push(cur_val);
+                if let Some(next_val) = amp.run_until_output() {
+                    cur_val = next_val;
+                } else {
+                    break 'outer cur_val;
+                }
+            }
+        }
+    }
 }
 
 impl Runner for Aoc2019_07 {
@@ -37,12 +65,12 @@ impl Runner for Aoc2019_07 {
 
     fn part1(&mut self) -> Vec<String> {
         let perms = vec![0i64, 1, 2, 3, 4].permutations();
-
         aoclib::output(perms.map(|perm| self.run_sequence(&perm)).max().unwrap())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let perms = vec![5i64, 6, 7, 8, 9].permutations();
+        aoclib::output(perms.map(|perm| self.run_feedback(&perm)).max().unwrap())
     }
 }
 
@@ -76,5 +104,25 @@ mod tests {
         );
 
         assert_eq!(65210, aoc.run_sequence(&[1, 0, 4, 3, 2]));
+    }
+
+    #[test]
+    fn part2_example1() {
+        let mut aoc = Aoc2019_07::default();
+        aoc.computer = Intcode::new(
+            "3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5",
+        );
+
+        assert_eq!(139629729, aoc.run_feedback(&[9, 8, 7, 6, 5]));
+    }
+
+    #[test]
+    fn part2_example2() {
+        let mut aoc = Aoc2019_07::default();
+        aoc.computer = Intcode::new(
+            "3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,-5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10",
+        );
+
+        assert_eq!(18216, aoc.run_feedback(&[9, 7, 8, 5, 6]));
     }
 }
