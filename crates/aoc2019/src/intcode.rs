@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Intcode {
     reset: Vec<i64>,
     memory: Vec<i64>,
