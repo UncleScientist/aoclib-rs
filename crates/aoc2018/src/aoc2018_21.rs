@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{collections::HashSet, str::FromStr};
 
 use aoclib::Runner;
 
@@ -38,12 +38,12 @@ impl Runner for Aoc2018_21 {
 
     fn part1(&mut self) -> Vec<String> {
         self.computer.regs[0] = 0;
-        self.computer.run();
-        aoclib::output(self.computer.regs[3])
+        aoclib::output(self.computer.run(true))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        self.computer.reset();
+        aoclib::output(self.computer.run(false))
     }
 }
 
@@ -109,7 +109,7 @@ impl Machine {
         }
     }
 
-    fn _reset(&mut self) {
+    fn reset(&mut self) {
         self.regs = [0; 6];
     }
 
@@ -142,16 +142,25 @@ impl Machine {
         }
     }
 
-    fn run(&mut self) -> usize {
+    fn run(&mut self, part1: bool) -> i64 {
+        let mut seen = HashSet::<i64>::new();
+        let mut prev = 0;
         loop {
             let mut ip = self.regs[self.ip] as usize;
 
             if ip >= self.program.len() {
-                return self.steps;
+                return self.regs[3];
             }
 
             if ip == 28 {
-                return self.steps + 1;
+                if part1 {
+                    return self.regs[3];
+                }
+                if seen.insert(self.regs[3]) {
+                    prev = self.regs[3];
+                } else {
+                    return prev;
+                }
             }
 
             if ip == 18 {
