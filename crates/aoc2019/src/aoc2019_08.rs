@@ -37,6 +37,30 @@ impl Runner for Aoc2019_08 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut image: Vec<char> = vec!['2'; 25 * 6];
+
+        self.img_data.chunks(25 * 6).for_each(|chunk| {
+            for row in 0..6 {
+                for col in 0..25 {
+                    if image[row * 25 + col] == '2' {
+                        image[row * 25 + col] = chunk[row * 25 + col];
+                    }
+                }
+            }
+        });
+
+        image
+            .chunks(25)
+            .map(|slice| {
+                slice
+                    .iter()
+                    .map(|ch| match ch {
+                        '1' => '#',
+                        '0' => '.',
+                        _ => panic!("oops"),
+                    })
+                    .collect()
+            })
+            .collect::<Vec<String>>()
     }
 }
