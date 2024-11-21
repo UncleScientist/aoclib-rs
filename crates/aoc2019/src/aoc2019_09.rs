@@ -1,8 +1,10 @@
 use aoclib::Runner;
 
+use crate::intcode::Intcode;
+
 #[derive(Default)]
 pub struct Aoc2019_09 {
-    // insert items here (or not, i'm not the boss of you)
+    computer: Intcode,
 }
 
 impl Aoc2019_09 {
@@ -16,10 +18,18 @@ impl Runner for Aoc2019_09 {
         (2019, 9)
     }
 
-    fn parse(&mut self) {}
+    fn parse(&mut self) {
+        let lines = aoclib::read_lines("input/2019-09.txt");
+        self.computer = Intcode::new(&lines[0]);
+    }
 
     fn part1(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        self.computer.push(1);
+        let answer = self.computer.run_until_output().unwrap();
+        if self.computer.run_until_output().is_some() {
+            panic!("Error, with answer = {answer}");
+        }
+        aoclib::output(answer)
     }
 
     fn part2(&mut self) -> Vec<String> {
