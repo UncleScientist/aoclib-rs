@@ -177,6 +177,7 @@ impl Intcode {
     pub(crate) fn reset(&mut self) {
         self.memory = self.reset.clone();
         self.ip = 0;
+        self.relative_base = 0;
     }
 
     pub(crate) fn push(&mut self, value: i64) {
