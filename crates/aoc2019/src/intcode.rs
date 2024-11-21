@@ -5,6 +5,7 @@ pub struct Intcode {
     reset: Vec<i64>,
     memory: Vec<i64>,
     ip: usize,
+    relative_base: i64,
     running: bool,
     inputq: VecDeque<i64>,
     outputq: VecDeque<i64>,
@@ -46,18 +47,37 @@ impl Intcode {
         None
     }
 
+    fn mem_set(&mut self, address: usize, value: i64) {
+        if address >= self.memory.len() {
+            self.memory.extend(vec![0; address - self.memory.len() + 1]);
+        }
+        self.memory[address] = value;
+    }
+
+    fn mem_get(&self, address: usize) -> i64 {
+        if address < self.memory.len() {
+            self.memory[address]
+        } else {
+            0
+        }
+    }
+
     fn read(&self, address: usize, mode: AddressingMode) -> i64 {
         match mode {
             AddressingMode::Position => {
                 let location = self.memory[address] as usize;
-                self.memory[location]
+                self.mem_get(location)
             }
             AddressingMode::Immediate => self.memory[address],
+            AddressingMode::Relative => {
+                let offset = (self.memory[address] + self.relative_base) as usize;
+                self.mem_get(offset)
+            }
         }
     }
 
     fn step(&mut self) -> i64 {
-        let inst = self.memory[self.ip];
+        let inst = self.mem_get(self.ip);
 
         let modea: AddressingMode = ((inst / 100) % 10).into();
         let modeb: AddressingMode = ((inst / 1000) % 10).into();
@@ -69,8 +89,8 @@ impl Intcode {
                 let a = self.read(self.ip + 1, modea);
                 let b = self.read(self.ip + 2, modeb);
                 assert_eq!(AddressingMode::Position, modec);
-                let dest = self.memory[self.ip + 3] as usize;
-                self.memory[dest] = a + b;
+                let dest = self.mem_get(self.ip + 3) as usize;
+                self.mem_set(dest, a + b);
                 4
             }
             2 => {
@@ -124,8 +144,13 @@ impl Intcode {
                 let b = self.read(self.ip + 2, modeb);
                 assert_eq!(AddressingMode::Position, modec);
                 let dest = self.memory[self.ip + 3] as usize;
-                self.memory[dest] = (a == b) as i64;
+                self.mem_set(dest, (a == b) as i64);
                 4
+            }
+            9 => {
+                let a = self.read(self.ip + 1, modea);
+                self.relative_base += a;
+                2
             }
             99 => {
                 self.running = false;
@@ -160,6 +185,7 @@ impl Intcode {
 enum AddressingMode {
     Position = 0,
     Immediate = 1,
+    Relative = 2,
 }
 
 impl From<i64> for AddressingMode {
@@ -167,6 +193,7 @@ impl From<i64> for AddressingMode {
         match value {
             0 => Self::Position,
             1 => Self::Immediate,
+            2 => Self::Relative,
             _ => panic!("invalid addressing mode {value}"),
         }
     }
@@ -319,5 +346,34 @@ mod tests {
         computer.reset();
         computer.push(123);
         assert_eq!(Some(1001), computer.run_until_output());
+    }
+
+    #[test]
+    fn relative_base_quine() {
+        let mut computer =
+            Intcode::new("109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99");
+        let output = vec![
+            109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99,
+        ];
+        for val in output {
+            let num = computer.run_until_output().unwrap();
+            assert_eq!(val, num);
+        }
+
+        assert!(computer.run_until_output().is_none());
+    }
+
+    #[test]
+    fn sixteen_digit_number() {
+        let mut computer = Intcode::new("1102,34915192,34915192,7,4,7,99,0");
+        let num = computer.run_until_output().unwrap();
+        assert_eq!(16, format!("{num}").len());
+    }
+
+    #[test]
+    fn large_number() {
+        let mut computer = Intcode::new("104,1125899906842624,99");
+        let num = computer.run_until_output().unwrap();
+        assert_eq!(1125899906842624, num);
     }
 }
