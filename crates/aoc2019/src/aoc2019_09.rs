@@ -33,6 +33,8 @@ impl Runner for Aoc2019_09 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        self.computer.reset();
+        self.computer.push(2);
+        aoclib::output(self.computer.run_until_output().unwrap())
     }
 }
