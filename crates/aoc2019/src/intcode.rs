@@ -62,6 +62,14 @@ impl Intcode {
         }
     }
 
+    fn address_for(&self, address: usize, mode: AddressingMode) -> usize {
+        match mode {
+            AddressingMode::Position => self.memory[address] as usize,
+            AddressingMode::Immediate => panic!("invalid addressing mode"),
+            AddressingMode::Relative => (self.memory[address] + self.relative_base) as usize,
+        }
+    }
+
     fn read(&self, address: usize, mode: AddressingMode) -> i64 {
         match mode {
             AddressingMode::Position => {
@@ -77,7 +85,7 @@ impl Intcode {
     }
 
     fn step(&mut self) -> i64 {
-        let inst = self.mem_get(self.ip);
+        let inst = self.memory[self.ip];
 
         let modea: AddressingMode = ((inst / 100) % 10).into();
         let modeb: AddressingMode = ((inst / 1000) % 10).into();
@@ -88,24 +96,21 @@ impl Intcode {
             1 => {
                 let a = self.read(self.ip + 1, modea);
                 let b = self.read(self.ip + 2, modeb);
-                assert_eq!(AddressingMode::Position, modec);
-                let dest = self.mem_get(self.ip + 3) as usize;
+                let dest = self.address_for(self.ip + 3, modec);
                 self.mem_set(dest, a + b);
                 4
             }
             2 => {
                 let a = self.read(self.ip + 1, modea);
                 let b = self.read(self.ip + 2, modeb);
-                assert_eq!(AddressingMode::Position, modec);
-                let dest = self.memory[self.ip + 3] as usize;
-                self.memory[dest] = a * b;
+                let dest = self.address_for(self.ip + 3, modec);
+                self.mem_set(dest, a * b);
                 4
             }
             3 => {
-                assert_eq!(AddressingMode::Position, modea);
-                let a = self.memory[self.ip + 1];
+                let address = self.address_for(self.ip + 1, modea);
                 let val = self.inputq.pop_front().unwrap();
-                self.memory[a as usize] = val;
+                self.mem_set(address, val);
                 2
             }
             4 => {
@@ -134,16 +139,14 @@ impl Intcode {
             7 => {
                 let a = self.read(self.ip + 1, modea);
                 let b = self.read(self.ip + 2, modeb);
-                assert_eq!(AddressingMode::Position, modec);
-                let dest = self.memory[self.ip + 3] as usize;
-                self.memory[dest] = (a < b) as i64;
+                let dest = self.address_for(self.ip + 3, modec);
+                self.mem_set(dest, (a < b) as i64);
                 4
             }
             8 => {
                 let a = self.read(self.ip + 1, modea);
                 let b = self.read(self.ip + 2, modeb);
-                assert_eq!(AddressingMode::Position, modec);
-                let dest = self.memory[self.ip + 3] as usize;
+                let dest = self.address_for(self.ip + 3, modec);
                 self.mem_set(dest, (a == b) as i64);
                 4
             }
