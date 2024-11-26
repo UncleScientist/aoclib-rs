@@ -1,4 +1,7 @@
-use std::{collections::HashMap, fmt::Display};
+use std::{
+    collections::{BTreeSet, HashMap, HashSet},
+    fmt::Display,
+};
 
 use aoclib::Runner;
 
@@ -34,10 +37,28 @@ impl Runner for Aoc2018_22 {
     }
 
     fn part2(&mut self) -> Vec<String> {
+        let state = State::default();
+        let mut work = BTreeSet::<(i64, State)>::new();
+        work.insert((0, state));
+
+        let mut seen = HashSet::new();
+
+        while let Some((time, next)) = work.pop_first() {
+            if seen.insert(next) {
+                if next.loc == self.cave.target && next.inv == Tool::Torch {
+                    return aoclib::output(time);
+                }
+                for (m, cost) in self.cave.moves(&next) {
+                    work.insert((time + cost, m));
+                }
+            }
+        }
+
         aoclib::output("unsolved")
     }
 }
 
+#[derive(Debug, PartialEq, Eq)]
 enum RegionType {
     Rocky,
     Wet,
@@ -50,6 +71,14 @@ impl RegionType {
             RegionType::Rocky => 0,
             RegionType::Wet => 1,
             RegionType::Narrow => 2,
+        }
+    }
+
+    fn supports(&self, inv: &Tool) -> bool {
+        match self {
+            RegionType::Rocky => *inv == Tool::Torch || *inv == Tool::ClimbingGear,
+            RegionType::Wet => *inv == Tool::Neither || *inv == Tool::ClimbingGear,
+            RegionType::Narrow => *inv == Tool::Torch || *inv == Tool::Neither,
         }
     }
 }
@@ -119,12 +148,93 @@ impl Cave {
         }
     }
 
+    fn moves(&mut self, state: &State) -> Vec<(State, i64)> {
+        let mut movelist = Vec::new();
+        let curtype = self.get_type(&state.loc);
+        let alttool = state.inv.get_alt(&curtype);
+        for dir in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
+            let newloc = (state.loc.0 + dir.0, state.loc.1 + dir.1);
+            if newloc.0 < 0
+                || newloc.1 < 0
+                || newloc.0 > self.target.0 + 20
+                || newloc.1 > self.target.1 + 20
+            {
+                continue;
+            }
+
+            let newtype = self.get_type(&newloc);
+
+            if newtype.supports(&state.inv) {
+                movelist.push((
+                    State {
+                        loc: newloc,
+                        inv: state.inv,
+                    },
+                    1,
+                ));
+            }
+            if newtype.supports(&alttool) {
+                movelist.push((
+                    State {
+                        loc: newloc,
+                        inv: alttool,
+                    },
+                    8,
+                ));
+            }
+        }
+
+        movelist
+    }
+
     fn _print(&mut self) {
         for y in 0..=self.target.1 {
             for x in 0..=self.target.0 {
                 print!("{}", self.get_type(&(x, y)));
             }
             println!();
+        }
+    }
+}
+
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+struct State {
+    loc: (i64, i64),
+    inv: Tool,
+}
+
+#[derive(Default, Debug, PartialEq, Eq, Copy, Clone, PartialOrd, Ord, Hash)]
+enum Tool {
+    #[default]
+    Torch,
+    ClimbingGear,
+    Neither,
+}
+
+impl Tool {
+    fn get_alt(&self, curtype: &RegionType) -> Tool {
+        match self {
+            Tool::Torch => {
+                if *curtype == RegionType::Rocky {
+                    Tool::ClimbingGear
+                } else {
+                    Tool::Neither
+                }
+            }
+            Tool::ClimbingGear => {
+                if *curtype == RegionType::Rocky {
+                    Tool::Torch
+                } else {
+                    Tool::Neither
+                }
+            }
+            Tool::Neither => {
+                if *curtype == RegionType::Wet {
+                    Tool::ClimbingGear
+                } else {
+                    Tool::Torch
+                }
+            }
         }
     }
 }
@@ -149,5 +259,35 @@ mod test {
         cave._print();
         println!("{:?}", cave.map);
         assert_eq!(114, cave.get_risk_level());
+    }
+
+    #[test]
+    fn test_switch_gear() {
+        let mut cave = Cave::new(510, (10, 10));
+        let state = State {
+            loc: (0, 0),
+            inv: Tool::Torch,
+        };
+        let moves = cave.moves(&state);
+        assert_eq!(3, moves.len());
+        for m in &moves {
+            if m.0.inv == Tool::ClimbingGear {
+                assert_eq!(8, m.1);
+            } else {
+                assert_eq!(Tool::Torch, m.0.inv);
+                assert_eq!(1, m.1);
+            }
+        }
+    }
+
+    #[test]
+    fn test_default_state() {
+        assert_eq!(
+            State {
+                loc: (0, 0),
+                inv: Tool::Torch
+            },
+            State::default()
+        );
     }
 }
