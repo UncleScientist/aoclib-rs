@@ -1,5 +1,3 @@
-use std::cmp::Ordering;
-
 use aoclib::Runner;
 
 #[derive(Default)]
@@ -48,15 +46,6 @@ impl Runner for Aoc2024_02 {
 }
 
 fn is_safe(nums: &[i64]) -> bool {
-    if match nums[0].cmp(&nums[1]) {
-        Ordering::Less => nums.windows(2).any(|pair| pair[0] >= pair[1]),
-        Ordering::Equal => false,
-        Ordering::Greater => nums.windows(2).any(|pair| pair[0] <= pair[1]),
-    } {
-        return false;
-    }
-
-    !nums
-        .windows(2)
-        .any(|pair| !(1..=3).contains(&pair[0].abs_diff(pair[1])))
+    nums.is_sorted_by(|a, b| a < b && (1..=3).contains(&(b - a)))
+        || nums.is_sorted_by(|a, b| b < a && (1..=3).contains(&(a - b)))
 }
