@@ -47,6 +47,12 @@ impl Runner for Aoc2024_01 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut score = 0;
+        for pair in &self.nums {
+            let left = pair[0];
+            let count = self.nums.iter().filter(|pair| pair[1] == left).count();
+            score += left * count as i64;
+        }
+        aoclib::output(score)
     }
 }
