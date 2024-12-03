@@ -25,7 +25,8 @@ impl Runner for Aoc2024_03 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let s = self.lines.iter().cloned().collect::<String>();
+        aoclib::output(process_conditional(s))
     }
 }
 
@@ -43,6 +44,31 @@ fn process<S: AsRef<str>>(s: S) -> usize {
     total
 }
 
+fn process_conditional<S: AsRef<str>>(s: S) -> usize {
+    let s = s.as_ref();
+    let mut pos = 0;
+    let mut total = 0;
+    let mut enabled = true;
+    while let Some(loc) = get_next(&s[pos..]) {
+        pos += loc;
+        match &s[pos..pos + 3] {
+            "mul" => {
+                if enabled {
+                    if let Some(product) = multiply(&s[pos + 4..]) {
+                        total += product;
+                    }
+                }
+            }
+            "do(" => enabled = true,
+            "don" => enabled = false,
+            _ => panic!("bad pattern: {}", &s[pos..pos + 3]),
+        }
+        pos += 4;
+    }
+
+    total
+}
+
 fn multiply(s: &str) -> Option<usize> {
     let (left, rest) = s.split_once(',')?;
     let left = left.parse::<usize>().ok()?;
@@ -50,6 +76,17 @@ fn multiply(s: &str) -> Option<usize> {
     let right = right.parse::<usize>().ok()?;
 
     Some(left * right)
+}
+
+fn get_next(s: &str) -> Option<usize> {
+    let mul_loc = s.find("mul(");
+    let do_loc = s.find("do()");
+    let dont_loc = s.find("don't()");
+
+    [mul_loc, do_loc, dont_loc]
+        .iter()
+        .filter_map(|loc| *loc)
+        .min()
 }
 
 #[cfg(test)]
@@ -69,6 +106,16 @@ mod test {
         assert_eq!(
             161,
             process("xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))")
+        );
+    }
+
+    #[test]
+    fn test_conditional() {
+        assert_eq!(
+            48,
+            process_conditional(
+                "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
+            )
         );
     }
 }
