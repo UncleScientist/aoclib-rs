@@ -28,6 +28,16 @@ impl Aoc2024_04 {
 
         true
     }
+
+    fn has_x_mas(&self, row: i64, col: i64) -> bool {
+        let a1 = self.grid[(row - 1) as usize][(col - 1) as usize];
+        let a2 = self.grid[(row + 1) as usize][(col + 1) as usize];
+        let b1 = self.grid[(row - 1) as usize][(col + 1) as usize];
+        let b2 = self.grid[(row + 1) as usize][(col - 1) as usize];
+
+        ((a1 == 'M' && a2 == 'S') || (a1 == 'S' && a2 == 'M'))
+            && ((b1 == 'M' && b2 == 'S') || (b1 == 'S' && b2 == 'M'))
+    }
 }
 
 impl Runner for Aoc2024_04 {
@@ -57,7 +67,17 @@ impl Runner for Aoc2024_04 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut total = 0;
+        for row in 1..self.grid.len() - 1 {
+            for col in 1..self.grid[row].len() - 1 {
+                if self.grid[row][col] == 'A' {
+                    let row = row as i64;
+                    let col = col as i64;
+                    total += self.has_x_mas(row, col) as usize;
+                }
+            }
+        }
+        aoclib::output(total)
     }
 }
 
