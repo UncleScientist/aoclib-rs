@@ -5,6 +5,7 @@ use aoclib::Runner;
 #[derive(Default)]
 pub struct Aoc2024_06 {
     lab: HashSet<(i64, i64)>,
+    visited: HashSet<(i64, i64)>,
     rows: i64,
     cols: i64,
     guard: (i64, i64),
@@ -39,11 +40,10 @@ impl Runner for Aoc2024_06 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut visited = HashSet::new();
         let mut guard = self.guard;
         let mut cur_dir = 0;
         while guard.0 >= 0 && guard.0 < self.rows && guard.1 >= 0 && guard.1 <= self.cols {
-            visited.insert(guard);
+            self.visited.insert(guard);
             let new_loc = (guard.0 + DIRS[cur_dir].0, guard.1 + DIRS[cur_dir].1);
             if self.lab.contains(&new_loc) {
                 cur_dir = (cur_dir + 1) % DIRS.len();
@@ -51,11 +51,34 @@ impl Runner for Aoc2024_06 {
                 guard = new_loc;
             }
         }
-        aoclib::output(visited.len())
+        aoclib::output(self.visited.len())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut total = 0;
+        for pos in self.visited.iter() {
+            if *pos == self.guard {
+                continue;
+            }
+
+            let mut loop_detector = HashSet::new();
+            let mut guard = self.guard;
+            let mut cur_dir = 0;
+            while guard.0 >= 0 && guard.0 < self.rows && guard.1 >= 0 && guard.1 <= self.cols {
+                if loop_detector.insert((guard, cur_dir)) {
+                    let new_loc = (guard.0 + DIRS[cur_dir].0, guard.1 + DIRS[cur_dir].1);
+                    if new_loc == *pos || self.lab.contains(&new_loc) {
+                        cur_dir = (cur_dir + 1) % DIRS.len();
+                    } else {
+                        guard = new_loc;
+                    }
+                } else {
+                    total += 1;
+                    break;
+                }
+            }
+        }
+        aoclib::output(total)
     }
 }
 
