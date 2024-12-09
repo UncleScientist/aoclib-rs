@@ -29,6 +29,21 @@ impl Aoc2024_05 {
             }
         }
     }
+
+    fn find_bad(&self, update: &[i64]) -> Option<(usize, usize)> {
+        for i in 0..update.len() - 1 {
+            for j in i + 1..update.len() {
+                // update[i] is currently before update[j] -- should it be?
+                if let Some(hs) = self.before.get(&update[i]) {
+                    if hs.contains(&update[j]) {
+                        return Some((i, j));
+                    }
+                }
+            }
+        }
+
+        None
+    }
 }
 
 impl Runner for Aoc2024_05 {
@@ -43,24 +58,26 @@ impl Runner for Aoc2024_05 {
 
     fn part1(&mut self) -> Vec<String> {
         let mut total = 0;
-        'next_update: for update in &self.updates {
-            for i in 0..update.len() - 1 {
-                for j in i + 1..update.len() {
-                    // update[i] is currently before update[j]
-                    if let Some(hs) = self.before.get(&update[i]) {
-                        if hs.contains(&update[j]) {
-                            continue 'next_update;
-                        }
-                    }
-                }
+        for update in &self.updates {
+            if self.find_bad(update).is_none() {
+                total += update[update.len() / 2];
             }
-            total += update[update.len() / 2];
         }
         aoclib::output(total)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut total = 0;
+        for original in &self.updates {
+            let mut update = original.clone();
+            while let Some((left, right)) = self.find_bad(&update) {
+                update.swap(left, right);
+            }
+            if update != *original {
+                total += update[update.len() / 2];
+            }
+        }
+        aoclib::output(total)
     }
 }
 
@@ -105,5 +122,12 @@ mod test {
         let mut aoc = Aoc2024_05::default();
         aoc.convert(&lines());
         assert_eq!(vec!["143".to_string()], aoc.part1());
+    }
+
+    #[test]
+    fn test_part_2() {
+        let mut aoc = Aoc2024_05::default();
+        aoc.convert(&lines());
+        assert_eq!(vec!["123".to_string()], aoc.part2());
     }
 }
