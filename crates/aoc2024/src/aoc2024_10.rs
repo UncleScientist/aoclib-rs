@@ -7,6 +7,7 @@ pub struct Aoc2024_10 {
     grid: Vec<Vec<u8>>,
     rows: i64,
     cols: i64,
+    zeroes: Vec<(usize, usize)>,
 }
 
 impl Aoc2024_10 {
@@ -14,7 +15,14 @@ impl Aoc2024_10 {
         Self::default()
     }
 
-    fn count_paths(&self, row: i64, col: i64, ignore_visited: bool) -> usize {
+    fn count_paths(&self, ignore_visited: bool) -> usize {
+        self.zeroes
+            .iter()
+            .map(|(r, c)| self.count_paths_from_location(*r as i64, *c as i64, ignore_visited))
+            .sum::<usize>()
+    }
+
+    fn count_paths_from_location(&self, row: i64, col: i64, ignore_visited: bool) -> usize {
         let mut stack = Vec::new();
         let mut visited = HashSet::new();
 
@@ -58,31 +66,21 @@ impl Runner for Aoc2024_10 {
             self.grid
                 .push(line.chars().map(|ch| ch as u8 - b'0').collect())
         }
+
+        self.zeroes = (0..self.rows)
+            .flat_map(|row| {
+                (0..self.cols)
+                    .map(move |col| (row as usize, col as usize))
+                    .filter(|(r, c)| self.grid[*r][*c] == 0)
+            })
+            .collect();
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut total = 0;
-
-        for row in 0..self.rows {
-            for col in 0..self.cols {
-                if self.grid[row as usize][col as usize] == 0 {
-                    total += self.count_paths(row, col, false);
-                }
-            }
-        }
-        aoclib::output(total)
+        aoclib::output(self.count_paths(false))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        let mut total = 0;
-
-        for row in 0..self.rows {
-            for col in 0..self.cols {
-                if self.grid[row as usize][col as usize] == 0 {
-                    total += self.count_paths(row, col, true);
-                }
-            }
-        }
-        aoclib::output(total)
+        aoclib::output(self.count_paths(true))
     }
 }
