@@ -14,14 +14,14 @@ impl Aoc2024_10 {
         Self::default()
     }
 
-    fn count_paths(&self, row: i64, col: i64) -> usize {
+    fn count_paths(&self, row: i64, col: i64, ignore_visited: bool) -> usize {
         let mut stack = Vec::new();
         let mut visited = HashSet::new();
 
         let mut found = 0;
         stack.push((row, col, 0));
         while let Some((r, c, level)) = stack.pop() {
-            if visited.insert((r, c)) {
+            if ignore_visited || visited.insert((r, c)) {
                 if level == 9 {
                     found += 1;
                     continue;
@@ -66,7 +66,7 @@ impl Runner for Aoc2024_10 {
         for row in 0..self.rows {
             for col in 0..self.cols {
                 if self.grid[row as usize][col as usize] == 0 {
-                    total += self.count_paths(row, col);
+                    total += self.count_paths(row, col, false);
                 }
             }
         }
@@ -74,6 +74,15 @@ impl Runner for Aoc2024_10 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut total = 0;
+
+        for row in 0..self.rows {
+            for col in 0..self.cols {
+                if self.grid[row as usize][col as usize] == 0 {
+                    total += self.count_paths(row, col, true);
+                }
+            }
+        }
+        aoclib::output(total)
     }
 }
