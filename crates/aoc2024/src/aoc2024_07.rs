@@ -27,13 +27,18 @@ impl Runner for Aoc2024_07 {
         aoclib::output(
             self.equations
                 .iter()
-                .filter_map(|eq| eq.solution())
+                .filter_map(|eq| eq.solution(false))
                 .sum::<usize>(),
         )
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        aoclib::output(
+            self.equations
+                .iter()
+                .filter_map(|eq| eq.solution(true))
+                .sum::<usize>(),
+        )
     }
 }
 
@@ -56,7 +61,7 @@ impl FromStr for Equation {
 }
 
 impl Equation {
-    fn solution(&self) -> Option<usize> {
+    fn solution(&self, part2: bool) -> Option<usize> {
         let mut ops = vec!['+'; self.list.len() - 1];
         loop {
             let total =
@@ -65,6 +70,17 @@ impl Equation {
                     .fold(self.list[0], |val, (op, num)| match op {
                         '+' => val + *num,
                         '*' => val * *num,
+                        '|' => {
+                            if *num < 10 {
+                                (val * 10) + *num
+                            } else if *num < 100 {
+                                (val * 100) + *num
+                            } else if *num < 1000 {
+                                (val * 1000) + *num
+                            } else {
+                                panic!("number too large");
+                            }
+                        }
                         _ => panic!("invalid op {op}"),
                     });
             if total == self.value {
@@ -74,6 +90,9 @@ impl Equation {
             loop {
                 if ops[pos] == '+' {
                     ops[pos] = '*';
+                    break;
+                } else if part2 && ops[pos] == '*' {
+                    ops[pos] = '|';
                     break;
                 } else if pos == 0 {
                     return None;
@@ -92,6 +111,6 @@ mod test {
     #[test]
     fn test_one() {
         let eq: Equation = "292: 11 6 16 20".parse().unwrap();
-        assert_eq!(Some(292), eq.solution());
+        assert_eq!(Some(292), eq.solution(false));
     }
 }
