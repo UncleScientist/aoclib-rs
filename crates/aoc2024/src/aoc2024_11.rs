@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
 use aoclib::Runner;
 
@@ -40,11 +40,28 @@ impl Runner for Aoc2024_11 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut current = self
+            .stones
+            .iter()
+            .map(|stone| (*stone, 1))
+            .collect::<HashMap<Stone, usize>>();
+        for _ in 0..75 {
+            let mut next = HashMap::new();
+            for (stone, count) in current {
+                for new_stone in stone.split() {
+                    let entry = next.entry(new_stone).or_default();
+                    *entry += count;
+                }
+            }
+
+            current = next;
+        }
+
+        aoclib::output(current.values().sum::<usize>())
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone, Hash)]
 struct Stone {
     val: usize,
 }
