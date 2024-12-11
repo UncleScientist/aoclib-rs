@@ -36,6 +36,10 @@ impl Aoc2024_08 {
 
     fn antinodes(&self, list: &Vec<(i64, i64)>, all: bool) -> Vec<(i64, i64)> {
         let mut result = Vec::new();
+        if all {
+            // need to include antenna locations as well
+            result.extend(list);
+        }
         for i in 0..list.len() - 1 {
             for j in i + 1..list.len() {
                 let rise = list[i].0 - list[j].0;
