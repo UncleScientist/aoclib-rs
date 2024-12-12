@@ -20,7 +20,7 @@ impl Runner for Aoc2024_12 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2024-12.txt");
-        let _lines = aoclib::read_lines("test12-2.txt");
+        let _lines = aoclib::read_lines("test12-3.txt");
 
         for (row, line) in lines.iter().enumerate() {
             for (col, ch) in line.chars().enumerate() {
@@ -33,7 +33,7 @@ impl Runner for Aoc2024_12 {
         let mut garden = self.grid.clone();
         let mut total = 0;
         while let Some(plot) = garden.keys().copied().next() {
-            let (area, perimeter) = find_plot(&mut garden, plot);
+            let (area, perimeter) = find_edge_segments(&mut garden, plot);
             total += area * perimeter;
         }
         aoclib::output(total)
@@ -44,12 +44,27 @@ impl Runner for Aoc2024_12 {
     }
 }
 
-fn find_plot(garden: &mut HashMap<(i64, i64), char>, pos: (i64, i64)) -> (usize, usize) {
+fn find_edge_segments(garden: &mut HashMap<(i64, i64), char>, pos: (i64, i64)) -> (usize, usize) {
+    let visited = flood_fill(garden, pos);
+    let area = visited.len();
+
+    let mut perimeter = 0;
+    for plot in &visited {
+        for dir in [(-1, 0), (0, 1), (1, 0), (0, -1)] {
+            let newloc = (plot.0 + dir.0, plot.1 + dir.1);
+            if !visited.contains(&newloc) {
+                perimeter += 1;
+            }
+        }
+    }
+    (area, perimeter)
+}
+
+fn flood_fill(garden: &mut HashMap<(i64, i64), char>, pos: (i64, i64)) -> HashSet<(i64, i64)> {
     let mut stack = vec![pos];
     let mut visited = HashSet::new();
     let plant = *garden.get(&pos).unwrap();
 
-    // println!("Checking {pos:?}, plot {plant}");
     garden.remove(&pos);
 
     while let Some(loc) = stack.pop() {
@@ -65,19 +80,6 @@ fn find_plot(garden: &mut HashMap<(i64, i64), char>, pos: (i64, i64)) -> (usize,
             }
         }
     }
-    let area = visited.len();
-    // println!("   area = {area}");
 
-    let mut perimeter = 0;
-    for plot in &visited {
-        for dir in [(-1, 0), (0, 1), (1, 0), (0, -1)] {
-            let newloc = (plot.0 + dir.0, plot.1 + dir.1);
-            if !visited.contains(&newloc) {
-                perimeter += 1;
-            }
-        }
-    }
-    // println!("   peri = {perimeter}");
-
-    (area, perimeter)
+    visited
 }
