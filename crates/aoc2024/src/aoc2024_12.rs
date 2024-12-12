@@ -20,7 +20,7 @@ impl Runner for Aoc2024_12 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2024-12.txt");
-        let _lines = aoclib::read_lines("test12-3.txt");
+        let _lines = aoclib::read_lines("test12-4.txt");
 
         for (row, line) in lines.iter().enumerate() {
             for (col, ch) in line.chars().enumerate() {
@@ -40,7 +40,13 @@ impl Runner for Aoc2024_12 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut garden = self.grid.clone();
+        let mut total = 0;
+        while let Some(plot) = garden.keys().copied().next() {
+            let (area, perimeter) = find_edges(&mut garden, plot);
+            total += area * perimeter;
+        }
+        aoclib::output(total)
     }
 }
 
@@ -57,6 +63,54 @@ fn find_edge_segments(garden: &mut HashMap<(i64, i64), char>, pos: (i64, i64)) -
             }
         }
     }
+    (area, perimeter)
+}
+
+fn find_edges(garden: &mut HashMap<(i64, i64), char>, pos: (i64, i64)) -> (usize, usize) {
+    let visited = flood_fill(garden, pos);
+    let area = visited.len();
+
+    let mut edgelist = HashSet::new();
+    for plot in &visited {
+        for dir in [(-1, 0), (0, 1), (1, 0), (0, -1)] {
+            let newloc = (plot.0 + dir.0, plot.1 + dir.1);
+            if !visited.contains(&newloc) {
+                edgelist.insert((*plot, newloc));
+            }
+        }
+    }
+
+    let mut perimeter = 0;
+
+    while let Some(s) = edgelist.iter().copied().next() {
+        let (mut first, mut second) = (s.0, s.1);
+        if first.0 == second.0 {
+            let mut newedge = ((first.0 - 1, first.1), (second.0 - 1, second.1));
+            while edgelist.contains(&newedge) {
+                (first, second) = newedge;
+                newedge = ((first.0 - 1, first.1), (second.0 - 1, second.1));
+            }
+        } else {
+            let mut newedge = ((first.0, first.1 - 1), (second.0, second.1 - 1));
+            while edgelist.contains(&newedge) {
+                (first, second) = newedge;
+                newedge = ((first.0, first.1 - 1), (second.0, second.1 - 1));
+            }
+        }
+
+        perimeter += 1;
+
+        if first.0 == second.0 {
+            while edgelist.remove(&(first, second)) {
+                (first, second) = ((first.0 + 1, first.1), (second.0 + 1, second.1));
+            }
+        } else {
+            while edgelist.remove(&(first, second)) {
+                (first, second) = ((first.0, first.1 + 1), (second.0, second.1 + 1));
+            }
+        }
+    }
+
     (area, perimeter)
 }
 
