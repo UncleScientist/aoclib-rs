@@ -143,3 +143,12 @@ fn print_solution(which: usize, output: &[String], duration: Duration) {
         println!("{:16}{line}", "");
     }
 }
+
+pub fn read_text_records<P: AsRef<Path>>(path: P) -> Vec<String> {
+    read_to_string(path)
+        .expect("unable to open file")
+        .split("\n\n")
+        .filter(|record| !record.is_empty())
+        .map(|record| record.to_string())
+        .collect::<Vec<_>>()
+}
