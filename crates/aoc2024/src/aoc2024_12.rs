@@ -1,4 +1,7 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    ops::{AddAssign, Sub},
+};
 
 use aoclib::Runner;
 
@@ -75,39 +78,28 @@ fn find_edges(garden: &mut HashMap<(i64, i64), char>, pos: (i64, i64)) -> (usize
         for dir in [(-1, 0), (0, 1), (1, 0), (0, -1)] {
             let newloc = (plot.0 + dir.0, plot.1 + dir.1);
             if !visited.contains(&newloc) {
-                edgelist.insert((*plot, newloc));
+                edgelist.insert(Edge::new(*plot, newloc));
             }
         }
     }
 
     let mut perimeter = 0;
 
-    while let Some(s) = edgelist.iter().copied().next() {
-        let (mut first, mut second) = (s.0, s.1);
-        if first.0 == second.0 {
-            let mut newedge = ((first.0 - 1, first.1), (second.0 - 1, second.1));
-            while edgelist.contains(&newedge) {
-                (first, second) = newedge;
-                newedge = ((first.0 - 1, first.1), (second.0 - 1, second.1));
-            }
-        } else {
-            let mut newedge = ((first.0, first.1 - 1), (second.0, second.1 - 1));
-            while edgelist.contains(&newedge) {
-                (first, second) = newedge;
-                newedge = ((first.0, first.1 - 1), (second.0, second.1 - 1));
-            }
-        }
-
+    while let Some(mut edge) = edgelist.iter().copied().next() {
         perimeter += 1;
 
-        if first.0 == second.0 {
-            while edgelist.remove(&(first, second)) {
-                (first, second) = ((first.0 + 1, first.1), (second.0 + 1, second.1));
-            }
-        } else {
-            while edgelist.remove(&(first, second)) {
-                (first, second) = ((first.0, first.1 + 1), (second.0, second.1 + 1));
-            }
+        let delta = if edge.is_horizontal() { (1, 0) } else { (0, 1) };
+
+        // work our way backwards to the beginning of the edge
+        let mut newedge = edge - delta;
+        while edgelist.contains(&newedge) {
+            edge = newedge;
+            newedge = edge - delta;
+        }
+
+        // remove the whole edge from the hashset
+        while edgelist.remove(&edge) {
+            edge += delta;
         }
     }
 
@@ -136,4 +128,40 @@ fn flood_fill(garden: &mut HashMap<(i64, i64), char>, pos: (i64, i64)) -> HashSe
     }
 
     visited
+}
+
+#[derive(Debug, Hash, PartialEq, Eq, Copy, Clone)]
+struct Edge {
+    a: (i64, i64),
+    b: (i64, i64),
+}
+
+impl Edge {
+    fn new(a: (i64, i64), b: (i64, i64)) -> Self {
+        Self { a, b }
+    }
+
+    fn is_horizontal(&self) -> bool {
+        self.a.0 == self.b.0
+    }
+}
+
+impl Sub<(i64, i64)> for Edge {
+    type Output = Edge;
+
+    fn sub(self, rhs: (i64, i64)) -> Self::Output {
+        Edge {
+            a: (self.a.0 - rhs.0, self.a.1 - rhs.1),
+            b: (self.b.0 - rhs.0, self.b.1 - rhs.1),
+        }
+    }
+}
+
+impl AddAssign<(i64, i64)> for Edge {
+    fn add_assign(&mut self, rhs: (i64, i64)) {
+        self.a.0 += rhs.0;
+        self.a.1 += rhs.1;
+        self.b.0 += rhs.0;
+        self.b.1 += rhs.1;
+    }
 }
