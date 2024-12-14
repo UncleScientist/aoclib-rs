@@ -104,9 +104,9 @@ impl FromStr for Claw {
             )
         }
 
-        let button_a = get_xy(&lines[0]);
-        let button_b = get_xy(&lines[1]);
-        let prize = get_xy(&lines[2]);
+        let button_a = get_xy(lines[0]);
+        let button_b = get_xy(lines[1]);
+        let prize = get_xy(lines[2]);
 
         Ok(Self {
             button_a,
