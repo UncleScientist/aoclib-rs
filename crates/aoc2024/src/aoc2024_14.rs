@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, str::FromStr};
+use std::{cmp::Ordering, collections::HashSet, fmt::Display, str::FromStr};
 
 use aoclib::Runner;
 
@@ -40,6 +40,29 @@ impl Aoc2024_14 {
 
         counts
     }
+
+    fn is_tree(&self) -> bool {
+        let floor = self
+            .robots
+            .iter()
+            .map(|robot| robot.pos)
+            .collect::<HashSet<_>>();
+
+        for y in 0..self.height - 33 {
+            let mut seq = 0;
+            for x in 0..self.width - 31 {
+                if floor.contains(&(x, y)) && floor.contains(&(x, y + 32)) {
+                    seq += 1;
+                } else if seq == 31 {
+                    return true;
+                } else {
+                    seq = 0;
+                }
+            }
+        }
+
+        false
+    }
 }
 
 impl Runner for Aoc2024_14 {
@@ -63,7 +86,14 @@ impl Runner for Aoc2024_14 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        // h + 103 : 175 278 381
+        // v + 101 : 103 204 305 406
+        let mut seconds = 100;
+        while !self.is_tree() {
+            self.step();
+            seconds += 1;
+        }
+        aoclib::output(seconds)
     }
 }
 
@@ -95,6 +125,24 @@ impl FromStr for Robot {
             pos: get_xy(p),
             vel: get_xy(v),
         })
+    }
+}
+
+impl Display for Aoc2024_14 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let floor = self
+            .robots
+            .iter()
+            .map(|robot| robot.pos)
+            .collect::<HashSet<_>>();
+
+        for y in 0..self.height {
+            for x in 0..self.width {
+                write!(f, "{}", if floor.contains(&(x, y)) { "#" } else { "." })?;
+            }
+            writeln!(f)?;
+        }
+        Ok(())
     }
 }
 
