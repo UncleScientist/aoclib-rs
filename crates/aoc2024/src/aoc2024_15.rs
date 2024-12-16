@@ -106,7 +106,7 @@ impl Warehouse {
             Some(Item::Wall) => false,
             Some(Item::Box) => {
                 let nextpos = (pos.0 + dir.0, pos.1 + dir.1);
-                if self.can_move(&nextpos, &dir) {
+                if self.can_move(&nextpos, dir) {
                     self.floor.remove(pos);
                     self.floor.insert(nextpos, Item::Box);
                     true
