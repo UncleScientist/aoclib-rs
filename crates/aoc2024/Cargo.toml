@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 aoclib = { path = "../aoclib" }
+pathfinding = "4.12.0"
