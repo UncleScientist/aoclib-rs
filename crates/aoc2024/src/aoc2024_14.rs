@@ -173,6 +173,7 @@ mod test {
     }
 
     #[test]
+    #[allow(clippy::field_reassign_with_default)]
     fn test_quadrants() {
         let lines = [
             "p=0,4 v=3,-3",
