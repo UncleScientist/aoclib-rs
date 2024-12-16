@@ -207,12 +207,12 @@ impl Warehouse {
             result
         } else {
             // println!("==== Moving {dir:?}");
-            let (allowed, mut movelist) = match self.wide.get(&pos) {
+            let (allowed, mut movelist) = match self.wide.get(pos) {
                 None => return true, // the robot just wants to move up/down
                 Some(item) => match item {
                     Item::Wall => return false, // don't move the robot into a wall
                     Item::Box => unreachable!(),
-                    Item::BoxLeft => self.get_move_list(&pos, dir),
+                    Item::BoxLeft => self.get_move_list(pos, dir),
                     Item::BoxRight => self.get_move_list(&(pos.0, pos.1 - 1), dir),
                 },
             };
