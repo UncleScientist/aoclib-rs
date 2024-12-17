@@ -3,6 +3,9 @@ use std::ops::Add;
 #[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Copy)]
 pub struct Position64(pub i64, pub i64);
 
+#[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Copy)]
+pub struct Size64(pub i64, pub i64);
+
 impl Add<Direction> for Position64 {
     type Output = Position64;
 
@@ -16,6 +19,10 @@ impl Position64 {
     pub fn distance_to(&self, other: &Position64) -> u64 {
         self.0.abs_diff(other.0) + self.1.abs_diff(other.1)
     }
+
+    pub fn in_maze(&self, bottom_right: &Size64) -> bool {
+        self.0 >= 0 && self.1 >= 0 && self.0 < bottom_right.0 && self.1 < bottom_right.1
+    }
 }
 
 #[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Copy)]
@@ -26,6 +33,13 @@ pub enum Direction {
     DOWN,
     LEFT,
 }
+
+pub const DIRS: [Direction; 4] = [
+    Direction::UP,
+    Direction::RIGHT,
+    Direction::DOWN,
+    Direction::LEFT,
+];
 
 impl Direction {
     pub fn unit(&self) -> (i64, i64) {
