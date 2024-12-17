@@ -33,7 +33,38 @@ impl Runner for Aoc2024_17 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut saved = Vec::new();
+        for a in 1..1024 {
+            self.device.reset();
+            self.device.a = a;
+            let output = self.device.run();
+            if output[0] == self.device.prog[0] as i64 {
+                saved.push(a);
+            }
+        }
+
+        let mut pos = 1;
+        while pos < self.device.prog.len() {
+            let mut next = Vec::new();
+
+            for consider in saved {
+                for bit in 0..8 {
+                    let num = (bit << (7 + 3 * pos)) | consider;
+                    self.device.reset();
+                    self.device.a = num;
+                    let output = self.device.run();
+
+                    if output.len() > pos && output[pos] == self.device.prog[pos] as i64 {
+                        next.push(num);
+                    }
+                }
+            }
+            pos += 1;
+
+            saved = next;
+        }
+
+        aoclib::output(saved.iter().min().unwrap())
     }
 }
 
@@ -67,6 +98,13 @@ impl Computer {
         }
     }
 
+    fn reset(&mut self) {
+        self.a = 0;
+        self.b = 0;
+        self.c = 0;
+        self.ip = 0;
+    }
+
     fn step(&mut self) -> Option<i64> {
         let inst = self.prog[self.ip];
         let literal = self.prog[self.ip + 1] as i64;
@@ -81,12 +119,12 @@ impl Computer {
 
         let mut output = None;
         match inst {
-            0 => self.a = self.a / (1 << combo),
-            1 => self.b = self.b ^ literal,
+            0 => self.a /= 1 << combo,
+            1 => self.b ^= literal,
             2 => self.b = combo % 8,
             3 if self.a != 0 => self.ip = literal as usize,
             3 => {}
-            4 => self.b = self.b ^ self.c,
+            4 => self.b ^= self.c,
             5 => output = Some(combo % 8),
             6 => self.b = self.a / (1 << combo),
             7 => self.c = self.a / (1 << combo),
