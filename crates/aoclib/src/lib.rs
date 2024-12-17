@@ -4,6 +4,9 @@ use std::path::Path;
 use std::str::FromStr;
 use std::time::{Duration, Instant};
 
+mod locating;
+pub use locating::*;
+
 mod point;
 pub use point::*;
 
