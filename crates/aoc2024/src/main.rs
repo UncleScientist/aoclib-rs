@@ -81,8 +81,9 @@ fn run_2024(which: Selector) {
         &mut day01, &mut day02, &mut day03, &mut day04, &mut day05, &mut day06, &mut day07,
         &mut day09, &mut day08, &mut day10, &mut day11, &mut day12, &mut day13, &mut day14,
         &mut day15, &mut day16,
-        &mut day17, //  &mut day18, &mut day19, &mut day20, &mut day21,
-                    // &mut day22, &mut day23,
+        &mut day17,
+        //  &mut day18, &mut day19, &mut day20, &mut day21,
+        // &mut day22, &mut day23,
     ];
 
     match which {
