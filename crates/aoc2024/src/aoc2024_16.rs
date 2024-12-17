@@ -1,15 +1,15 @@
 use std::collections::HashSet;
 
-use aoclib::Runner;
+use aoclib::{Direction, Position64, Runner};
 use pathfinding::prelude::{astar_bag_collect, dijkstra};
 
 #[derive(Default)]
 pub struct Aoc2024_16 {
-    maze: HashSet<(i64, i64)>,
+    maze: HashSet<Position64>,
     rows: i64,
     cols: i64,
-    start: (i64, i64),
-    end: (i64, i64),
+    start: Position64,
+    end: Position64,
 }
 
 impl Aoc2024_16 {
@@ -19,39 +19,21 @@ impl Aoc2024_16 {
 
     fn succssors(&self, state: &State) -> Vec<(State, usize)> {
         let mut result = Vec::<(State, usize)>::new();
-        let next = (state.pos.0 + state.dir.0, state.pos.1 + state.dir.1);
+        let next = state.pos + state.dir;
         if !self.maze.contains(&next) {
-            result.push((
-                State {
-                    pos: next,
-                    dir: state.dir,
-                },
-                1,
-            ));
+            result.push((State::new(next, state.dir), 1))
         }
 
-        let left_turn = (-state.dir.1, state.dir.0);
-        let next = (state.pos.0 + left_turn.0, state.pos.1 + left_turn.1);
+        let left = state.dir.left();
+        let next = state.pos + left;
         if !self.maze.contains(&next) {
-            result.push((
-                State {
-                    pos: next,
-                    dir: left_turn,
-                },
-                1001,
-            ));
+            result.push((State::new(next, left), 1001));
         }
 
-        let right_turn = (state.dir.1, -state.dir.0);
-        let next = (state.pos.0 + right_turn.0, state.pos.1 + right_turn.1);
+        let right = state.dir.right();
+        let next = state.pos + right;
         if !self.maze.contains(&next) {
-            result.push((
-                State {
-                    pos: next,
-                    dir: right_turn,
-                },
-                1001,
-            ));
+            result.push((State::new(next, right), 1001));
         }
 
         result
@@ -72,7 +54,7 @@ impl Runner for Aoc2024_16 {
 
         for (row, line) in lines.iter().enumerate() {
             for (col, ch) in line.chars().enumerate() {
-                let pos = (row as i64, col as i64);
+                let pos = Position64(row as i64, col as i64);
                 if ch == 'S' {
                     self.start = pos;
                 } else if ch == 'E' {
@@ -87,7 +69,7 @@ impl Runner for Aoc2024_16 {
     fn part1(&mut self) -> Vec<String> {
         let start_state = State {
             pos: self.start,
-            dir: (0, 1),
+            dir: Direction::RIGHT,
         };
         let Some((_, cost)) = dijkstra(
             &start_state,
@@ -102,12 +84,12 @@ impl Runner for Aoc2024_16 {
     fn part2(&mut self) -> Vec<String> {
         let start_state = State {
             pos: self.start,
-            dir: (0, 1),
+            dir: Direction::RIGHT,
         };
         let Some((result, _)) = astar_bag_collect(
             &start_state,
             |state| self.succssors(state),
-            |state| (state.pos.0.abs_diff(self.end.0) + state.pos.1.abs_diff(self.end.1)) as usize,
+            |state| state.pos.distance_to(&self.end) as usize,
             |state| state.pos == self.end,
         ) else {
             panic!("no path found");
@@ -139,6 +121,12 @@ impl Runner for Aoc2024_16 {
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
 struct State {
-    pos: (i64, i64),
-    dir: (i64, i64),
+    pos: Position64,
+    dir: Direction,
+}
+
+impl State {
+    fn new(pos: Position64, dir: Direction) -> Self {
+        Self { pos, dir }
+    }
 }
