@@ -1,4 +1,28 @@
-use std::ops::Add;
+use std::{fmt::Display, ops::Add};
+
+#[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Copy)]
+pub struct PointXY(pub i64, pub i64);
+
+impl Add<Direction> for PointXY {
+    type Output = Self;
+
+    fn add(self, dir: Direction) -> Self::Output {
+        let dir = dir.unit();
+        Self(self.0 + dir.1, self.1 + dir.0)
+    }
+}
+
+impl PointXY {
+    pub fn inside(&self, bottom_right: &Size64) -> bool {
+        self.0 >= 0 && self.1 >= 0 && self.0 < bottom_right.0 && self.1 < bottom_right.1
+    }
+}
+
+impl Display for PointXY {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{},{}", self.0, self.1)
+    }
+}
 
 #[derive(Debug, Default, PartialEq, Eq, Hash, Clone, Copy)]
 pub struct Position64(pub i64, pub i64);
@@ -7,11 +31,11 @@ pub struct Position64(pub i64, pub i64);
 pub struct Size64(pub i64, pub i64);
 
 impl Add<Direction> for Position64 {
-    type Output = Position64;
+    type Output = Self;
 
     fn add(self, dir: Direction) -> Self::Output {
         let dir = dir.unit();
-        Position64(self.0 + dir.0, self.1 + dir.1)
+        Self(self.0 + dir.0, self.1 + dir.1)
     }
 }
 
