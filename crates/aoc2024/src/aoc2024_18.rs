@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
-use aoclib::Runner;
+use aoclib::{PointXY, Runner, Size64, DIRS};
 use pathfinding::prelude::astar;
 
 #[derive(Default)]
 pub struct Aoc2024_18 {
-    list: Vec<(i64, i64)>,
-    memory: HashMap<(i64, i64), i64>,
+    list: Vec<PointXY>,
+    memory: HashMap<PointXY, i64>,
+    size: Size64,
 }
 
 impl Aoc2024_18 {
@@ -14,18 +15,18 @@ impl Aoc2024_18 {
         Self::default()
     }
 
-    fn search(&self, limit: i64) -> Option<(Vec<(i64, i64)>, i64)> {
+    fn search(&self, limit: i64) -> Option<(Vec<PointXY>, i64)> {
         astar(
-            &(0i64, 0i64),
+            &PointXY(0i64, 0i64),
             |state| {
                 DIRS.iter()
-                    .map(|dir| ((state.0 + dir.0, state.1 + dir.1), 1))
+                    .map(|dir| (*state + *dir, 1))
                     .filter(|(pos, _)| *self.memory.get(&pos).unwrap_or(&i64::MAX) >= limit)
-                    .filter(|(pos, _)| pos.0 >= 0 && pos.1 >= 0 && pos.0 <= 70 && pos.1 <= 70)
+                    .filter(|(pos, _)| pos.inside(&self.size))
                     .collect::<Vec<_>>()
             },
             |state| (70 - state.0) + (70 - state.1),
-            |state| *state == (70, 70),
+            |state| *state == PointXY(70, 70),
         )
     }
 }
@@ -40,7 +41,7 @@ impl Runner for Aoc2024_18 {
         self.list = lines
             .iter()
             .map(|line| line.split_once(',').unwrap())
-            .map(|(x, y)| (x.parse().unwrap(), y.parse().unwrap()))
+            .map(|(x, y)| PointXY(x.parse().unwrap(), y.parse().unwrap()))
             .collect();
         self.memory = self
             .list
@@ -48,6 +49,7 @@ impl Runner for Aoc2024_18 {
             .enumerate()
             .map(|(idx, pos)| (*pos, idx as i64))
             .collect();
+        self.size = Size64(71, 71);
     }
 
     fn part1(&mut self) -> Vec<String> {
@@ -65,8 +67,6 @@ impl Runner for Aoc2024_18 {
                 min = mid + 1;
             }
         }
-        aoclib::output(format!("{},{}", self.list[max - 1].0, self.list[max - 1].1))
+        aoclib::output(self.list[max - 1])
     }
 }
-
-const DIRS: [(i64, i64); 4] = [(0, -1), (1, 0), (0, 1), (-1, 0)];
