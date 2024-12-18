@@ -12,6 +12,22 @@ impl Aoc2024_18 {
     pub fn new() -> Self {
         Self::default()
     }
+
+    fn search(&self, limit: usize) -> Option<(Vec<(i64, i64)>, i64)> {
+        let memory: HashSet<&(i64, i64)> = self.list.iter().take(limit).collect();
+        astar(
+            &(0i64, 0i64),
+            |state| {
+                DIRS.iter()
+                    .map(|dir| ((state.0 + dir.0, state.1 + dir.1), 1))
+                    .filter(|(pos, _)| !memory.contains(&pos))
+                    .filter(|(pos, _)| pos.0 >= 0 && pos.1 >= 0 && pos.0 <= 70 && pos.1 <= 70)
+                    .collect::<Vec<_>>()
+            },
+            |state| (70 - state.0) + (70 - state.1),
+            |state| *state == (70, 70),
+        )
+    }
 }
 
 impl Runner for Aoc2024_18 {
@@ -29,26 +45,21 @@ impl Runner for Aoc2024_18 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let memory: HashSet<&(i64, i64)> = self.list.iter().take(1024).collect();
-        let Some((_path, cost)) = astar(
-            &(0i64, 0i64),
-            |state| {
-                DIRS.iter()
-                    .map(|dir| ((state.0 + dir.0, state.1 + dir.1), 1))
-                    .filter(|(pos, _)| !memory.contains(&pos))
-                    .filter(|(pos, _)| pos.0 >= 0 && pos.1 >= 0 && pos.0 <= 70 && pos.1 <= 70)
-                    .collect::<Vec<_>>()
-            },
-            |state| (70 - state.0) + (70 - state.1),
-            |state| *state == (70, 70),
-        ) else {
-            panic!("no path found");
-        };
-        aoclib::output(cost)
+        aoclib::output(self.search(1024).unwrap().1)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut min = 0;
+        let mut max = self.list.len();
+        while max > min {
+            let mid = (max + min) / 2;
+            if self.search(mid).is_none() {
+                max = mid;
+            } else {
+                min = mid + 1;
+            }
+        }
+        aoclib::output(format!("{},{}", self.list[max - 1].0, self.list[max - 1].1))
     }
 }
 
