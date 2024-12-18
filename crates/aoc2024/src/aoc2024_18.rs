@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 use aoclib::Runner;
 use pathfinding::prelude::astar;
@@ -6,6 +6,7 @@ use pathfinding::prelude::astar;
 #[derive(Default)]
 pub struct Aoc2024_18 {
     list: Vec<(i64, i64)>,
+    memory: HashMap<(i64, i64), i64>,
 }
 
 impl Aoc2024_18 {
@@ -13,14 +14,13 @@ impl Aoc2024_18 {
         Self::default()
     }
 
-    fn search(&self, limit: usize) -> Option<(Vec<(i64, i64)>, i64)> {
-        let memory: HashSet<&(i64, i64)> = self.list.iter().take(limit).collect();
+    fn search(&self, limit: i64) -> Option<(Vec<(i64, i64)>, i64)> {
         astar(
             &(0i64, 0i64),
             |state| {
                 DIRS.iter()
                     .map(|dir| ((state.0 + dir.0, state.1 + dir.1), 1))
-                    .filter(|(pos, _)| !memory.contains(&pos))
+                    .filter(|(pos, _)| *self.memory.get(&pos).unwrap_or(&i64::MAX) >= limit)
                     .filter(|(pos, _)| pos.0 >= 0 && pos.1 >= 0 && pos.0 <= 70 && pos.1 <= 70)
                     .collect::<Vec<_>>()
             },
@@ -42,6 +42,12 @@ impl Runner for Aoc2024_18 {
             .map(|line| line.split_once(',').unwrap())
             .map(|(x, y)| (x.parse().unwrap(), y.parse().unwrap()))
             .collect();
+        self.memory = self
+            .list
+            .iter()
+            .enumerate()
+            .map(|(idx, pos)| (*pos, idx as i64))
+            .collect();
     }
 
     fn part1(&mut self) -> Vec<String> {
@@ -53,7 +59,7 @@ impl Runner for Aoc2024_18 {
         let mut max = self.list.len();
         while max > min {
             let mid = (max + min) / 2;
-            if self.search(mid).is_none() {
+            if self.search(mid as i64).is_none() {
                 max = mid;
             } else {
                 min = mid + 1;
