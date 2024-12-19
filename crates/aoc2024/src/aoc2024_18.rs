@@ -21,7 +21,7 @@ impl Aoc2024_18 {
             |state| {
                 DIRS.iter()
                     .map(|dir| (*state + *dir, 1))
-                    .filter(|(pos, _)| *self.memory.get(&pos).unwrap_or(&i64::MAX) >= limit)
+                    .filter(|(pos, _)| *self.memory.get(pos).unwrap_or(&i64::MAX) >= limit)
                     .filter(|(pos, _)| pos.inside(&self.size))
                     .collect::<Vec<_>>()
             },
