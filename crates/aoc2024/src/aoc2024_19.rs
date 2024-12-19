@@ -12,29 +12,6 @@ impl Aoc2024_19 {
     pub fn new() -> Self {
         Self::default()
     }
-
-    fn can_make_design(&self, design: &str, cache: &mut HashMap<String, usize>) -> usize {
-        if let Some(value) = cache.get(design) {
-            return *value;
-        }
-        if design.is_empty() {
-            return 1;
-        }
-
-        let count = self
-            .patterns
-            .iter()
-            .filter_map(|pattern| {
-                if design.starts_with(pattern) {
-                    Some(self.can_make_design(&design[pattern.len()..], cache))
-                } else {
-                    None
-                }
-            })
-            .sum();
-        cache.insert(design.to_string(), count);
-        count
-    }
 }
 
 impl Runner for Aoc2024_19 {
@@ -52,22 +29,47 @@ impl Runner for Aoc2024_19 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut cache = HashMap::new();
+        let mut cache = Cache::default();
         aoclib::output(
             self.designs
                 .iter()
-                .filter(|design| self.can_make_design(design, &mut cache) > 0)
+                .filter(|design| cache.can_make_design(design, &self.patterns) > 0)
                 .count(),
         )
     }
 
     fn part2(&mut self) -> Vec<String> {
-        let mut cache = HashMap::new();
+        let mut cache = Cache::default();
         aoclib::output(
             self.designs
                 .iter()
-                .map(|design| self.can_make_design(design, &mut cache))
+                .map(|design| cache.can_make_design(design, &self.patterns))
                 .sum::<usize>(),
         )
+    }
+}
+
+#[derive(Debug, Default)]
+struct Cache {
+    cache: HashMap<String, usize>,
+}
+
+impl Cache {
+    fn can_make_design(&mut self, design: &str, patterns: &[String]) -> usize {
+        if design.is_empty() {
+            return 1;
+        }
+
+        if let Some(c) = self.cache.get(design) {
+            return *c;
+        }
+
+        let count = patterns
+            .iter()
+            .filter(|pattern| design.starts_with(*pattern))
+            .map(|pattern| self.can_make_design(&design[pattern.len()..], patterns))
+            .sum();
+        self.cache.insert(design.to_string(), count);
+        count
     }
 }
