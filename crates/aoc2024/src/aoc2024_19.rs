@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use aoclib::Runner;
 
 #[derive(Default)]
@@ -11,18 +13,27 @@ impl Aoc2024_19 {
         Self::default()
     }
 
-    fn can_make_design(&self, design: &str) -> bool {
+    fn can_make_design(&self, design: &str, cache: &mut HashMap<String, usize>) -> usize {
+        if let Some(value) = cache.get(design) {
+            return *value;
+        }
         if design.is_empty() {
-            return true;
+            return 1;
         }
 
-        for pattern in &self.patterns {
-            if design.starts_with(pattern) && self.can_make_design(&design[pattern.len()..]) {
-                return true;
-            }
-        }
-
-        false
+        let count = self
+            .patterns
+            .iter()
+            .filter_map(|pattern| {
+                if design.starts_with(pattern) {
+                    Some(self.can_make_design(&design[pattern.len()..], cache))
+                } else {
+                    None
+                }
+            })
+            .sum();
+        cache.insert(design.to_string(), count);
+        count
     }
 }
 
@@ -41,16 +52,22 @@ impl Runner for Aoc2024_19 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        println!("{}", self.designs.len());
+        let mut cache = HashMap::new();
         aoclib::output(
             self.designs
                 .iter()
-                .filter(|design| self.can_make_design(design))
+                .filter(|design| self.can_make_design(design, &mut cache) > 0)
                 .count(),
         )
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut cache = HashMap::new();
+        aoclib::output(
+            self.designs
+                .iter()
+                .map(|design| self.can_make_design(design, &mut cache))
+                .sum::<usize>(),
+        )
     }
 }
