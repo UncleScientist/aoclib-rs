@@ -1,7 +1,6 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet, VecDeque};
 
 use aoclib::{PointXY, Runner, Size64, DIRS};
-use pathfinding::prelude::astar;
 
 #[derive(Default)]
 pub struct Aoc2024_18 {
@@ -15,19 +14,26 @@ impl Aoc2024_18 {
         Self::default()
     }
 
-    fn search(&self, limit: i64) -> Option<(Vec<PointXY>, i64)> {
-        astar(
-            &PointXY(0i64, 0i64),
-            |state| {
-                DIRS.iter()
-                    .map(|dir| (*state + *dir, 1))
-                    .filter(|(pos, _)| *self.memory.get(pos).unwrap_or(&i64::MAX) >= limit)
-                    .filter(|(pos, _)| pos.inside(&self.size))
-                    .collect::<Vec<_>>()
-            },
-            |state| (70 - state.0) + (70 - state.1),
-            |state| *state == PointXY(70, 70),
-        )
+    fn search(&self, limit: i64) -> Option<i64> {
+        let mut queue = VecDeque::from([(PointXY(0, 0), 0)]);
+        let mut visited = HashSet::new();
+
+        while let Some((pos, cost)) = queue.pop_front() {
+            if pos == PointXY(70, 70) {
+                return Some(cost);
+            }
+
+            if visited.insert(pos) {
+                queue.extend(
+                    DIRS.iter()
+                        .map(|dir| (pos + *dir, cost + 1))
+                        .filter(|(pos, _)| *self.memory.get(pos).unwrap_or(&i64::MAX) >= limit)
+                        .filter(|(pos, _)| pos.inside(&self.size)),
+                );
+            }
+        }
+
+        None
     }
 }
 
@@ -53,7 +59,7 @@ impl Runner for Aoc2024_18 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        aoclib::output(self.search(1024).unwrap().1)
+        aoclib::output(self.search(1024).unwrap())
     }
 
     fn part2(&mut self) -> Vec<String> {
