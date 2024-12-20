@@ -7,12 +7,36 @@ pub struct Aoc2024_20 {
     size: Size64,
     start: Position64,
     end: Position64,
-    path: HashSet<Position64>,
+    maze: HashSet<Position64>,
+    path: VecDeque<Position64>,
 }
 
 impl Aoc2024_20 {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    fn ways_to_cheat_with(&self, picosec: usize) -> usize {
+        // ################
+        // #.......abcdefg#
+        // ##############h#
+        // #.......qpo#kji#
+        // ##########nml###
+        // ################
+        let mut total = 0;
+        for i in 0..self.path.len() - 3 {
+            for j in i + 3..self.path.len() {
+                // compute manhattan dist between i & j
+                // if it's less than 3? then we have a potential shortcut
+                // if (j-i) > dist, add one to that shortend distance
+                let dist = self.path[i].distance_to(&self.path[j]) as usize;
+                if dist <= picosec && (j - i) > dist {
+                    total += ((j - i) - dist >= 100) as usize;
+                }
+            }
+        }
+
+        total
     }
 
     fn _display(&self) {
@@ -23,7 +47,7 @@ impl Aoc2024_20 {
                     print!("S");
                 } else if pos == self.end {
                     print!("E");
-                } else if self.path.contains(&pos) {
+                } else if self.maze.contains(&pos) {
                     print!(".");
                 } else {
                     print!("#");
@@ -54,7 +78,7 @@ impl Runner for Aoc2024_20 {
                     self.end = pos;
                 }
                 if ch != '#' {
-                    self.path.insert(pos);
+                    self.maze.insert(pos);
                 }
             }
         }
@@ -75,7 +99,7 @@ impl Runner for Aoc2024_20 {
                 for dir in &DIRS {
                     let newpos = pos + *dir;
                     let cost = cost + 1;
-                    if !self.path.contains(&newpos) {
+                    if !self.maze.contains(&newpos) {
                         continue;
                     }
 
@@ -91,44 +115,17 @@ impl Runner for Aoc2024_20 {
             }
         }
 
-        let mut path = VecDeque::from([self.end]);
+        self.path.push_back(self.end);
         let mut cur = self.end;
         while let Some(next) = backlink.get(&cur) {
-            path.push_front(*next);
+            self.path.push_front(*next);
             cur = *next;
         }
 
-        // println!("path({}) = {path:?}", path.len());
-        // println!("best = {best:?}");
-
-        // ################
-        // #.......abcdefg#
-        // ##############h#
-        // #.......qpo#kji#
-        // ##########nml###
-        // ################
-        let mut cheats = HashMap::<usize, usize>::new();
-        for i in 0..path.len() - 1 {
-            for j in i + 1..path.len() {
-                // compute manhattan dist between i & j
-                // if it's less than 3? then we have a potential shortcut
-                // if (j-i) > dist, add one to that shortend distance
-                let dist = path[i].distance_to(&path[j]) as usize;
-                if dist < 3 && (j - i) > dist {
-                    *cheats.entry((j - i) - dist).or_default() += 1;
-                }
-            }
-        }
-
-        aoclib::output(
-            cheats
-                .iter()
-                .filter_map(|(picosec, ways)| if *picosec >= 100 { Some(ways) } else { None })
-                .sum::<usize>(),
-        )
+        aoclib::output(self.ways_to_cheat_with(2))
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        aoclib::output(self.ways_to_cheat_with(20))
     }
 }
