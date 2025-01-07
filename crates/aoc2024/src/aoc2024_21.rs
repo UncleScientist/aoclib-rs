@@ -1,4 +1,7 @@
-use std::{collections::HashSet, str::FromStr};
+use std::{
+    collections::{HashMap, HashSet},
+    str::FromStr,
+};
 
 use aoclib::{Position64, Runner};
 
@@ -29,7 +32,8 @@ impl Runner for Aoc2024_21 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let total = self.keypads.iter().map(|kp| kp.score(25)).sum::<usize>();
+        aoclib::output(total)
     }
 }
 
@@ -113,6 +117,7 @@ fn _motion_to_string(motion: &[Motion]) -> String {
 struct Keypad {
     kind: KeypadKind,
     code: Vec<char>,
+    cache: HashMap<(usize, Position64, Position64), usize>,
 }
 
 impl Keypad {
@@ -120,11 +125,12 @@ impl Keypad {
         Self {
             kind: KeypadKind::Directional,
             code: Vec::new(),
+            cache: HashMap::new(),
         }
     }
 
     fn get_length(&self, depth: usize) -> usize {
-        let directional = Self::directional();
+        let mut directional = Self::directional();
         let list = self.find_keypad_paths();
 
         let mut shortest = usize::MAX;
@@ -179,26 +185,33 @@ impl Keypad {
         opts
     }
 
-    fn find_shortest(&self, depth: usize, src: &Position64, dest: &Position64) -> usize {
+    fn find_shortest(&mut self, depth: usize, src: &Position64, dest: &Position64) -> usize {
+        if let Some(length) = self.cache.get(&(depth, *src, *dest)) {
+            return *length;
+        }
+
         let opts = self.get_options(src, dest);
 
-        if depth == 1 {
-            return opts.iter().map(|entry| entry.len()).min().unwrap();
-        }
-
-        let mut min = usize::MAX;
-        for opt in opts {
-            let mut cur = self.kind.start();
-            let mut total = 0;
-            for m in opt {
-                let dest = self.kind.direction_loc(&m);
-                total += self.find_shortest(depth - 1, &cur, &dest);
-                cur = dest;
+        let length = if depth == 1 {
+            opts.iter().map(|entry| entry.len()).min().unwrap()
+        } else {
+            let mut min = usize::MAX;
+            for opt in opts {
+                let mut cur = self.kind.start();
+                let mut total = 0;
+                for m in opt {
+                    let dest = self.kind.direction_loc(&m);
+                    total += self.find_shortest(depth - 1, &cur, &dest);
+                    cur = dest;
+                }
+                min = min.min(total);
             }
-            min = min.min(total);
-        }
 
-        min
+            min
+        };
+
+        self.cache.insert((depth, *src, *dest), length);
+        length
     }
 
     fn get_options(&self, src: &Position64, dest: &Position64) -> HashSet<Vec<Motion>> {
@@ -280,6 +293,7 @@ impl FromStr for Keypad {
         Ok(Keypad {
             kind: KeypadKind::Numeric,
             code,
+            cache: HashMap::new(),
         })
     }
 }
@@ -293,12 +307,14 @@ mod test {
         let keypad: Keypad = "029A".parse().unwrap();
         let seq = keypad.find_keypad_paths();
         let seq = seq.iter().next().unwrap();
-        assert_eq!("<A^A^^>AvvvA".to_string(), _motion_to_string(seq));
+        let s = _motion_to_string(seq);
+        assert!(s == "<A^A^^>AvvvA" || s == "<A^A>^^AvvvA");
     }
+
     #[test]
     fn test_seq_len() {
         let keypad: Keypad = "029A".parse().unwrap();
-        assert_eq!(68, keypad.get_length());
+        assert_eq!(68, keypad.get_length(2));
     }
 
     #[test]
@@ -307,31 +323,12 @@ mod test {
         assert_eq!(29, keypad.value());
     }
 
-    /*
-    #[test]
-    #[ignore]
-    fn test_379_first_seq() {
-        let keypad: Keypad = "179A".parse().unwrap();
-        let directional = Keypad::directional();
-        let seq = keypad.generate();
-        println!("seq: {}", _motion_to_string(&seq));
-        let seq = directional
-            .generate_directional_motion(&seq, false)
-            .unwrap();
-        println!("seq: {}", _motion_to_string(&seq));
-        let seq = directional
-            .generate_directional_motion(&seq, false)
-            .unwrap();
-        assert_eq!("", _motion_to_string(&seq));
-    }
-    */
-
     #[test]
     fn test_score() {
         let keypads = ["029A", "980A", "179A", "456A", "379A"];
         let total = keypads
             .iter()
-            .map(|kp| kp.parse::<Keypad>().unwrap().score())
+            .map(|kp| kp.parse::<Keypad>().unwrap().score(2))
             .sum::<usize>();
         assert_eq!(126384, total);
     }
