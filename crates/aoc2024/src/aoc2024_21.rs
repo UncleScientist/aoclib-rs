@@ -24,7 +24,7 @@ impl Runner for Aoc2024_21 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let total = self.keypads.iter().map(|kp| kp.score()).sum::<usize>();
+        let total = self.keypads.iter().map(|kp| kp.score(2)).sum::<usize>();
         aoclib::output(total)
     }
 
@@ -123,22 +123,24 @@ impl Keypad {
         }
     }
 
-    fn get_length(&self) -> usize {
+    fn get_length(&self, depth: usize) -> usize {
         let directional = Self::directional();
         let list = self.find_keypad_paths();
 
-        let mut min = usize::MAX;
-        for path in list {
-            let dirpath = directional.find_directional_paths(&path);
+        let mut shortest = usize::MAX;
 
-            for dir in dirpath {
-                let finalpath = directional.find_directional_paths(&dir);
-                for fp in finalpath {
-                    min = min.min(fp.len());
-                }
+        for path in list {
+            let mut cur = directional.kind.start();
+            let mut total = 0;
+            for entry in &path {
+                let dest = directional.kind.direction_loc(entry);
+                total += directional.find_shortest(depth, &cur, &dest);
+                cur = dest;
             }
+            shortest = shortest.min(total);
         }
-        min
+
+        shortest
     }
 
     fn value(&self) -> usize {
@@ -148,8 +150,8 @@ impl Keypad {
             + (self.code[2] as u8 - b'0') as usize
     }
 
-    fn score(&self) -> usize {
-        self.get_length() * self.value()
+    fn score(&self, depth: usize) -> usize {
+        self.get_length(depth) * self.value()
     }
 
     fn find_keypad_paths(&self) -> HashSet<Vec<Motion>> {
@@ -177,29 +179,26 @@ impl Keypad {
         opts
     }
 
-    fn find_directional_paths(&self, seq: &[Motion]) -> HashSet<Vec<Motion>> {
-        let mut cur = self.kind.start();
-        let dest = self.kind.direction_loc(&seq[0]);
+    fn find_shortest(&self, depth: usize, src: &Position64, dest: &Position64) -> usize {
+        let opts = self.get_options(src, dest);
 
-        let mut opts = self.get_options(&cur, &dest);
-
-        cur = dest;
-        for motion in seq.iter().skip(1) {
-            let dest = self.kind.direction_loc(motion);
-            let next_opts = self.get_options(&cur, &dest);
-            let mut step = HashSet::new();
-
-            for opt in opts {
-                for next in &next_opts {
-                    step.insert(opt.iter().copied().chain(next.iter().copied()).collect());
-                }
-            }
-
-            opts = step;
-            cur = dest;
+        if depth == 1 {
+            return opts.iter().map(|entry| entry.len()).min().unwrap();
         }
 
-        opts
+        let mut min = usize::MAX;
+        for opt in opts {
+            let mut cur = self.kind.start();
+            let mut total = 0;
+            for m in opt {
+                let dest = self.kind.direction_loc(&m);
+                total += self.find_shortest(depth - 1, &cur, &dest);
+                cur = dest;
+            }
+            min = min.min(total);
+        }
+
+        min
     }
 
     fn get_options(&self, src: &Position64, dest: &Position64) -> HashSet<Vec<Motion>> {
