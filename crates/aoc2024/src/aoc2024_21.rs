@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{collections::HashSet, str::FromStr};
 
 use aoclib::{Position64, Runner};
 
@@ -84,7 +84,7 @@ impl KeypadKind {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Eq, Hash, PartialEq)]
 enum Motion {
     Up,
     Down,
@@ -94,7 +94,7 @@ enum Motion {
 }
 
 impl Motion {
-    fn to_char(&self) -> char {
+    fn _to_char(&self) -> char {
         match self {
             Motion::Up => '^',
             Motion::Down => 'v',
@@ -106,7 +106,7 @@ impl Motion {
 }
 
 fn _motion_to_string(motion: &[Motion]) -> String {
-    motion.iter().map(Motion::to_char).collect()
+    motion.iter().map(Motion::_to_char).collect()
 }
 
 #[derive(Debug)]
@@ -125,29 +125,20 @@ impl Keypad {
 
     fn get_length(&self) -> usize {
         let directional = Self::directional();
-        let mut list = [self.generate(false), self.generate(true)]
-            .into_iter()
-            .flatten()
-            .collect::<Vec<_>>();
-        println!("{}", list.len());
+        let list = self.find_keypad_paths();
 
-        for _ in 0..2 {
-            let mut next = Vec::new();
-            for item in list {
-                next.extend(
-                    [
-                        directional.generate_directional_motion(&item, false),
-                        directional.generate_directional_motion(&item, true),
-                    ]
-                    .into_iter()
-                    .flatten(),
-                );
+        let mut min = usize::MAX;
+        for path in list {
+            let dirpath = directional.find_directional_paths(&path);
+
+            for dir in dirpath {
+                let finalpath = directional.find_directional_paths(&dir);
+                for fp in finalpath {
+                    min = min.min(fp.len());
+                }
             }
-            println!("next list {}", next.len());
-            list = next;
         }
-
-        list.iter().map(|item| item.len()).min().unwrap()
+        min
     }
 
     fn value(&self) -> usize {
@@ -161,69 +152,82 @@ impl Keypad {
         self.get_length() * self.value()
     }
 
-    fn generate(&self, lr_first: bool) -> Option<Vec<Motion>> {
-        let blank = self.kind.blank_spot();
+    fn find_keypad_paths(&self) -> HashSet<Vec<Motion>> {
         let mut cur = self.kind.start();
+        let dest = self.kind.keypad_loc(self.code[0]);
 
-        let mut result = Vec::new();
-        for c in &self.code {
-            let dest = self.kind.keypad_loc(*c);
+        let mut opts = self.get_options(&cur, &dest);
 
-            let (dr, dc) = (dest.0 - cur.0, dest.1 - cur.1);
-            let (sr, sc) = (dr.signum(), dc.signum());
+        cur = dest;
+        for keypad_char in self.code.iter().skip(1) {
+            let dest = self.kind.keypad_loc(*keypad_char);
+            let next_opts = self.get_options(&cur, &dest);
+            let mut step = HashSet::new();
 
-            if lr_first {
-                result.extend(Self::left_right(&mut cur, &dest, sc, &blank)?);
-                result.extend(Self::up_down(&mut cur, &dest, sr, &blank)?);
-            } else {
-                result.extend(Self::up_down(&mut cur, &dest, sr, &blank)?);
-                result.extend(Self::left_right(&mut cur, &dest, sc, &blank)?);
+            for opt in opts {
+                for next in &next_opts {
+                    step.insert(opt.iter().copied().chain(next.iter().copied()).collect());
+                }
             }
 
-            result.push(Motion::Enter);
-
+            opts = step;
             cur = dest;
         }
 
-        Some(result)
+        opts
     }
 
-    fn generate_directional_motion(&self, seq: &[Motion], lr_first: bool) -> Option<Vec<Motion>> {
-        let blank = self.kind.blank_spot();
+    fn find_directional_paths(&self, seq: &[Motion]) -> HashSet<Vec<Motion>> {
         let mut cur = self.kind.start();
+        let dest = self.kind.direction_loc(&seq[0]);
 
-        let mut result = Vec::new();
-        for m in seq {
-            let dest = self.kind.direction_loc(m);
-            let (dr, dc) = (dest.0 - cur.0, dest.1 - cur.1);
-            let (sr, sc) = (dr.signum(), dc.signum());
-            println!("{lr_first} - {cur:?} -> {dest:?}");
-            for lr_first in [false, true] {
-                let (seq1, seq2) = if lr_first {
-                    (
-                        Self::left_right(&mut cur, &dest, sc, &blank),
-                        Self::up_down(&mut cur, &dest, sr, &blank),
-                    )
-                } else {
-                    (
-                        Self::up_down(&mut cur, &dest, sr, &blank),
-                        Self::left_right(&mut cur, &dest, sc, &blank),
-                    )
-                };
-                if seq1.is_none() || seq2.is_none() {
-                    continue;
+        let mut opts = self.get_options(&cur, &dest);
+
+        cur = dest;
+        for motion in seq.iter().skip(1) {
+            let dest = self.kind.direction_loc(motion);
+            let next_opts = self.get_options(&cur, &dest);
+            let mut step = HashSet::new();
+
+            for opt in opts {
+                for next in &next_opts {
+                    step.insert(opt.iter().copied().chain(next.iter().copied()).collect());
                 }
-                result.extend(seq1.unwrap());
-                result.extend(seq2.unwrap());
             }
 
-            result.push(Motion::Enter);
-
+            opts = step;
             cur = dest;
         }
 
-        println!(" found path: {result:?}");
-        Some(result)
+        opts
+    }
+
+    fn get_options(&self, src: &Position64, dest: &Position64) -> HashSet<Vec<Motion>> {
+        let blank = self.kind.blank_spot();
+        let mut result = HashSet::new();
+
+        let (dr, dc) = (dest.0 - src.0, dest.1 - src.1);
+        let (sr, sc) = (dr.signum(), dc.signum());
+
+        let mut cur = *src;
+        let lr = Self::left_right(&mut cur, dest, sc, &blank);
+        let ud = Self::up_down(&mut cur, dest, sr, &blank);
+        if let (Some(mut lr), Some(ud)) = (lr, ud) {
+            lr.extend(ud);
+            lr.push(Motion::Enter);
+            result.insert(lr);
+        }
+
+        let mut cur = *src;
+        let ud = Self::up_down(&mut cur, dest, sr, &blank);
+        let lr = Self::left_right(&mut cur, dest, sc, &blank);
+        if let (Some(lr), Some(mut ud)) = (lr, ud) {
+            ud.extend(lr);
+            ud.push(Motion::Enter);
+            result.insert(ud);
+        }
+
+        result
     }
 
     fn up_down(
@@ -240,9 +244,7 @@ impl Keypad {
                 result.push(Motion::Down);
             }
             cur.0 += delta;
-            println!("  ud step {cur:?}");
             if cur == blank {
-                println!("up/down reached {cur:?}");
                 return None;
             }
         }
@@ -263,9 +265,7 @@ impl Keypad {
                 result.push(Motion::Right);
             }
             cur.1 += delta;
-            println!("  lr step {cur:?}");
             if cur == blank {
-                println!("left/right reached {cur:?}");
                 return None;
             }
         }
@@ -292,25 +292,10 @@ mod test {
     #[test]
     fn test_first_seq() {
         let keypad: Keypad = "029A".parse().unwrap();
-        let seq = keypad.generate(false).unwrap();
-        assert_eq!("<A^A^^>AvvvA".to_string(), _motion_to_string(&seq));
+        let seq = keypad.find_keypad_paths();
+        let seq = seq.iter().next().unwrap();
+        assert_eq!("<A^A^^>AvvvA".to_string(), _motion_to_string(seq));
     }
-
-    #[test]
-    fn test_next_seq() {
-        let keypad: Keypad = "029A".parse().unwrap();
-        let directional = Keypad::directional();
-
-        let seq = keypad.generate(false).unwrap();
-        let seq2 = directional
-            .generate_directional_motion(&seq, false)
-            .unwrap();
-        assert_eq!(
-            "v<<A>>^A<A>A<AAv>A^Av<AAA>^A".to_string(),
-            _motion_to_string(&seq2)
-        );
-    }
-
     #[test]
     fn test_seq_len() {
         let keypad: Keypad = "029A".parse().unwrap();
@@ -323,12 +308,13 @@ mod test {
         assert_eq!(29, keypad.value());
     }
 
+    /*
     #[test]
     #[ignore]
     fn test_379_first_seq() {
         let keypad: Keypad = "179A".parse().unwrap();
         let directional = Keypad::directional();
-        let seq = keypad.generate(false).unwrap();
+        let seq = keypad.generate();
         println!("seq: {}", _motion_to_string(&seq));
         let seq = directional
             .generate_directional_motion(&seq, false)
@@ -339,6 +325,7 @@ mod test {
             .unwrap();
         assert_eq!("", _motion_to_string(&seq));
     }
+    */
 
     #[test]
     fn test_score() {
