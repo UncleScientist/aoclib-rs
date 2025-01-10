@@ -1,4 +1,4 @@
-use std::{collections::HashSet, str::FromStr};
+use std::{collections::HashMap, str::FromStr};
 
 use aoclib::Runner;
 
@@ -23,7 +23,7 @@ impl Aoc2024_22 {
     }
 
     fn bananas(&mut self) -> usize {
-        let mut sequences = HashSet::new();
+        let mut sequences = HashMap::<[i64; 4], usize>::new();
         let mut deltas = Vec::new();
         for price in &self.prices {
             let delta = price
@@ -31,13 +31,21 @@ impl Aoc2024_22 {
                 .map(|pair| (pair[1] % 10) - (pair[0] % 10))
                 .collect::<Vec<_>>();
             for quad in delta.windows(4) {
-                sequences.insert([quad[0], quad[1], quad[2], quad[3]]);
+                *sequences
+                    .entry([quad[0], quad[1], quad[2], quad[3]])
+                    .or_default() += 1;
             }
             deltas.push(delta);
         }
 
+        let mut sequences = sequences.iter().collect::<Vec<_>>();
+        sequences.sort_by(|a, b| b.1.cmp(a.1));
+
         let mut max = 0;
-        for (seq_no, seq) in sequences.iter().enumerate() {
+        for (seq, count) in sequences {
+            if count * 9 < max {
+                break;
+            }
             let mut total = 0;
             for (which, delta) in deltas.iter().enumerate() {
                 if let Some((index, _)) = delta.windows(4).enumerate().find(|(_, quad)| {
@@ -46,10 +54,7 @@ impl Aoc2024_22 {
                     total += (self.prices[which][index + 4] % 10) as usize;
                 }
             }
-            if total > max {
-                max = total;
-                println!("{seq_no}: new max = {max}");
-            }
+            max = max.max(total);
         }
 
         max
