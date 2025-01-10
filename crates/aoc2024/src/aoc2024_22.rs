@@ -2,9 +2,11 @@ use std::str::FromStr;
 
 use aoclib::Runner;
 
+type Price = u64;
+
 #[derive(Default)]
 pub struct Aoc2024_22 {
-    secrets: Vec<Secret>,
+    prices: Vec<Vec<Price>>,
 }
 
 impl Aoc2024_22 {
@@ -20,15 +22,20 @@ impl Runner for Aoc2024_22 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2024-22.txt");
-        self.secrets = lines.iter().map(|line| line.parse().unwrap()).collect();
+        let secrets: Vec<Secret> = lines.iter().map(|line| line.parse().unwrap()).collect();
+        for secret in secrets {
+            let mut list = vec![secret.0];
+            list.extend(secret.take(2000));
+            self.prices.push(list);
+        }
     }
 
     fn part1(&mut self) -> Vec<String> {
         let total = self
-            .secrets
-            .iter_mut()
-            .map(|secret| secret.nth(1999).unwrap())
-            .sum::<u64>();
+            .prices
+            .iter()
+            .map(|list| list.last().unwrap())
+            .sum::<Price>();
         aoclib::output(total)
     }
 
@@ -38,7 +45,7 @@ impl Runner for Aoc2024_22 {
 }
 
 #[derive(Debug, Clone)]
-struct Secret(u64);
+struct Secret(Price);
 
 impl FromStr for Secret {
     type Err = ();
@@ -49,7 +56,7 @@ impl FromStr for Secret {
 }
 
 impl Iterator for Secret {
-    type Item = u64;
+    type Item = Price;
 
     fn next(&mut self) -> Option<Self::Item> {
         let step1 = ((self.0 * 64) ^ self.0) % 16777216;
