@@ -1,8 +1,8 @@
-use std::str::FromStr;
+use std::{collections::HashSet, str::FromStr};
 
 use aoclib::Runner;
 
-type Price = u64;
+type Price = i64;
 
 #[derive(Default)]
 pub struct Aoc2024_22 {
@@ -13,6 +13,47 @@ impl Aoc2024_22 {
     pub fn new() -> Self {
         Self::default()
     }
+
+    fn build_secrets(&mut self, secrets: &mut [Secret]) {
+        for secret in secrets {
+            let mut list = vec![secret.0];
+            list.extend(secret.take(2000));
+            self.prices.push(list);
+        }
+    }
+
+    fn bananas(&mut self) -> usize {
+        let mut sequences = HashSet::new();
+        let mut deltas = Vec::new();
+        for price in &self.prices {
+            let delta = price
+                .windows(2)
+                .map(|pair| (pair[1] % 10) - (pair[0] % 10))
+                .collect::<Vec<_>>();
+            for quad in delta.windows(4) {
+                sequences.insert([quad[0], quad[1], quad[2], quad[3]]);
+            }
+            deltas.push(delta);
+        }
+
+        let mut max = 0;
+        for (seq_no, seq) in sequences.iter().enumerate() {
+            let mut total = 0;
+            for (which, delta) in deltas.iter().enumerate() {
+                if let Some((index, _)) = delta.windows(4).enumerate().find(|(_, quad)| {
+                    quad[0] == seq[0] && quad[1] == seq[1] && quad[2] == seq[2] && quad[3] == seq[3]
+                }) {
+                    total += (self.prices[which][index + 4] % 10) as usize;
+                }
+            }
+            if total > max {
+                max = total;
+                println!("{seq_no}: new max = {max}");
+            }
+        }
+
+        max
+    }
 }
 
 impl Runner for Aoc2024_22 {
@@ -22,12 +63,8 @@ impl Runner for Aoc2024_22 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2024-22.txt");
-        let secrets: Vec<Secret> = lines.iter().map(|line| line.parse().unwrap()).collect();
-        for secret in secrets {
-            let mut list = vec![secret.0];
-            list.extend(secret.take(2000));
-            self.prices.push(list);
-        }
+        let mut secrets: Vec<Secret> = lines.iter().map(|line| line.parse().unwrap()).collect();
+        self.build_secrets(&mut secrets);
     }
 
     fn part1(&mut self) -> Vec<String> {
@@ -40,7 +77,7 @@ impl Runner for Aoc2024_22 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        aoclib::output(self.bananas())
     }
 }
 
@@ -76,5 +113,14 @@ mod test {
         let mut secret = Secret(1);
         let two_thousandth = secret.nth(1999).unwrap();
         assert_eq!(8685429, two_thousandth);
+    }
+
+    #[test]
+    fn test_four_monkies() {
+        let mut secrets = vec![Secret(1), Secret(2), Secret(3), Secret(2024)];
+        let mut aoc = Aoc2024_22::default();
+        aoc.build_secrets(&mut secrets);
+
+        assert_eq!(23, aoc.bananas());
     }
 }
