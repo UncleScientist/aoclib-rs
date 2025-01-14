@@ -49,7 +49,14 @@ use aoc2024_22::*;
 use aoc2024_23::*;
 
 fn main() {
-    run_2024(Selector::Last);
+    let args = std::env::args().collect::<Vec<_>>();
+    if args.len() == 1 {
+        run_2024(Selector::Last);
+    } else if let Ok(day) = args[1].parse::<usize>() {
+        run_2024(Selector::One(day));
+    } else if args[1] == "-a" || args[1] == "--all" {
+        run_2024(Selector::All);
+    }
 }
 
 fn run_2024(which: Selector) {
