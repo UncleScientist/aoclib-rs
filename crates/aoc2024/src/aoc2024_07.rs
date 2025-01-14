@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use aoclib::Runner;
+use aoclib::{LineParser, Runner};
 
 #[derive(Default)]
 pub struct Aoc2024_07 {
@@ -20,7 +20,7 @@ impl Runner for Aoc2024_07 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2024-07.txt");
-        self.equations = lines.iter().map(|line| line.parse().unwrap()).collect();
+        self.equations = lines.parse_lines();
     }
 
     fn part1(&mut self) -> Vec<String> {

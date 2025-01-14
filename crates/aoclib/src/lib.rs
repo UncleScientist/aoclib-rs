@@ -155,3 +155,16 @@ pub fn read_text_records<P: AsRef<Path>>(path: P) -> Vec<String> {
         .map(|record| record.to_string())
         .collect::<Vec<_>>()
 }
+
+pub trait LineParser<T> {
+    fn parse_lines(&self) -> Vec<T>;
+}
+
+impl<T: FromStr> LineParser<T> for Vec<String>
+where
+    <T as FromStr>::Err: std::fmt::Debug,
+{
+    fn parse_lines(&self) -> Vec<T> {
+        self.iter().map(|line| line.parse::<T>().unwrap()).collect()
+    }
+}

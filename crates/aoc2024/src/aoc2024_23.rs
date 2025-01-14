@@ -3,7 +3,7 @@ use std::{
     str::FromStr,
 };
 
-use aoclib::Runner;
+use aoclib::{LineParser, Runner};
 
 #[derive(Default)]
 pub struct Aoc2024_23 {
@@ -25,7 +25,7 @@ impl Runner for Aoc2024_23 {
     fn parse(&mut self) {
         let _lines = aoclib::read_lines("test23-1.txt");
         let lines = aoclib::read_lines("input/2024-23.txt");
-        self.connections = lines.iter().map(|line| line.parse().unwrap()).collect();
+        self.connections = lines.parse_lines();
         for pair in &self.connections {
             self.network
                 .entry(pair.left.clone())
