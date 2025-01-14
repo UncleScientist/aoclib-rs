@@ -8,6 +8,7 @@ use aoclib::Runner;
 #[derive(Default)]
 pub struct Aoc2024_23 {
     connections: Vec<Connection>,
+    network: HashMap<String, Vec<String>>,
 }
 
 impl Aoc2024_23 {
@@ -22,31 +23,31 @@ impl Runner for Aoc2024_23 {
     }
 
     fn parse(&mut self) {
+        let _lines = aoclib::read_lines("test23-1.txt");
         let lines = aoclib::read_lines("input/2024-23.txt");
         self.connections = lines.iter().map(|line| line.parse().unwrap()).collect();
-    }
-
-    fn part1(&mut self) -> Vec<String> {
-        let mut network = HashMap::<String, Vec<String>>::new();
         for pair in &self.connections {
-            network
+            self.network
                 .entry(pair.left.clone())
                 .or_default()
                 .push(pair.right.clone());
-            network
+            self.network
                 .entry(pair.right.clone())
                 .or_default()
                 .push(pair.left.clone());
         }
+    }
 
+    fn part1(&mut self) -> Vec<String> {
         let mut answer = HashSet::new();
-        for (computer, connections) in network
+        for (computer, connections) in self
+            .network
             .iter()
             .filter(|(computer, _)| computer.starts_with("t"))
         {
             for i in 0..connections.len() - 1 {
                 for j in i + 1..connections.len() {
-                    if network[&connections[i]].contains(&connections[j]) {
+                    if self.network[&connections[i]].contains(&connections[j]) {
                         let mut v = vec![
                             computer.clone(),
                             connections[i].clone(),
@@ -63,7 +64,32 @@ impl Runner for Aoc2024_23 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut passwords = HashMap::<String, HashSet<String>>::new();
+        for (computer, connections) in &self.network {
+            let entry = passwords.entry(computer.clone()).or_default();
+            entry.insert(computer.clone());
+            entry.extend(connections.iter().cloned());
+            for i in 0..connections.len() - 1 {
+                for j in i + 1..connections.len() {
+                    if !self.network[&connections[i]].contains(&connections[j]) {
+                        entry.remove(&connections[i]);
+                    }
+                }
+            }
+        }
+
+        let mut password = None;
+        let mut max = 0;
+        for values in passwords.values() {
+            let mut vec = values.iter().cloned().collect::<Vec<_>>();
+            if max < vec.len() {
+                vec.sort();
+                max = vec.len();
+                password = Some(vec.join(","));
+            }
+        }
+
+        aoclib::output(format!("{}", password.unwrap()))
     }
 }
 
