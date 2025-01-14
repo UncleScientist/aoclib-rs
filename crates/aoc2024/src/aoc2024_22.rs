@@ -1,6 +1,6 @@
 use std::{collections::HashMap, str::FromStr};
 
-use aoclib::Runner;
+use aoclib::{LineParser, Runner};
 
 type Price = i64;
 
@@ -68,7 +68,7 @@ impl Runner for Aoc2024_22 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2024-22.txt");
-        let mut secrets: Vec<Secret> = lines.iter().map(|line| line.parse().unwrap()).collect();
+        let mut secrets: Vec<Secret> = lines.parse_lines();
         self.build_secrets(&mut secrets);
     }
 

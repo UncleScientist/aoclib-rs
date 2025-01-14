@@ -89,7 +89,7 @@ impl Runner for Aoc2024_23 {
             }
         }
 
-        aoclib::output(format!("{}", password.unwrap()))
+        aoclib::output(password.unwrap())
     }
 }
 

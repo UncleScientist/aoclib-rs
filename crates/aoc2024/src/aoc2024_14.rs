@@ -1,6 +1,6 @@
 use std::{cmp::Ordering, collections::HashSet, fmt::Display, str::FromStr};
 
-use aoclib::Runner;
+use aoclib::{LineParser, Runner};
 
 #[derive(Default)]
 pub struct Aoc2024_14 {
@@ -72,7 +72,7 @@ impl Runner for Aoc2024_14 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2024-14.txt");
-        self.robots = lines.iter().map(|robot| robot.parse().unwrap()).collect();
+        self.robots = lines.parse_lines();
         self.width = 101;
         self.height = 103;
     }

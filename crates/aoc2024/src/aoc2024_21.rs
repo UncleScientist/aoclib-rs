@@ -3,7 +3,7 @@ use std::{
     str::FromStr,
 };
 
-use aoclib::{Position64, Runner};
+use aoclib::{LineParser, Position64, Runner};
 
 #[derive(Default)]
 pub struct Aoc2024_21 {
@@ -23,7 +23,7 @@ impl Runner for Aoc2024_21 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2024-21.txt");
-        self.keypads = lines.iter().map(|line| line.parse().unwrap()).collect();
+        self.keypads = lines.parse_lines();
     }
 
     fn part1(&mut self) -> Vec<String> {
