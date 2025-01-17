@@ -24,6 +24,7 @@ mod aoc2024_21;
 mod aoc2024_22;
 mod aoc2024_23;
 mod aoc2024_24;
+mod aoc2024_25;
 
 use aoc2024_01::*;
 use aoc2024_02::*;
@@ -49,6 +50,7 @@ use aoc2024_21::*;
 use aoc2024_22::*;
 use aoc2024_23::*;
 use aoc2024_24::*;
+use aoc2024_25::*;
 
 fn main() {
     let args = std::env::args().collect::<Vec<_>>();
@@ -86,12 +88,13 @@ fn run_2024(which: Selector) {
     let mut day22 = Aoc2024_22::new();
     let mut day23 = Aoc2024_23::new();
     let mut day24 = Aoc2024_24::new();
+    let mut day25 = Aoc2024_25::new();
 
     let mut days: Vec<&mut dyn Runner> = vec![
         &mut day01, &mut day02, &mut day03, &mut day04, &mut day05, &mut day06, &mut day07,
         &mut day09, &mut day08, &mut day10, &mut day11, &mut day12, &mut day13, &mut day14,
         &mut day15, &mut day16, &mut day17, &mut day18, &mut day19, &mut day20, &mut day21,
-        &mut day22, &mut day23, &mut day24,
+        &mut day22, &mut day23, &mut day24, &mut day25,
     ];
 
     match which {
