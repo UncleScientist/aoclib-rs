@@ -67,12 +67,10 @@ impl Aoc2024_24 {
                     } else {
                         *c
                     }
+                } else if let Some(y) = self.y {
+                    ((y & (1 << bit)) != 0) as u64
                 } else {
-                    if let Some(y) = self.y {
-                        ((y & (1 << bit)) != 0) as u64
-                    } else {
-                        *c
-                    }
+                    *c
                 }
             }
         })
@@ -81,18 +79,6 @@ impl Aoc2024_24 {
     fn find_xor_gate(&self, xwire: &str, ywire: &str) -> Option<(&String, &Gate)> {
         for (k, v) in &self.system {
             if matches!(v, Gate::Xor(left, right)
-                        if (*left == xwire && *right == ywire)
-                        || (*left == ywire && *right == xwire))
-            {
-                return Some((k, v));
-            }
-        }
-        None
-    }
-
-    fn find_or_gate(&self, xwire: &str, ywire: &str) -> Option<(&String, &Gate)> {
-        for (k, v) in &self.system {
-            if matches!(v, Gate::Or(left, right)
                         if (*left == xwire && *right == ywire)
                         || (*left == ywire && *right == xwire))
             {
@@ -181,7 +167,7 @@ impl Runner for Aoc2024_24 {
                 };
                 output_list.push(output.clone());
                 let gate_list = self.find_gates(output);
-                for (output, gate) in gate_list {
+                for (output, _) in gate_list {
                     output_list.push(output.clone());
                 }
 
@@ -318,35 +304,6 @@ enum Gate {
     Or(String, String),
     Xor(String, String),
     Const(u64),
-}
-
-impl Gate {
-    fn get_other_input<'a>(&'a self, wire: &str) -> &'a str {
-        match self {
-            Gate::And(a, b) => {
-                if wire == a {
-                    b
-                } else {
-                    a
-                }
-            }
-            Gate::Or(a, b) => {
-                if wire == a {
-                    b
-                } else {
-                    a
-                }
-            }
-            Gate::Xor(a, b) => {
-                if wire == a {
-                    b
-                } else {
-                    a
-                }
-            }
-            Gate::Const(_) => unreachable!(),
-        }
-    }
 }
 
 impl FromStr for Gate {
