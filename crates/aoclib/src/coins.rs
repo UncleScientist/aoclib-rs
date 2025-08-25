@@ -1,6 +1,7 @@
 use std::{
     cmp::{PartialEq, PartialOrd},
     convert::From,
+    fmt::Debug,
     ops::{Add, AddAssign, Sub},
 };
 
@@ -13,6 +14,7 @@ impl<T> CoinChange<T>
 where
     T: Copy
         + Clone
+        + Debug
         + From<usize>
         + PartialEq
         + PartialOrd
@@ -37,6 +39,10 @@ where
 
         if amount == zero {
             return Some(zero);
+        }
+
+        if let Some(answer) = self.change.get(index) {
+            return *answer;
         }
 
         if self.change.len() <= 1 + index {
@@ -101,5 +107,12 @@ mod test {
     fn ex3() {
         let mut cc = CoinChange::new(&[1]);
         assert_eq!(Some(0), cc.min_coins(0));
+    }
+
+    #[test]
+    fn double() {
+        let mut cc = CoinChange::new(&[1, 2, 5]);
+        assert_eq!(Some(20), cc.min_coins(100));
+        assert_eq!(Some(10), cc.min_coins(50));
     }
 }
