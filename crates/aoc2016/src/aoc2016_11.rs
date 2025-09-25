@@ -368,7 +368,8 @@ mod test {
         b.floor[0].add_microchip("lithium");
         b.floor[1].add_generator("hydrogen");
         b.floor[2].add_generator("lithium");
-        let b_move = b.moves();
+        let aoc = Aoc2016_11 { building: b };
+        let b_move = aoc.building.moves(&aoc);
         assert_eq!(1, b_move.len());
     }
 
@@ -378,7 +379,8 @@ mod test {
         b.elevator = 3;
         b.floor[3].add_microchip("foo");
         b.floor[3].add_generator("foo");
-        assert_eq!(3, b.moves().len());
+        let aoc = Aoc2016_11 { building: b };
+        assert_eq!(3, aoc.building.moves(&aoc).len());
     }
 
     #[test]
@@ -389,7 +391,8 @@ mod test {
         b.floor[1].add_microchip("hydrogen");
         b.floor[1].add_generator("hydrogen");
         b.floor[2].add_generator("lithium");
-        let moves = b.moves();
+        let aoc = Aoc2016_11 { building: b };
+        let moves = aoc.building.moves(&aoc);
         let mut found = false;
         for m in moves {
             if m.floor[2].micros.len() == 1 && m.floor[2].gens.len() == 2 {
@@ -409,7 +412,8 @@ mod test {
         b.floor[2].add_microchip("hydrogen");
         b.floor[3].add_generator("hydrogen");
         b.floor[3].add_generator("lithium");
-        let moves = b.moves();
+        let aoc = Aoc2016_11 { building: b };
+        let moves = aoc.building.moves(&aoc);
         let mut found = false;
         for m in moves {
             m.display();
@@ -434,8 +438,11 @@ mod test {
         b.floor[2].add_microchip("hydrogen");
         b.floor[3].add_generator("hydrogen");
         b.floor[3].add_generator("lithium");
+        let aoc = Aoc2016_11 {
+            building: b.clone(),
+        };
 
-        assert_eq!(1, dijkstra_search(&b).unwrap().1);
+        assert_eq!(1, dijkstra_search(&b, &aoc).unwrap().1);
     }
 
     #[test]
@@ -446,7 +453,10 @@ mod test {
         b.floor[0].add_microchip("hydrogen");
         b.floor[1].add_generator("hydrogen");
         b.floor[2].add_generator("lithium");
+        let aoc = Aoc2016_11 {
+            building: b.clone(),
+        };
 
-        assert_eq!(11, dijkstra_search(&b).unwrap().1);
+        assert_eq!(11, dijkstra_search(&b, &aoc).unwrap().1);
     }
 }
