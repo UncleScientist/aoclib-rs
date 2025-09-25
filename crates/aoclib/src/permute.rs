@@ -38,7 +38,7 @@ impl<T: Clone> Iterator for PermutationIterator<T> {
 
         while self.i < self.a.len() {
             if self.c[self.i] < self.i {
-                if self.i % 2 == 0 {
+                if self.i.is_multiple_of(2) {
                     self.a.swap(0, self.i);
                 } else {
                     self.a.swap(self.c[self.i], self.i);
