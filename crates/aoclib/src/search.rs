@@ -1,5 +1,53 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
+use std::fmt::Debug;
 use std::hash::Hash;
+use std::ops::Add;
+
+/// Uniform Cost Search
+pub fn ucs<T, S>(
+    start: &T,
+    neighbors: impl Fn(&T) -> Vec<(T, S)>,
+    is_end: impl Fn(&T) -> bool,
+) -> Option<(T, S)>
+where
+    T: Debug + Clone + Hash + Eq,
+    S: Debug + Copy + From<u8> + Ord + Add<Output = S>,
+{
+    let zero: S = 0u8.into();
+    let mut queue = BTreeMap::from([(zero, HashSet::from([start.clone()]))]);
+    let mut visited = HashSet::new();
+    let mut dist = HashMap::new();
+
+    dist.insert(start.clone(), Some(zero));
+
+    while let Some((time, pos_list)) = queue.pop_first() {
+        for pos in pos_list.iter() {
+            if is_end(pos) {
+                return Some((pos.clone(), time));
+            }
+            if visited.insert(pos.clone()) {
+                for (new_pos, cost) in neighbors(pos) {
+                    let new_time = time + cost;
+                    if let Some(dist_time) = dist.entry(new_pos.clone()).or_insert(None) {
+                        if new_time >= *dist_time {
+                            continue;
+                        }
+
+                        let old_time = *dist_time;
+                        *dist_time = new_time;
+
+                        queue.entry(old_time).or_default().remove(pos);
+                    } else {
+                        dist.insert(new_pos.clone(), Some(new_time));
+                    }
+                    queue.entry(new_time).or_default().insert(new_pos);
+                }
+            }
+        }
+    }
+
+    None
+}
 
 pub trait Nodes {
     fn get_value(&self, row: usize, col: usize) -> usize;
