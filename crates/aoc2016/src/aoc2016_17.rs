@@ -26,11 +26,11 @@ impl Runner for Aoc2016_17 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        aoclib::output(dijkstra_search(&self.vault, self).unwrap().0.path)
+        aoclib::output(self.vault.search())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output(longest_path(&self.vault, self))
+        aoclib::output(longest_path(&self.vault))
     }
 }
 
@@ -63,13 +63,8 @@ impl Vault {
             loc: (0, 0), // row, col
         }
     }
-}
 
-impl Searcher for Vault {
-    fn cost<N: Nodes>(&self, _nodes: &N) -> usize {
-        1
-    }
-    fn moves<N: Nodes>(&self, _nodes: &N) -> Vec<Vault> {
+    fn moves(&self) -> Vec<(Vault, usize)> {
         let mut result = Vec::new();
         // println!("Considering: {self:?}");
 
@@ -79,52 +74,71 @@ impl Searcher for Vault {
             .collect::<Vec<char>>();
 
         if self.loc.0 > 0 && digest[0] >= 'b' {
-            result.push(Vault {
-                passcode: self.passcode.clone(),
-                path: format!("{}U", self.path),
-                loc: (self.loc.0 - 1, self.loc.1),
-            })
+            result.push((
+                Vault {
+                    passcode: self.passcode.clone(),
+                    path: format!("{}U", self.path),
+                    loc: (self.loc.0 - 1, self.loc.1),
+                },
+                1,
+            ))
         }
 
         if self.loc.0 < 3 && digest[1] >= 'b' {
-            result.push(Vault {
-                passcode: self.passcode.clone(),
-                path: format!("{}D", self.path),
-                loc: (self.loc.0 + 1, self.loc.1),
-            })
+            result.push((
+                Vault {
+                    passcode: self.passcode.clone(),
+                    path: format!("{}D", self.path),
+                    loc: (self.loc.0 + 1, self.loc.1),
+                },
+                1,
+            ))
         }
 
         if self.loc.1 > 0 && digest[2] >= 'b' {
-            result.push(Vault {
-                passcode: self.passcode.clone(),
-                path: format!("{}L", self.path),
-                loc: (self.loc.0, self.loc.1 - 1),
-            })
+            result.push((
+                Vault {
+                    passcode: self.passcode.clone(),
+                    path: format!("{}L", self.path),
+                    loc: (self.loc.0, self.loc.1 - 1),
+                },
+                1,
+            ))
         }
 
         if self.loc.1 < 3 && digest[3] >= 'b' {
-            result.push(Vault {
-                passcode: self.passcode.clone(),
-                path: format!("{}R", self.path),
-                loc: (self.loc.0, self.loc.1 + 1),
-            })
+            result.push((
+                Vault {
+                    passcode: self.passcode.clone(),
+                    path: format!("{}R", self.path),
+                    loc: (self.loc.0, self.loc.1 + 1),
+                },
+                1,
+            ))
         }
 
         result
     }
 
-    fn is_win_state<N: Nodes>(&self, _nodes: &N) -> bool {
+    fn is_win_state(&self) -> bool {
         self.loc == (3, 3)
+    }
+
+    fn search(&self) -> String {
+        aoclib::ucs(self, |next| next.moves(), |next| next.is_win_state())
+            .unwrap()
+            .0
+            .path
     }
 }
 
-fn longest_path(v: &Vault, nodes: &Aoc2016_17) -> usize {
+fn longest_path(v: &Vault) -> usize {
     let mut longest = 0;
     let mut stack = vec![v.clone()];
 
     while let Some(state) = stack.pop() {
-        for m in state.moves(nodes) {
-            if m.is_win_state(nodes) {
+        for (m, _) in state.moves() {
+            if m.is_win_state() {
                 longest = longest.max(m.path.len());
             } else {
                 stack.push(m.clone());
@@ -142,28 +156,19 @@ mod test {
     #[test]
     fn part1_1() {
         let vault = Vault::new("ihgpwlah");
-        assert_eq!(
-            dijkstra_search(&vault).unwrap().0.path,
-            "DDRRRD".to_string()
-        );
+        assert_eq!(vault.search(), "DDRRRD".to_string());
     }
 
     #[test]
     fn part1_2() {
         let vault = Vault::new("kglvqrro");
-        assert_eq!(
-            dijkstra_search(&vault).unwrap().0.path,
-            "DDUDRLRRUDRD".to_string()
-        );
+        assert_eq!(vault.search(), "DDUDRLRRUDRD".to_string());
     }
 
     #[test]
     fn part1_3() {
         let vault = Vault::new("ulqzkmiv");
-        assert_eq!(
-            dijkstra_search(&vault).unwrap().0.path,
-            "DRURDRUDDLLDLUURRDULRLDUUDDDRR".to_string()
-        );
+        assert_eq!(vault.search(), "DRURDRUDDLLDLUURRDULRLDUUDDDRR".to_string());
     }
 
     #[test]
