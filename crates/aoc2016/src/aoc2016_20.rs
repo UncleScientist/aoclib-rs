@@ -69,7 +69,7 @@ fn insert_interval(src: &Vec<Range>, insert: Range) -> Vec<Range> {
     result
 }
 
-fn count_allowed(bl: &Vec<Range>) -> usize {
+fn count_allowed(bl: &[Range]) -> usize {
     let mut allowed: usize = 0;
     for entry in bl.windows(2) {
         allowed += entry[1].0 as usize - entry[0].1 as usize - 1;

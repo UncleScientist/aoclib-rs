@@ -17,7 +17,7 @@ impl Disc {
     }
 
     fn zero_at_time(&self, time: usize) -> bool {
-        (time + self.num + self.phase) % self.positions == 0
+        (time + self.num + self.phase).is_multiple_of(self.positions)
     }
 }
 

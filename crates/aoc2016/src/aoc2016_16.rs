@@ -59,7 +59,7 @@ impl Scramble {
 
         result.truncate(len);
 
-        while result.len() % 2 == 0 {
+        while result.len().is_multiple_of(2) {
             let slice = result.chars().collect::<Vec<char>>();
             result = slice
                 .chunks(2)

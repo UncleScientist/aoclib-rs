@@ -28,7 +28,7 @@ impl Runner for Aoc2016_08 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let _test_input = vec![
+        let _test_input = [
             Instruction::new("rect 3x2"),
             Instruction::new("rotate column x=1 by 1"),
             Instruction::new("rotate row y=0 by 4"),
