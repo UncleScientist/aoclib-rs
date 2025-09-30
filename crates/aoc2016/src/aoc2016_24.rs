@@ -1,8 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 
-use aoclib::{dijkstra_search, Permutations, Searcher};
-use aoclib::{Nodes, Runner};
+use aoclib::{Permutations, Runner};
 
 #[derive(Default)]
 pub struct Aoc2016_24 {
@@ -56,7 +55,9 @@ impl Runner for Aoc2016_24 {
                     loc: *pointlist[i].1,
                     end: *pointlist[j].1,
                 };
-                if let Some((_, distance)) = dijkstra_search(&mr, self) {
+                if let Some((_, distance)) =
+                    aoclib::ucs(&mr, |state| state.moves(), |state| state.is_win_state())
+                {
                     self.dist
                         .insert((*pointlist[i].0, *pointlist[j].0), distance as i32);
                     self.dist
@@ -114,21 +115,7 @@ impl Runner for Aoc2016_24 {
     }
 }
 
-impl Nodes for Aoc2016_24 {
-    fn get_value(&self, _row: usize, _col: usize) -> usize {
-        todo!()
-    }
-
-    fn get_width(&self) -> usize {
-        todo!()
-    }
-
-    fn get_height(&self) -> usize {
-        todo!()
-    }
-}
-
-#[derive(Clone, Eq)]
+#[derive(Clone, Eq, Debug)]
 struct MazeRunner {
     map: Rc<HashSet<(i32, i32)>>,
     loc: (i32, i32),
@@ -151,12 +138,8 @@ impl std::cmp::PartialEq for MazeRunner {
     }
 }
 
-impl Searcher for MazeRunner {
-    fn cost<N: Nodes>(&self, _nodes: &N) -> usize {
-        1
-    }
-
-    fn moves<N: Nodes>(&self, _nodes: &N) -> Vec<Self> {
+impl MazeRunner {
+    fn moves(&self) -> Vec<(Self, usize)> {
         let mut result = Vec::new();
         let directions = vec![
             (self.loc.0 - 1, self.loc.1),
@@ -167,18 +150,21 @@ impl Searcher for MazeRunner {
 
         for loc in directions {
             if self.map.contains(&loc) {
-                result.push(Self {
-                    map: self.map.clone(),
-                    loc,
-                    end: self.end,
-                });
+                result.push((
+                    Self {
+                        map: self.map.clone(),
+                        loc,
+                        end: self.end,
+                    },
+                    1,
+                ));
             }
         }
 
         result
     }
 
-    fn is_win_state<N: Nodes>(&self, _nodes: &N) -> bool {
+    fn is_win_state(&self) -> bool {
         self.loc == self.end
     }
 }

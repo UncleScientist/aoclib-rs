@@ -1,4 +1,3 @@
-use aoclib::{dijkstra_search, Searcher};
 use aoclib::{Nodes, Runner};
 
 use std::collections::HashSet;
@@ -20,12 +19,14 @@ struct Building {
     elevator: usize,
 }
 
-impl Searcher for Building {
-    fn cost<N: Nodes>(&self, _nodes: &N) -> usize {
-        1
+impl Building {
+    fn find_solution(&self) -> usize {
+        aoclib::ucs(self, |state| state.moves(), |state| state.is_win_state())
+            .unwrap()
+            .1
     }
 
-    fn moves<N: Nodes>(&self, _nodes: &N) -> Vec<Building> {
+    fn moves(&self) -> Vec<(Building, usize)> {
         let mut answer = Vec::new();
 
         let items = self.floor[self.elevator]
@@ -43,7 +44,7 @@ impl Searcher for Building {
                 new_building.floor[new_building.elevator].insert(item);
 
                 if new_building.valid() {
-                    answer.push(new_building);
+                    answer.push((new_building, 1));
                 }
             }
 
@@ -55,7 +56,7 @@ impl Searcher for Building {
                 new_building.floor[new_building.elevator].insert(item);
 
                 if new_building.valid() {
-                    answer.push(new_building);
+                    answer.push((new_building, 1));
                 }
             }
         }
@@ -71,7 +72,7 @@ impl Searcher for Building {
                     new_building.floor[new_building.elevator].insert(items[j]);
 
                     if new_building.valid() {
-                        answer.push(new_building);
+                        answer.push((new_building, 1));
                     }
                 }
 
@@ -84,7 +85,7 @@ impl Searcher for Building {
                     new_building.floor[new_building.elevator].insert(items[j]);
 
                     if new_building.valid() {
-                        answer.push(new_building);
+                        answer.push((new_building, 1));
                     }
                 }
             }
@@ -93,7 +94,7 @@ impl Searcher for Building {
         answer
     }
 
-    fn is_win_state<N: Nodes>(&self, _nodes: &N) -> bool {
+    fn is_win_state(&self) -> bool {
         for i in 0..self.floor.len() - 1 {
             if !self.floor[i].is_empty() {
                 return false;
@@ -102,9 +103,7 @@ impl Searcher for Building {
 
         true
     }
-}
 
-impl Building {
     fn new(floors: usize) -> Self {
         Self {
             floor: vec![Floor::default(); floors],
@@ -271,7 +270,7 @@ impl Runner for Aoc2016_11 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        aoclib::output(dijkstra_search(&self.building, self).unwrap().1)
+        aoclib::output(self.building.find_solution())
     }
 
     fn part2(&mut self) -> Vec<String> {
@@ -280,7 +279,7 @@ impl Runner for Aoc2016_11 {
         alt.floor[0].add_microchip("dilithium");
         alt.floor[0].add_generator("elerium");
         alt.floor[0].add_generator("dilithium");
-        aoclib::output(dijkstra_search(&alt, self).unwrap().1)
+        aoclib::output(alt.find_solution())
     }
 }
 
@@ -369,7 +368,7 @@ mod test {
         b.floor[1].add_generator("hydrogen");
         b.floor[2].add_generator("lithium");
         let aoc = Aoc2016_11 { building: b };
-        let b_move = aoc.building.moves(&aoc);
+        let b_move = aoc.building.moves();
         assert_eq!(1, b_move.len());
     }
 
@@ -380,7 +379,7 @@ mod test {
         b.floor[3].add_microchip("foo");
         b.floor[3].add_generator("foo");
         let aoc = Aoc2016_11 { building: b };
-        assert_eq!(3, aoc.building.moves(&aoc).len());
+        assert_eq!(3, aoc.building.moves().len());
     }
 
     #[test]
@@ -392,9 +391,9 @@ mod test {
         b.floor[1].add_generator("hydrogen");
         b.floor[2].add_generator("lithium");
         let aoc = Aoc2016_11 { building: b };
-        let moves = aoc.building.moves(&aoc);
+        let moves = aoc.building.moves();
         let mut found = false;
-        for m in moves {
+        for (m, _) in moves {
             if m.floor[2].micros.len() == 1 && m.floor[2].gens.len() == 2 {
                 found = true;
                 break;
@@ -413,9 +412,9 @@ mod test {
         b.floor[3].add_generator("hydrogen");
         b.floor[3].add_generator("lithium");
         let aoc = Aoc2016_11 { building: b };
-        let moves = aoc.building.moves(&aoc);
+        let moves = aoc.building.moves();
         let mut found = false;
-        for m in moves {
+        for (m, _) in moves {
             m.display();
             if m.floor[3].micros.len() == 2 && m.floor[3].gens.len() == 2 {
                 found = true;
@@ -438,11 +437,8 @@ mod test {
         b.floor[2].add_microchip("hydrogen");
         b.floor[3].add_generator("hydrogen");
         b.floor[3].add_generator("lithium");
-        let aoc = Aoc2016_11 {
-            building: b.clone(),
-        };
 
-        assert_eq!(1, dijkstra_search(&b, &aoc).unwrap().1);
+        assert_eq!(1, b.find_solution());
     }
 
     #[test]
@@ -453,10 +449,7 @@ mod test {
         b.floor[0].add_microchip("hydrogen");
         b.floor[1].add_generator("hydrogen");
         b.floor[2].add_generator("lithium");
-        let aoc = Aoc2016_11 {
-            building: b.clone(),
-        };
 
-        assert_eq!(11, dijkstra_search(&b, &aoc).unwrap().1);
+        assert_eq!(11, b.find_solution());
     }
 }
