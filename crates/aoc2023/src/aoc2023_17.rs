@@ -24,7 +24,7 @@ impl Runner for Aoc2023_17 {
 
         for line in lines {
             self.city
-                .push(line.chars().map(|ch| ((ch as u8) - b'0')).collect());
+                .push(line.chars().map(|ch| (ch as u8) - b'0').collect());
         }
 
         self.height = self.city.len() as isize;
