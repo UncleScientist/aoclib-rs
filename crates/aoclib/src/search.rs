@@ -28,18 +28,16 @@ where
             if visited.insert(pos.clone()) {
                 for (new_pos, cost) in neighbors(pos) {
                     let new_time = time + cost;
-                    if let Some(dist_time) = dist.entry(new_pos.clone()).or_insert(None) {
+                    let dist_entry = dist.entry(new_pos.clone()).or_insert(None);
+                    if let Some(dist_time) = dist_entry {
                         if new_time >= *dist_time {
                             continue;
                         }
 
-                        let old_time = *dist_time;
-                        *dist_time = new_time;
-
-                        queue.entry(old_time).or_default().remove(pos);
-                    } else {
-                        dist.insert(new_pos.clone(), Some(new_time));
+                        // Unwrap Safety: if it's in the `dist` map, then it must exist in `queue`
+                        queue.get_mut(dist_time).unwrap().remove(pos);
                     }
+                    *dist_entry = Some(new_time);
                     queue.entry(new_time).or_default().insert(new_pos);
                 }
             }
