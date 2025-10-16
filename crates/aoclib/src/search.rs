@@ -62,11 +62,59 @@ where
                             continue;
                         }
 
-                        // Unwrap Safety: if it's in the `dist` map, then it must exist in `queue`
-                        queue.get_mut(dist_time).unwrap().remove(pos);
+                        if let Some(qentry) = queue.get_mut(dist_time) {
+                            qentry.remove(pos);
+                        }
                     }
                     *dist_entry = Some(new_time);
                     queue.entry(new_time).or_default().insert(new_pos);
+                }
+            }
+        }
+    }
+
+    None
+}
+
+/// A* Search
+pub fn astar<T, S>(
+    start: &T,
+    neighbors: impl Fn(&T) -> Vec<(T, S)>,
+    heuristic: impl Fn(&T) -> S,
+    is_end: impl Fn(&T) -> bool,
+) -> Option<(T, S)>
+where
+    T: Clone + Hash + Eq,
+    S: Copy + From<u8> + Ord + Add<Output = S>,
+{
+    let zero: S = 0u8.into();
+    let mut queue = BTreeMap::from([((zero, zero), HashSet::from([start.clone()]))]);
+    let mut visited = HashSet::new();
+    let mut dist = HashMap::new();
+
+    dist.insert(start.clone(), Some(zero));
+
+    while let Some(((h, time), pos_list)) = queue.pop_first() {
+        for pos in pos_list.iter() {
+            if is_end(pos) {
+                return Some((pos.clone(), time));
+            }
+            if visited.insert(pos.clone()) {
+                for (new_pos, cost) in neighbors(pos) {
+                    let new_time = time + cost;
+                    let new_h = new_time + heuristic(&new_pos);
+                    let dist_entry = dist.entry(new_pos.clone()).or_insert(None);
+                    if let Some(dist_time) = dist_entry {
+                        if new_time >= *dist_time {
+                            continue;
+                        }
+
+                        if let Some(qentry) = queue.get_mut(&(h, *dist_time)) {
+                            qentry.remove(pos);
+                        }
+                    }
+                    *dist_entry = Some(new_time);
+                    queue.entry((new_h, new_time)).or_default().insert(new_pos);
                 }
             }
         }
