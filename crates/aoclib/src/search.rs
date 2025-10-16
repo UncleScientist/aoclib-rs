@@ -1,7 +1,35 @@
-use std::collections::{BTreeMap, HashMap, HashSet};
-use std::fmt::Debug;
+use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 use std::hash::Hash;
 use std::ops::Add;
+
+/// Bredth First Search
+pub fn bfs<T, S>(
+    start: &T,
+    neighbors: impl Fn(&T) -> Vec<T>,
+    is_end: impl Fn(&T) -> bool,
+) -> Option<S>
+where
+    T: Clone + Hash + Eq,
+    S: Copy + From<u8> + Ord + Add<Output = S>,
+{
+    let zero: S = 0u8.into();
+    let one: S = 1u8.into();
+    let mut queue = VecDeque::from([(zero, start.clone())]);
+    let mut visited = HashSet::new();
+
+    while let Some((dist, entry)) = queue.pop_front() {
+        if is_end(&entry) {
+            return Some(dist);
+        }
+        if visited.insert(entry.clone()) {
+            for neighbor in neighbors(&entry) {
+                queue.push_back((dist + one, neighbor));
+            }
+        }
+    }
+
+    None
+}
 
 /// Uniform Cost Search
 pub fn ucs<T, S>(
@@ -10,8 +38,8 @@ pub fn ucs<T, S>(
     is_end: impl Fn(&T) -> bool,
 ) -> Option<(T, S)>
 where
-    T: Debug + Clone + Hash + Eq,
-    S: Debug + Copy + From<u8> + Ord + Add<Output = S>,
+    T: Clone + Hash + Eq,
+    S: Copy + From<u8> + Ord + Add<Output = S>,
 {
     let zero: S = 0u8.into();
     let mut queue = BTreeMap::from([(zero, HashSet::from([start.clone()]))]);
