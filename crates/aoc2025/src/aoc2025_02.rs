@@ -31,7 +31,12 @@ impl Runner for Aoc2025_02 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let solution = self
+            .ranges
+            .iter()
+            .map(Range::sum_multi_invalid)
+            .sum::<usize>();
+        aoclib::output(solution)
     }
 }
 
@@ -53,6 +58,37 @@ impl Range {
             })
             .sum()
     }
+
+    fn sum_multi_invalid(&self) -> usize {
+        let mut invalid_sum = 0;
+
+        for num in self.start..=self.end {
+            let half_digits = num.ilog10().div_ceil(2);
+            for digit_count in 1..=half_digits {
+                let mod_val = 10usize.pow(digit_count);
+                let last_n_digits = num % mod_val;
+                let mut test_num = num / mod_val;
+                if last_n_digits == 0 || last_n_digits.ilog(10) + 1 != digit_count {
+                    continue;
+                }
+                let mut found = true;
+                while test_num > 0 {
+                    found = test_num % mod_val == last_n_digits;
+                    if !found {
+                        break;
+                    }
+                    test_num /= mod_val;
+                }
+
+                if found {
+                    invalid_sum += num;
+                    break;
+                }
+            }
+        }
+
+        invalid_sum
+    }
 }
 
 impl FromStr for Range {
@@ -64,5 +100,70 @@ impl FromStr for Range {
             start: left.parse().unwrap(),
             end: right.parse().unwrap(),
         })
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_multiple_invalids1() {
+        let range = Range {
+            start: 824824821,
+            end: 824824827,
+        };
+        assert_eq!(824824824, range.sum_multi_invalid());
+    }
+
+    #[test]
+    fn test_multiple_invalids2() {
+        let range = Range { start: 11, end: 22 };
+        assert_eq!(33, range.sum_multi_invalid());
+    }
+
+    #[test]
+    fn test_multiple_invalids3() {
+        let range = Range {
+            start: 222220,
+            end: 222224,
+        };
+        assert_eq!(222222, range.sum_multi_invalid());
+    }
+
+    #[test]
+    fn test_multiple_invalids4() {
+        let range = Range {
+            start: 565653,
+            end: 565659,
+        };
+        assert_eq!(565656, range.sum_multi_invalid());
+    }
+
+    #[test]
+    fn test_multiple_invalids5() {
+        let range = Range {
+            start: 95,
+            end: 115,
+        };
+        assert_eq!(99 + 111, range.sum_multi_invalid());
+    }
+
+    #[test]
+    fn test_multiple_invalids6() {
+        let range = Range {
+            start: 998,
+            end: 1012,
+        };
+        assert_eq!(999 + 1010, range.sum_multi_invalid());
+    }
+
+    #[test]
+    fn test_multiple_invalids7() {
+        let range = Range {
+            start: 70701,
+            end: 70710,
+        };
+        assert_eq!(0, range.sum_multi_invalid());
     }
 }
