@@ -33,7 +33,12 @@ impl Runner for Aoc2025_03 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        aoclib::output(
+            self.power_banks
+                .iter()
+                .map(|bank| bank.best_dozen())
+                .sum::<usize>(),
+        )
     }
 }
 
@@ -54,6 +59,25 @@ impl PowerBank {
         };
         let &second_digit = self.bank[pos + 1..].iter().max().unwrap();
         first_digit as usize * 10 + second_digit as usize
+    }
+
+    fn best_dozen(&self) -> usize {
+        let mut start = 0;
+        let mut answer = 0;
+        for digit in 0..12 {
+            let limit = 11 - digit;
+            let Some((pos, &next_digit)) = self.bank[start..self.bank.len() - limit]
+                .iter()
+                .enumerate()
+                .rev()
+                .max_by(|a, b| a.1.cmp(b.1))
+            else {
+                panic!("no digits found");
+            };
+            start += pos + 1;
+            answer = (answer * 10) + next_digit as usize;
+        }
+        answer
     }
 }
 
@@ -82,6 +106,20 @@ mod test {
         for test in test_data {
             let bank: PowerBank = test.0.parse().unwrap();
             assert_eq!(test.1, bank.best_pair());
+        }
+    }
+
+    #[test]
+    fn test_part_2() {
+        let test_data = [
+            ("987654321111111", 987654321111),
+            ("811111111111119", 811111111119),
+            ("234234234234278", 434234234278),
+            ("818181911112111", 888911112111),
+        ];
+        for test in test_data {
+            let bank: PowerBank = test.0.parse().unwrap();
+            assert_eq!(test.1, bank.best_dozen());
         }
     }
 }
