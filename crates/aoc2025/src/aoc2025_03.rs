@@ -27,7 +27,7 @@ impl Runner for Aoc2025_03 {
         aoclib::output(
             self.power_banks
                 .iter()
-                .map(|bank| bank.best_pair())
+                .map(|bank| bank.best_number_by_digits(2))
                 .sum::<usize>(),
         )
     }
@@ -36,7 +36,7 @@ impl Runner for Aoc2025_03 {
         aoclib::output(
             self.power_banks
                 .iter()
-                .map(|bank| bank.best_dozen())
+                .map(|bank| bank.best_number_by_digits(12))
                 .sum::<usize>(),
         )
     }
@@ -48,24 +48,11 @@ struct PowerBank {
 }
 
 impl PowerBank {
-    fn best_pair(&self) -> usize {
-        let Some((pos, &first_digit)) = self.bank[0..self.bank.len() - 1]
-            .iter()
-            .enumerate()
-            .rev()
-            .max_by(|a, b| a.1.cmp(b.1))
-        else {
-            panic!("no digits found");
-        };
-        let &second_digit = self.bank[pos + 1..].iter().max().unwrap();
-        first_digit as usize * 10 + second_digit as usize
-    }
-
-    fn best_dozen(&self) -> usize {
+    fn best_number_by_digits(&self, digits: usize) -> usize {
         let mut start = 0;
         let mut answer = 0;
-        for digit in 0..12 {
-            let limit = 11 - digit;
+        for digit in 0..digits {
+            let limit = digits - digit - 1;
             let Some((pos, &next_digit)) = self.bank[start..self.bank.len() - limit]
                 .iter()
                 .enumerate()
@@ -105,7 +92,7 @@ mod test {
         ];
         for test in test_data {
             let bank: PowerBank = test.0.parse().unwrap();
-            assert_eq!(test.1, bank.best_pair());
+            assert_eq!(test.1, bank.best_number_by_digits(2));
         }
     }
 
@@ -119,7 +106,7 @@ mod test {
         ];
         for test in test_data {
             let bank: PowerBank = test.0.parse().unwrap();
-            assert_eq!(test.1, bank.best_dozen());
+            assert_eq!(test.1, bank.best_number_by_digits(12));
         }
     }
 }
