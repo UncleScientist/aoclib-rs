@@ -1,3 +1,5 @@
+use std::{convert::Infallible, str::FromStr};
+
 use aoclib::Runner;
 
 #[derive(Default)]
@@ -20,6 +22,7 @@ impl Runner for Aoc2025_06 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2025-06.txt");
+        // let lines = aoclib::read_lines("test1.txt");
         self.rows = lines.len();
         self.cols = lines[0].len();
         for line in lines.iter() {
@@ -66,12 +69,32 @@ impl Runner for Aoc2025_06 {
                 }
             }
         }
-        assert_eq!(total, 6343365546996);
+
         aoclib::output(total)
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut rotated = vec![String::new(); self.grid[0].len()];
+        for row in &self.grid {
+            for (col, ch) in row.iter().enumerate() {
+                rotated[col].push(*ch);
+            }
+        }
+
+        let (total, acc, _) = rotated
+            .iter()
+            .map(|line| line.parse::<Line>().unwrap())
+            .fold((0, 0, Op::Add), |(total, acc, op), line| match line {
+                Line::Product(p) => (total, p, Op::Multiply),
+                Line::Sum(s) => (total, s, Op::Add),
+                Line::Number(n) => match op {
+                    Op::Add => (total, acc + n, op),
+                    Op::Multiply => (total, acc * n, op),
+                },
+                Line::Blank => (total + acc, 0, op),
+            });
+
+        aoclib::output(total + acc)
     }
 }
 
@@ -79,4 +102,28 @@ impl Runner for Aoc2025_06 {
 enum Op {
     Multiply,
     Add,
+}
+
+#[derive(Debug)]
+enum Line {
+    Product(usize),
+    Sum(usize),
+    Number(usize),
+    Blank,
+}
+
+impl FromStr for Line {
+    type Err = Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.contains('*') {
+            Ok(Self::Product(s[0..s.len() - 1].trim().parse().unwrap()))
+        } else if s.contains('+') {
+            Ok(Self::Sum(s[0..s.len() - 1].trim().parse().unwrap()))
+        } else if s.trim().is_empty() {
+            Ok(Self::Blank)
+        } else {
+            Ok(Self::Number(s.trim().parse().unwrap()))
+        }
+    }
 }
