@@ -84,17 +84,19 @@ impl Runner for Aoc2025_06 {
         let (total, acc, _) = rotated
             .iter()
             .map(|line| line.parse::<Line>().unwrap())
-            .fold((0, 0, Op::Add), |(total, acc, op), line| match line {
-                Line::Product(p) => (total, p, Op::Multiply),
-                Line::Sum(s) => (total, s, Op::Add),
-                Line::Number(n) => match op {
-                    Op::Add => (total, acc + n, op),
-                    Op::Multiply => (total, acc * n, op),
-                },
-                Line::Blank => (total + acc, 0, op),
+            .chain([Line::Blank])
+            .fold((0, 0, Op::Add), |(total, acc, op), line| {
+                match (line, &op) {
+                    (Line::Product(p), _) => (total, p, Op::Multiply),
+                    (Line::Sum(s), _) => (total, s, Op::Add),
+                    (Line::Number(n), Op::Add) => (total, acc + n, op),
+                    (Line::Number(n), Op::Multiply) => (total, acc * n, op),
+                    (Line::Blank, _) => (total + acc, 0, op),
+                }
             });
 
-        aoclib::output(total + acc)
+        assert_eq!(acc, 0);
+        aoclib::output(total)
     }
 }
 
