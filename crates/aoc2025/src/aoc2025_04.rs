@@ -57,6 +57,17 @@ impl Runner for Aoc2025_04 {
 }
 
 impl Aoc2025_04 {
+    const DIRS: [(isize, isize); 8] = [
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (0, -1),
+        (0, 1),
+        (1, -1),
+        (1, 0),
+        (1, 1),
+    ];
+
     fn find_accessible(&self) -> Vec<(isize, isize)> {
         let mut result = Vec::new();
         for row in 0..self.rows {
@@ -64,20 +75,13 @@ impl Aoc2025_04 {
                 if !self.rolls.contains(&(row, col)) {
                     continue;
                 }
-                let mut count: usize = 0;
-                for delta in [
-                    (-1, -1),
-                    (-1, 0),
-                    (-1, 1),
-                    (0, -1),
-                    (0, 1),
-                    (1, -1),
-                    (1, 0),
-                    (1, 1),
-                ] {
-                    count += self.rolls.contains(&(row + delta.0, col + delta.1)) as usize;
-                }
-                if count < 4 {
+                if Self::DIRS
+                    .iter()
+                    .map(|point| (row + point.0, col + point.1))
+                    .filter(|point| self.rolls.contains(point))
+                    .count()
+                    < 4
+                {
                     result.push((row, col));
                 }
             }
