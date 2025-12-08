@@ -19,6 +19,7 @@ impl Runner for Aoc2025_05 {
 
     fn parse(&mut self) {
         let lines = aoclib::read_lines("input/2025-05.txt");
+
         for line in lines {
             if line.contains('-') {
                 let (left, right) = line.split_once('-').unwrap();
@@ -42,11 +43,25 @@ impl Runner for Aoc2025_05 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        self.ranges.sort();
+        let mut rangelist = self.ranges.iter();
+        let mut cur_range = *rangelist.next().unwrap();
+
+        let mut total = 0;
+        for range in rangelist {
+            if range.start <= cur_range.end {
+                cur_range.extend_by(range);
+            } else {
+                total += cur_range.dist();
+                cur_range = *range;
+            }
+        }
+        total += cur_range.dist();
+        aoclib::output(total)
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Copy, Clone)]
 struct Range {
     start: usize,
     end: usize,
@@ -55,5 +70,14 @@ struct Range {
 impl Range {
     fn contains(&self, ingredient: usize) -> bool {
         self.start <= ingredient && self.end >= ingredient
+    }
+
+    fn dist(&self) -> usize {
+        self.end - self.start + 1
+    }
+
+    fn extend_by(&mut self, other: &Self) {
+        self.start = self.start.min(other.start);
+        self.end = self.end.max(other.end);
     }
 }
