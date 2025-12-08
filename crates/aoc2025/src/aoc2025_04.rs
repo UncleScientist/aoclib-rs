@@ -36,7 +36,29 @@ impl Runner for Aoc2025_04 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut accessible = 0;
+        aoclib::output(self.find_accessible().len())
+    }
+
+    fn part2(&mut self) -> Vec<String> {
+        let mut total_removed = 0;
+        loop {
+            let acc = self.find_accessible();
+            if acc.is_empty() {
+                break;
+            }
+
+            total_removed += acc.len();
+            for roll in &acc {
+                self.rolls.remove(roll);
+            }
+        }
+        aoclib::output(total_removed)
+    }
+}
+
+impl Aoc2025_04 {
+    fn find_accessible(&self) -> Vec<(isize, isize)> {
+        let mut result = Vec::new();
         for row in 0..self.rows {
             for col in 0..self.cols {
                 if !self.rolls.contains(&(row, col)) {
@@ -56,14 +78,11 @@ impl Runner for Aoc2025_04 {
                     count += self.rolls.contains(&(row + delta.0, col + delta.1)) as usize;
                 }
                 if count < 4 {
-                    accessible += 1;
+                    result.push((row, col));
                 }
             }
         }
-        aoclib::output(accessible)
-    }
 
-    fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        result
     }
 }
