@@ -69,24 +69,17 @@ impl Aoc2025_04 {
     ];
 
     fn find_accessible(&self) -> Vec<(isize, isize)> {
-        let mut result = Vec::new();
-        for row in 0..self.rows {
-            for col in 0..self.cols {
-                if !self.rolls.contains(&(row, col)) {
-                    continue;
-                }
-                if Self::DIRS
+        self.rolls
+            .iter()
+            .filter(|roll| {
+                Self::DIRS
                     .iter()
-                    .map(|point| (row + point.0, col + point.1))
+                    .map(|point| (roll.0 + point.0, roll.1 + point.1))
                     .filter(|point| self.rolls.contains(point))
                     .count()
                     < 4
-                {
-                    result.push((row, col));
-                }
-            }
-        }
-
-        result
+            })
+            .copied()
+            .collect()
     }
 }
