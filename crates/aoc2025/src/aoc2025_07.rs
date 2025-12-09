@@ -1,9 +1,10 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use aoclib::Runner;
 
 #[derive(Default)]
 pub struct Aoc2025_07 {
+    cache: HashMap<(usize, usize), usize>,
     manifold: HashSet<(usize, usize)>,
     rows: usize,
     start: (usize, usize),
@@ -61,6 +62,27 @@ impl Runner for Aoc2025_07 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        aoclib::output(self.find_from(self.start))
+    }
+}
+
+impl Aoc2025_07 {
+    fn find_from(&mut self, point: (usize, usize)) -> usize {
+        if point.0 >= self.rows {
+            return 1;
+        }
+
+        if let Some(count) = self.cache.get(&point) {
+            return *count;
+        }
+
+        let count = if self.manifold.contains(&point) {
+            self.find_from((point.0 + 2, point.1 - 1)) + self.find_from((point.0 + 2, point.1 + 1))
+        } else {
+            self.find_from((point.0 + 2, point.1))
+        };
+
+        self.cache.insert(point, count);
+        count
     }
 }
