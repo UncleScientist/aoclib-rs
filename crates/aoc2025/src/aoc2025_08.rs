@@ -33,18 +33,39 @@ impl Runner for Aoc2025_08 {
         }
         distances.sort_by(|a, b| a.partial_cmp(b).unwrap());
 
-        let mut ds = DisjointSet::init(self.boxes.len());
+        let mut ds = aoclib::DisjointSet::init_by_size(self.boxes.len());
         for &(_dist, i, j) in distances.iter().take(1000) {
             ds.union(i, j);
         }
-        let mut sizes = ds.get_sizes();
+        let mut sizes = ds.get_sizes().unwrap();
         sizes.sort_by(|a, b| b.cmp(a));
 
         aoclib::output(sizes.iter().take(3).product::<usize>())
     }
 
     fn part2(&mut self) -> Vec<String> {
-        aoclib::output("unsolved")
+        let mut distances = Vec::new();
+        for i in 0..self.boxes.len() - 1 {
+            for j in i + 1..self.boxes.len() {
+                distances.push((self.boxes[i].dist_to(&self.boxes[j]), i, j));
+            }
+        }
+        distances.sort_by(|a, b| a.partial_cmp(b).unwrap());
+
+        let mut ds = aoclib::DisjointSet::init_by_size(self.boxes.len());
+        let mut counter = 0;
+        let mut ans = None;
+        for &(_dist, i, j) in distances.iter() {
+            if ds.union(i, j) {
+                counter += 1;
+                if counter == self.boxes.len() - 1 {
+                    ans = Some(self.boxes[i].0 * self.boxes[j].0);
+                    break;
+                }
+            }
+        }
+
+        aoclib::output(ans.unwrap())
     }
 }
 
@@ -73,58 +94,4 @@ impl FromStr for Point {
     }
 }
 
-#[derive(Debug)]
-struct Node {
-    parent: usize,
-    size: usize,
-    _rank: usize,
-}
-
-#[derive(Debug)]
-struct DisjointSet {
-    nodes: Vec<Node>,
-}
-
-impl DisjointSet {
-    fn init(count: usize) -> Self {
-        Self {
-            nodes: (0..count)
-                .map(|id| Node {
-                    parent: id,
-                    size: 1,
-                    _rank: 0,
-                })
-                .collect(),
-        }
-    }
-
-    fn find(&mut self, id: usize) -> usize {
-        if self.nodes[id].parent != id {
-            self.nodes[id].parent = self.find(self.nodes[id].parent);
-            return self.nodes[id].parent;
-        }
-        id
-    }
-
-    fn union(&mut self, x: usize, y: usize) {
-        let x = self.find(x);
-        let y = self.find(y);
-
-        if x == y {
-            return;
-        }
-
-        let (x, y) = if self.nodes[x].size < self.nodes[y].size {
-            (y, x)
-        } else {
-            (x, y)
-        };
-
-        self.nodes[y].parent = x;
-        self.nodes[x].size += self.nodes[y].size;
-    }
-
-    fn get_sizes(&self) -> Vec<usize> {
-        self.nodes.iter().map(|node| node.size).collect()
-    }
-}
+mod disjoint_set {}
