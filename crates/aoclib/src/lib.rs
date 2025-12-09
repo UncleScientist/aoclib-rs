@@ -7,6 +7,9 @@ use std::time::{Duration, Instant};
 mod coins;
 pub use coins::*;
 
+mod disjoint_set;
+pub use disjoint_set::*;
+
 mod locating;
 pub use locating::*;
 
