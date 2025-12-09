@@ -8,8 +8,8 @@ mod aoc2025_05;
 mod aoc2025_06;
 mod aoc2025_07;
 mod aoc2025_08;
-/*
 mod aoc2025_09;
+/*
 mod aoc2025_10;
 mod aoc2025_11;
 mod aoc2025_12;
@@ -23,8 +23,8 @@ use aoc2025_05::*;
 use aoc2025_06::*;
 use aoc2025_07::*;
 use aoc2025_08::*;
-/*
 use aoc2025_09::*;
+/*
 use aoc2025_10::*;
 use aoc2025_11::*;
 use aoc2025_12::*;
@@ -50,8 +50,8 @@ fn run_2025(which: Selector) {
     let mut day06 = Aoc2025_06::new();
     let mut day07 = Aoc2025_07::new();
     let mut day08 = Aoc2025_08::new();
-    /*
     let mut day09 = Aoc2025_09::new();
+    /*
     let mut day10 = Aoc2025_10::new();
     let mut day11 = Aoc2025_11::new();
     let mut day12 = Aoc2025_12::new();
@@ -59,8 +59,8 @@ fn run_2025(which: Selector) {
 
     let mut days: Vec<&mut dyn Runner> = vec![
         &mut day01, &mut day02, &mut day03, &mut day04, &mut day05, &mut day06, &mut day07,
-        &mut day08,
-        /* &mut day09, &mut day10, &mut day11, &mut day12, */
+        &mut day08, &mut day09,
+        /* &mut day10, &mut day11, &mut day12, */
     ];
 
     match which {
