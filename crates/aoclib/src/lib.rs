@@ -10,6 +10,9 @@ pub use coins::*;
 mod disjoint_set;
 pub use disjoint_set::*;
 
+mod cachefind;
+pub use cachefind::*;
+
 mod locating;
 pub use locating::*;
 
