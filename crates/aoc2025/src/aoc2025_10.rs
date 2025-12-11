@@ -160,7 +160,7 @@ impl Machine {
 
         while tried.len() < self.joltage.len() {
             let mut queue: VecDeque<(usize, Vec<usize>)> = VecDeque::from(starting_stage);
-            let mut next_stage = Vec::new();
+            let mut next_stage = HashSet::new();
 
             let (idx, &smallest) = self
                 .joltage
@@ -185,7 +185,7 @@ impl Machine {
 
             while let Some((count, jolts)) = queue.pop_front() {
                 if jolts[idx] == smallest {
-                    next_stage.push((count, jolts.clone()));
+                    next_stage.insert((count, jolts.clone()));
                 } else if visited.insert(jolts.clone()) {
                     let _pushes = self.joltage[idx] - jolts[idx];
                     for button in &usable_buttons {
@@ -197,13 +197,79 @@ impl Machine {
             }
 
             println!("  > found {} possibilities", next_stage.len());
-            assert!(next_stage.len() > 0);
+            // assert!(next_stage.len() > 0);
             // for s in &next_stage {
             // println!("    * {s:?}");
             // }
-            starting_stage = next_stage
+            starting_stage = next_stage.iter().cloned().collect::<Vec<_>>();
         }
 
         *starting_stage.iter().map(|(c, _)| c).min().unwrap()
     }
 }
+
+//         a         b     c     d       e
+// [...#.] (0,2,3,4) (2,3) (0,4) (0,1,2) (1,2,3,4) {7,5,12,7,2}
+//
+//    a b c d e
+// 0  1 0 1 1 0 | 7
+// 1  0 0 0 1 1 | 5
+// 2  1 1 0 1 1 | 12
+// 3  1 1 0 0 1 | 7
+// 4  1 0 1 0 1 | 2
+//             subtract row 1 from row 2
+//    a b c d e
+// 0  1 0 1 1 0 | 7
+// 2  1 1 0 0 0 | 7
+// 3  1 1 0 0 1 | 7
+// 4  1 0 1 0 1 | 2
+//              subtract 2 from 3
+//    a b c d e
+// 0  1 0 1 1 0 | 7
+// 3  0 0 0 0 1 | 0
+// 4  1 0 1 0 1 | 2
+//              3 is 0, so remove it, and clear those buttons
+//    a b c d e
+// 0  1 0 1 1 0 | 7
+// 4  1 0 1 0 0 | 2
+//          subtract 4 from 0
+//    a b c d e
+// 0  0 0 0 1 0 | 5
+//      use existing solver to find solution(s) for this state
+//          [Solution { presses: 5, buttons: [0, 0, 0, 5, 0] }]
+//
+// Apply to original matrix
+//
+//    a b c d e
+// 0  1 0 1 0 0 | 2
+// 1  0 0 0 0 1 | 0
+// 2  1 1 0 0 1 | 7
+// 3  1 1 0 0 1 | 7
+// 4  1 0 1 0 1 | 2
+//            row 1 is 0, so remove it and clear those buttons
+//    a b c d e
+// 0  1 0 1 0 0 | 2
+// 2  1 1 0 0 0 | 7
+// 3  1 1 0 0 0 | 7
+// 4  1 0 1 0 0 | 2
+//            remove duplicates
+//    a b c d e
+// 0  1 0 1 0 0 | 2
+// 2  1 1 0 0 0 | 7
+//       use existing solver...
+//       [
+//         Solution { presses: 7, buttons: [2, 5, 0, 0, 0] }, <- best(?)
+//         Solution { presses: 8, buttons: [1, 6, 1, 0, 0] },
+//         Solution { presses: 9, buttons: [0, 7, 2, 0, 0] },
+//         ...
+//       ]
+//       take smallest(s) and apply to original matrix
+//
+//    a b c d e
+// 0  0 0 1 0 0 | 0
+// 1  0 0 0 0 1 | 0
+// 2  0 0 0 0 1 | 0
+// 3  0 0 0 0 1 | 0
+// 4  0 0 1 0 1 | 0
+//
+// 5 (from original solution) + 7 (from this most recent solution) = 12: answer
