@@ -198,9 +198,9 @@ impl Machine {
 
             println!("  > found {} possibilities", next_stage.len());
             assert!(next_stage.len() > 0);
-            for s in &next_stage {
-                println!("    * {s:?}");
-            }
+            // for s in &next_stage {
+            // println!("    * {s:?}");
+            // }
             starting_stage = next_stage
         }
 
