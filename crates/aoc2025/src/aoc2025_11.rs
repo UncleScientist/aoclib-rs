@@ -28,7 +28,7 @@ impl Runner for Aoc2025_11 {
     }
 
     fn part1(&mut self) -> Vec<String> {
-        let mut cache = cache::CacheFinder::new();
+        let mut cache = aoclib::CacheFinder::new();
         aoclib::output(cache.find(
             &"you".to_string(),
             &|state| self.reactor.get(state).cloned(),
@@ -43,7 +43,7 @@ impl Runner for Aoc2025_11 {
     }
 
     fn part2(&mut self) -> Vec<String> {
-        let mut cache = cache::CacheFinder::new();
+        let mut cache = aoclib::CacheFinder::new();
         aoclib::output(cache.find(
             &SearchState::new("svr"),
             &|state| self.part2_neighbors(state),
@@ -98,48 +98,6 @@ impl SearchState {
             nodename: start.to_string(),
             dac: false,
             fft: false,
-        }
-    }
-}
-
-mod cache {
-    use std::{collections::HashMap, hash::Hash};
-
-    pub struct CacheFinder<T> {
-        cache: HashMap<T, usize>,
-    }
-
-    impl<T: Hash + PartialEq + Eq + Clone> CacheFinder<T> {
-        pub fn new() -> Self {
-            Self {
-                cache: HashMap::new(),
-            }
-        }
-
-        pub fn find(
-            &mut self,
-            start: &T,
-            neighbors: &impl Fn(&T) -> Option<Vec<T>>,
-            end_check: &impl Fn(&T) -> Option<usize>,
-        ) -> usize {
-            if let Some(result) = end_check(start) {
-                return result;
-            }
-
-            if let Some(result) = self.cache.get(start) {
-                return *result;
-            }
-
-            let count = if let Some(nodelist) = neighbors(start) {
-                nodelist
-                    .iter()
-                    .map(|node| self.find(node, neighbors, end_check))
-                    .sum()
-            } else {
-                0
-            };
-            self.cache.insert(start.clone(), count);
-            count
         }
     }
 }
