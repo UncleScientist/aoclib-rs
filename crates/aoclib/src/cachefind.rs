@@ -4,11 +4,17 @@ pub struct CacheFinder<T> {
     cache: HashMap<T, usize>,
 }
 
-impl<T: Hash + PartialEq + Eq + Clone> CacheFinder<T> {
-    pub fn new() -> Self {
+impl<T> Default for CacheFinder<T> {
+    fn default() -> Self {
         Self {
             cache: HashMap::new(),
         }
+    }
+}
+
+impl<T: Hash + PartialEq + Eq + Clone> CacheFinder<T> {
+    pub fn new() -> Self {
+        Self::default()
     }
 
     pub fn find(
