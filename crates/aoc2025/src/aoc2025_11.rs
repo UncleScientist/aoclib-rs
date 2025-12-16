@@ -60,24 +60,20 @@ impl Runner for Aoc2025_11 {
 
 impl Aoc2025_11 {
     fn part2_neighbors(&self, state: &SearchState) -> Option<Vec<SearchState>> {
-        if let Some(neighbors) = self.reactor.get(&state.nodename) {
-            Some(
-                neighbors
-                    .iter()
-                    .map(|node| {
-                        let dac = state.dac || node == "dac";
-                        let fft = state.fft || node == "fft";
-                        SearchState {
-                            nodename: node.clone(),
-                            dac,
-                            fft,
-                        }
-                    })
-                    .collect(),
-            )
-        } else {
-            None
-        }
+        self.reactor.get(&state.nodename).map(|neighbors| {
+            neighbors
+                .iter()
+                .map(|node| {
+                    let dac = state.dac || node == "dac";
+                    let fft = state.fft || node == "fft";
+                    SearchState {
+                        nodename: node.clone(),
+                        dac,
+                        fft,
+                    }
+                })
+                .collect()
+        })
     }
 
     fn part2_done(&self, state: &SearchState) -> bool {
